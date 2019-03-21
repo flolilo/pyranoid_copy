@@ -7,10 +7,12 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from versioning import py_media_copy_version
 
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
+        global py_media_copy_version
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(640, 368)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -56,8 +58,9 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
+        global py_media_copy_version
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", py_media_copy_version))
         self.pushButton.setText(_translate("MainWindow", "GO!"))
         self.checkBox.setText(_translate("MainWindow", "Test-Checkbox"))
         self.radioButton.setText(_translate("MainWindow", "Radiobutton &1"))

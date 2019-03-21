@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets
 from guitest import Ui_MainWindow
-import versioning
+from versioning import py_media_copy_version
 import sys
 
-print(versioning.py_media_copy_version)
+print(py_media_copy_version)
 testvar = "meine testvariable /home/bla"
 
 
