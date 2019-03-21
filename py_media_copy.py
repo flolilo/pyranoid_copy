@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from PyQt5 import QtWidgets
-from guitest import Ui_MainWindow
-from versioning import py_media_copy_version
+from pmc_ui import Ui_MainWindow
+from pmc_ver import pmc_version
 import sys
 
-print(py_media_copy_version)
+print(pmc_version)
 testvar = "meine testvariable /home/bla"
 
 
@@ -18,26 +18,28 @@ class getvariable:
 
 class mywindow(QtWidgets.QMainWindow):
     def __init__(self):
-        global versioning
+        global pmc_version
         super(mywindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.ui.textedit_outputconsole.append(pmc_version)
         # self.ui.lineEdit.setText("Template test")
         # self.ui.lineEdit.setMaxLength(25)
-        self.ui.textEdit.setText("Template test\nhallo")
-        self.ui.pushButton.clicked.connect(self.btnClicked)
+        self.ui.textedit_source.setText("Template test\nhallo")
+        self.ui.pushbutton_start.clicked.connect(self.startBtnClicked)
+        self.ui.pushbutton_exit.clicked.connect(self.close)
 
-    def btnClicked(self):
+    def startBtnClicked(self):
         global testvar
-        self.ui.textEdit.append("button")
-        testvar = self.ui.lineEdit.text()
+        self.ui.textedit_outputconsole.append("button")
+        testvar = self.ui.textedit_source.toPlainText()
         getvariable()
 
 
 app = QtWidgets.QApplication([])
 application = mywindow()
 
-application.ui.lineEdit.setText(testvar)
+application.ui.textedit_target.setText(testvar)
 application.show()
 
 sys.exit(app.exec())
