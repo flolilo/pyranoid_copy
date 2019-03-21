@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>368</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>230</y>
+      <width>88</width>
+      <height>34</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>GO!</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>190</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Test-Checkbox</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButton">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>150</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Radiobutton &amp;1</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButton_2">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>190</y>
+      <width>111</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Radiobutton &amp;2</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>100</y>
+      <width>271</width>
+      <height>32</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>140</y>
+      <width>83</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Combo A</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Combo B</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QProgressBar" name="progressBar">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>40</y>
+      <width>118</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>24</number>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="textEdit">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>10</y>
+      <width>251</width>
+      <height>301</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>640</width>
+     <height>30</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
