@@ -108,3 +108,4 @@ venv.bak/
 .vscode/
 pyvenv.cfg
 lib64
+.directory
