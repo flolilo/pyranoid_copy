@@ -22,10 +22,10 @@ v0.0.4
     
 v0.0.5
     [ ] Implement GUI for setting things up (output via console)
+    [ ] Create fallback to script-only for people without GUI-dependencies
     
 v0.0.6
     [ ] Implement output via GUI?
-    [ ] Create fallback to script-only for people without GUI-dependencies
 
 v0.0.7
     [ ] ? Prevent computer from going to sleep ? (needs investigation whether feasible or not)
