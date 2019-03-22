@@ -30,11 +30,12 @@ v0.0.6:
 v0.0.7:
     [ ] ? Prevent computer from going to sleep ? (needs investigation whether feasible or not)
 
+v0.0.8:
+    [ ] Saving/storing presets
+
 v0.99.1:
     [ ] All of the above are tested and work
 
 ## TODO
 
 Todo:
-    [ ] load/Save presets per menu - mini-window to select what will be saved
-    [ ]

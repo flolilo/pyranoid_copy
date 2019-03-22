@@ -57,7 +57,7 @@
        <string/>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_paths">
        <attribute name="title">
@@ -797,24 +797,26 @@ p, li { white-space: pre-wrap; }
         </property>
        </spacer>
       </item>
-      <item>
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QPushButton" name="pushbutton_start">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Minimum</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
+        <property name="minimumSize">
          <size>
-          <width>40</width>
+          <width>60</width>
           <height>20</height>
          </size>
         </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushbutton_start">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>36</height>
+         </size>
+        </property>
         <property name="text">
          <string>Start</string>
         </property>
@@ -825,9 +827,12 @@ p, li { white-space: pre-wrap; }
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Preferred</enum>
+        </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
+          <width>156</width>
           <height>20</height>
          </size>
         </property>
@@ -835,6 +840,24 @@ p, li { white-space: pre-wrap; }
       </item>
       <item>
        <widget class="QPushButton" name="pushbutton_exit">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>36</height>
+         </size>
+        </property>
         <property name="text">
          <string>Exit</string>
         </property>
