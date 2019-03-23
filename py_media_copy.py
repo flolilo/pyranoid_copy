@@ -68,7 +68,7 @@ if sys.hexversion < 0x030500F0:
 print(pmc_version, file=f)
 testvar = "meine testvariable /home/bla"
 
-"""
+""" GUI:
     class getvariable:
         def __init__(self):
             md5 = hashlib.md5()
@@ -120,29 +120,29 @@ for root, dirs, files in os.walk(os.path.normpath("/home/flo/Downloads")):
             inter_basename = inter_regex.group(1)
             inter_extension = inter_regex.group(2)
             inter_stats = os.stat(inter_path)
+            inter_checksum = ""
             source_files += [{'name_full': inter_path, 'name_base': inter_basename, 'name_extension': inter_extension,
-                              'size': inter_stats.st_size, 'time': inter_stats.st_mtime}]
+                              'size': inter_stats.st_size, 'time': inter_stats.st_mtime, 'checksum': inter_checksum}]
 
-# ???
+
+md5 = hashlib.md5()
+blocksize = 128*256
+for i in source_files:
+    with open(i["name_full"], "rb") as file:
+        while True:
+            buf = file.read(blocksize)
+            if not buf:
+                break
+            md5.update(buf)
+
+        i["checksum"] = md5.hexdigest()
+
 for i in source_files:
     print("\n" + i["name_full"], end="\t|  ", file=f)
     print(i["name_base"], end="\t|  ", file=f)
     print(i["name_extension"], end="\t|  ", file=f)
     print(str(i["size"]), end="\t|  ", file=f)
-    print(str(i["time"]), end="", file=f)
+    print(str(i["time"]), end="\t|  ", file=f)
+    print(i["checksum"], end="", file=f)
 
 print("", file=f)
-"""
-md5 = hashlib.md5()
-blocksize = 128*256
-with open(os.path.normpath('./README.md'), "rb") as file:
-    while True:
-        buf = file.read(blocksize)
-        if not buf:
-            break
-        md5.update(buf)
-
-    check = md5.hexdigest()
-
-print(check, file=f)
-"""
