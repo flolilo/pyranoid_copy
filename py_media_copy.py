@@ -5,6 +5,7 @@ from pmc_ui import Ui_MainWindow
 from pmc_ver import pmc_version
 import hashlib
 import re
+import shutil
 #  import pmc_preset
 
 import os
@@ -146,3 +147,9 @@ for i in source_files:
     print(i["checksum"], end="", file=f)
 
 print("", file=f)
+
+if not os.path.exists("/tmp/pmc"):
+    os.makedirs("/tmp/pmc")
+
+for i in source_files:
+    shutil.copy2(i["name_full"], "/tmp/pmc")

@@ -3,8 +3,8 @@
 
 v0.0.1:
     [x] Proof of concept GUI (rudimentary controls, interaction with script) @done(19-03-21 15:13)
-    [ ] Copy a single file from `S` to `T`, check checksums
-    [ ] Copy same file from `T` to `B`, check cheksums
+    [x] Copy a single file from `S` to `T`, check checksums @done(19-03-23 21:06)
+    [-] Copy same file from `T` to `B`, check cheksums @cancelled(19-03-23 21:07)
     [ ] Dupli-check a single file against history
     [ ] Dupli-check a single file against `T` (& `B`) files
 
