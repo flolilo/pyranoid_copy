@@ -4,6 +4,7 @@ from PyQt5 import QtWidgets
 from pmc_ui import Ui_MainWindow
 from pmc_ver import pmc_version
 import hashlib
+import re
 #  import pmc_preset
 
 import os
@@ -114,15 +115,23 @@ source_files = []
 for root, dirs, files in os.walk(os.path.normpath("/home/flo/Downloads")):
     for file in files:
         if file.endswith(".txt"):
-            inter = os.path.join(root, file)
-            source_files += [{'name': inter, 'size': os.stat(inter).st_size, 'time': os.stat(inter).st_mtime}]
-            print(inter, file=f)
+            inter_path = os.path.join(root, file)
+            inter_regex = re.search(r"(\w*)(\.\w*)$", inter_path)
+            inter_basename = inter_regex.group(1)
+            inter_extension = inter_regex.group(2)
+            inter_stats = os.stat(inter_path)
+            source_files += [{'name_full': inter_path, 'name_base': inter_basename, 'name_extension': inter_extension,
+                              'size': inter_stats.st_size, 'time': inter_stats.st_mtime}]
 
 # ???
-print("\n" + source_files[1]["name"], file=f)
-print(str(source_files[1]["size"]), file=f)
-print(str(source_files[1]["time"]), file=f)
+for i in source_files:
+    print("\n" + i["name_full"], end="\t|  ", file=f)
+    print(i["name_base"], end="\t|  ", file=f)
+    print(i["name_extension"], end="\t|  ", file=f)
+    print(str(i["size"]), end="\t|  ", file=f)
+    print(str(i["time"]), end="", file=f)
 
+print("", file=f)
 """
 md5 = hashlib.md5()
 blocksize = 128*256
