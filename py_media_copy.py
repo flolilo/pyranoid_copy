@@ -114,12 +114,14 @@ source_files = []
 for root, dirs, files in os.walk(os.path.normpath("/home/flo/Downloads")):
     for file in files:
         if file.endswith(".txt"):
-            source_files += {'name': os.path.join(root, file), 'size': 1}
-            print(os.path.join(root, file), file=f)
+            inter = os.path.join(root, file)
+            source_files += [{'name': inter, 'size': os.stat(inter).st_size, 'time': os.stat(inter).st_mtime}]
+            print(inter, file=f)
 
 # ???
-for i in source_files:
-    print(i, file=f)
+print("\n" + source_files[1]["name"], file=f)
+print(str(source_files[1]["size"]), file=f)
+print(str(source_files[1]["time"]), file=f)
 
 """
 md5 = hashlib.md5()
