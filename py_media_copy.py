@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from PyQt5 import QtWidgets
-from pmc_ui import Ui_MainWindow
+#  from PyQt5 import QtWidgets
+#  from pmc_ui import Ui_MainWindow
 from pmc_ver import pmc_version
 #  import pmc_preset
 
@@ -11,10 +11,11 @@ import hashlib  # hash algorithms
 import re  # regex
 import shutil  # High-level file copy
 import json  # saving/loading JSON files
+from collections import defaultdict
 #  from time import localtime, sleep  # For timeouts and time output
 import argparse  # Set variables via parameters
 parser = argparse.ArgumentParser()
-parser.add_argument("--source", dest="source", default="/home/flo/Download",
+parser.add_argument("--source", dest="source", default="/home/flo/Downloads",
                     help="Source path(s). Multiple ones like 'path1$path2'")
 parser.add_argument("--target", dest="target", default="/tmp/pmc_test",
                     help="Target path(s). Multiple ones like 'path1$path2'")
@@ -81,11 +82,11 @@ if sys.hexversion < 0x030500F0:
     f.close()
     sys.exit(0)
 
-print(pmc_version, file=f)
+print('\x1b[1;33;40m' + pmc_version + '\x1b[0m', file=f)
 
 # ==================================================================================================
 # ==============================================================================
-#    Actual code block:
+#    Setting functions:
 # ==============================================================================
 # ==================================================================================================
 
@@ -135,6 +136,9 @@ print(pmc_version, file=f)
 
 # DEFINITION: Search for files, get basic directories:
 def search_files(where):
+    global f
+    global param
+    print('\x1b[1;34;40m' + 'Searching files in ' + where + "..." + '\x1b[0m', file=f)
     found_files = []
     #  also possible: glob
     for root, dirs, files in os.walk(os.path.normpath(where)):
@@ -151,6 +155,7 @@ def search_files(where):
                     'size': inter_stats.st_size,
                     'time': inter_stats.st_mtime,
                 }]
+    # print(found_files, file=f)
 
     return found_files
 
@@ -182,12 +187,15 @@ def load_json(where):
     return list(inter)
 
 
-def copy_files(source_files):
-    if not os.path.exists("/tmp/pmc"):
-        os.makedirs("/tmp/pmc")
+def create_subfolders(for_what):
+    for i in for_what:
+        if not os.path.exists(i["target_path"]):
+            os.makedirs(i["target_path"])
 
-    for i in source_files:
-        shutil.copy2(i["name_full"], "/tmp/pmc")
+
+def copy_files(what):
+    for i in what:
+        shutil.copy2(i["name_full"], i["target_path"])
 
 
 def print_files(source_files):
@@ -197,27 +205,47 @@ def print_files(source_files):
     print("\n", file=f)
 
 
+def dedup_history(source, hist):
+    for i in source:
+        for k in hist:
+            if i["time"] == k["time"] and i["size"] == k["size"] and i["name"] == k["name"]:
+                i["time"] = -9999
+    return list(filter(lambda i: i["time"] != -9999, source))
+
+
+# ==================================================================================================
+# ==============================================================================
+#    Chronology / Workflow:
+# ==============================================================================
+# ==================================================================================================
+
+# search files:
 source_files = search_files(param.source)
-source_files = get_hashes(source_files)
-print_files(source_files)
-history_files = load_json(param.history_path)
-print_files(history_files)
+
+# deduplicate via history:
+if param.history_dedup == 1:
+    history_files = load_json(param.history_path)
+    # print_files(history_files)
+    source_files = dedup_history(source_files, history_files)
+    # print_files(source_files)
 
 
-for i in source_files:
-    for k in history_files:
-        if i["time"] == k["time"] and i["size"] == k["size"] and i["name"] == k["name"]:
-            i["time"] = -9999
-source_files = list(filter(lambda i: i["time"] != -9999, source_files))
+# write history:
+if param.history_write != 0:
+    history_files = load_json(param.history_path)
+    to_save = source_files
+    for i in to_save:
+        del i["name_full"]
+        del i["name_base"]
+        del i["name_extension"]
+    if param.history_write == 1:
+        to_save += history_files
+    print(to_save, file=f)
 
-print_files(source_files)
+    result = [dict(tupleized) for tupleized in set(tuple(item.items()) for item in to_save)]
 
-to_save = source_files
-for i in to_save:
-    del i["name_full"]
-    del i["name_base"]
-    del i["name_extension"]
+    save_json(to_save, param.history_path)
+    to_save = None
 
-# save_json(param, "./pmc_preset.json")
-
-# save_json(to_save, "./pmc_history.json")
+# get hashes:
+# source_files = get_hashes(source_files)
