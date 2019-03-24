@@ -7,53 +7,73 @@ from pmc_ver import pmc_version
 
 import os
 import sys
-import hashlib
-import re
-import shutil
-import json
-"""
-    from time import localtime, sleep  # For timeouts and time output
-    import argparse  # Set variables via parameters
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--source", dest="source", help="Source path(s). Multiple ones like 'path1$path2'", default="")
-    parser.add_argument("--target", dest="target", help="Target path(s). Multiple ones like 'path1$path2'", default="")
-    parser.add_argument("--ext-pref", dest="extension_preference", help="0 = all; -1 = exclude; 1 = include", type=int, default=0)
-    parser.add_argument("--ext-list", dest="extension_list", help="Extensions to in-/exclude. Use like 'ext1$ext2'", default="")
-    parser.add_argument("--source-r", dest="source_recurse", help="Search recursively (i.e. including subfolders) in source(s)", type=int, default=1)
-    parser.add_argument("--source-d", dest="source_dedup", help="Search for duplicates in source(s)", type=int, default=0)
-    parser.add_argument("--source-d-t", dest="source_dedup_tolerance", help="Allow 3sec difference for --source-d", type=int, default=1)
-    parser.add_argument("--history-d", dest="history_dedup", help="Polling interval (in seconds).", type=int, default=10)
-    parser.add_argument("--history-p", dest="history_path", help="Polling interval (in seconds).", type=int, default=10)
-    parser.add_argument("--history-h", dest="history_hash", help="Polling interval (in seconds).", type=int, default=10)
-    parser.add_argument("--history-w", dest="history_write", help="Polling interval (in seconds).", type=int, default=10)
-    parser.add_argument("--target-d", dest="target_dedup", help="Polling interval (in seconds).", type=int, default=10)
-    parser.add_argument("--target-owp", dest="target_protect", help="Polling interval (in seconds).", type=int, default=10)
-    parser.add_argument("--naming-sd", dest="naming_subfolder", help="Naming scheme for subfolders", type=int, default=10)
-    parser.add_argument("--naming-f", dest="naming_file", help="Naming scheme for files", type=int, default=10)
-    parser.add_argument("--verify", dest="verify", help="Verify files via checksum", type=int, default=1)
-    parser.add_argument("--verify-h", dest="verify_hash", help="Hash for verification", default="MD5")
-    parser.add_argument("--target-c", dest="target_compress", help="Compress files for target # >1", type=int, default=0)
-    parser.add_argument("--unsleep", dest="unsleep", help="Prevent system from sleep", type=int, default=1)
-    parser.add_argument("--preset", dest="preset", help="Preset name", default="default")
-    parser.add_argument("--preset-w-source", dest="save_source", help="Save source path(s) to preset", type=int, default=0)
-    parser.add_argument("--preset-w-target", dest="save_target", help="Save target path(s) to preset", type=int, default=0)
-    parser.add_argument("--preset-w-settings", dest="save_settings", help="Save settings to preset", type=int, default=0)
-    parser.add_argument("--verbose", dest="verbose", help="Verbose. 2 = file, 1 = console, 0 = none", type=int, default=1)
+import hashlib  # hash algorithms
+import re  # regex
+import shutil  # High-level file copy
+import json  # saving/loading JSON files
+#  from time import localtime, sleep  # For timeouts and time output
+import argparse  # Set variables via parameters
+parser = argparse.ArgumentParser()
+parser.add_argument("--source", dest="source", default="/home/flo/Download",
+                    help="Source path(s). Multiple ones like 'path1$path2'")
+parser.add_argument("--target", dest="target", default="/tmp/pmc_test",
+                    help="Target path(s). Multiple ones like 'path1$path2'")
+parser.add_argument("--ext-pref", type=int, default=0, dest="extension_preference",
+                    help="0 = all; -1 = exclude; 1 = include")
+parser.add_argument("--ext-list", dest="extension_list", default="",
+                    help="Extensions to in-/exclude. Use like 'ext1$ext2'")
+parser.add_argument("--source-r", dest="source_recurse", type=int, default=1,
+                    help="Search recursively (i.e. including subfolders) in source(s)")
+parser.add_argument("--source-d", dest="source_dedup", type=int, default=1,
+                    help="Search for duplicates in source(s)")
+parser.add_argument("--source-d-t", dest="source_dedup_tolerance", type=int, default=1,
+                    help="Allow 3sec difference for --source-d")
+parser.add_argument("--history-d", dest="history_dedup", type=int, default=1,
+                    help="Search for duplicates in history-file.")
+parser.add_argument("--history-p", dest="history_path", default="./pmc_history.json",
+                    help="Path of history-file.")
+parser.add_argument("--history-h", dest="history_hash", type=int, default=0,
+                    help="Use hashes for history-check.")
+parser.add_argument("--history-w", dest="history_write", type=int, default=1,
+                    help="0 = don't write, 1 = append, -1 = overwrite.")
+parser.add_argument("--target-d", dest="target_dedup", type=int, default=0,
+                    help="Check for duplicates in target-folder.")
+parser.add_argument("--target-owp", dest="target_protect", type=int, default=1,
+                    help="Overwrite-protection.")
+parser.add_argument("--naming-sd", dest="naming_subdir", default="%y4%-%M%-%d%_%h%-%m%-%s%",
+                    help="Naming scheme for subdirs")
+parser.add_argument("--naming-f", dest="naming_file", default="%n",
+                    help="Naming scheme for files")
+parser.add_argument("--verify", dest="verify", type=int, default=1,
+                    help="Verify files via checksum")
+parser.add_argument("--verify-h", dest="verify_hash", default="MD5",
+                    help="Hash for verification")
+parser.add_argument("--target-c", dest="target_compress", type=int, default=0,
+                    help="Compress files for target # >1")
+parser.add_argument("--unsleep", dest="unsleep", type=int, default=1,
+                    help="Prevent system from sleep")
+parser.add_argument("--preset", dest="preset", default="default",
+                    help="Preset name")
+parser.add_argument("--preset-w-source", dest="save_source", type=int, default=0,
+                    help="Save source path(s) to preset")
+parser.add_argument("--preset-w-target", dest="save_target", type=int, default=0,
+                    help="Save target path(s) to preset")
+parser.add_argument("--preset-w-settings", dest="save_settings", type=int, default=0,
+                    help="Save settings to preset")
+parser.add_argument("--verbose", dest="verbose", type=int, default=1,
+                    help="Verbose. 2 = file, 1 = console, 0 = none")
 
-    args = parser.parse_args()
+param = parser.parse_args()
+print(type(param))
 
-
-    # DEFINITION: Set print location (none/terminal/file)
-    if (args.verbose == 2):
-        f = open("./pmc.log", mode='a')
-    elif (args.Log == 1):
-        f = sys.stdout
-    else:
-        f = open(os.devnull, 'w')
-        sys.stdout = f
-"""
-
-f = sys.stdout
+# DEFINITION: Set print location (none/terminal/file)
+if (param.verbose == 2):
+    f = open("./pmc.log", mode='a')
+elif (param.verbose == 0):
+    f = open(os.devnull, 'w')
+    sys.stdout = f
+else:
+    f = sys.stdout
 
 #  for glob:
 if sys.hexversion < 0x030500F0:
@@ -61,16 +81,16 @@ if sys.hexversion < 0x030500F0:
     f.close()
     sys.exit(0)
 
+print(pmc_version, file=f)
+
 # ==================================================================================================
 # ==============================================================================
 #    Actual code block:
 # ==============================================================================
 # ==================================================================================================
 
-print(pmc_version, file=f)
-testvar = "meine testvariable /home/bla"
-
 """ GUI:
+    testvar = "meine testvariable /home/bla"
     class getvariable:
         def __init__(self):
             md5 = hashlib.md5()
@@ -177,10 +197,10 @@ def print_files(source_files):
     print("\n", file=f)
 
 
-source_files = search_files("/home/flo/Downloads")
+source_files = search_files(param.source)
 source_files = get_hashes(source_files)
 print_files(source_files)
-history_files = load_json("./pmc_history.json")
+history_files = load_json(param.history_path)
 print_files(history_files)
 
 
@@ -197,5 +217,7 @@ for i in to_save:
     del i["name_full"]
     del i["name_base"]
     del i["name_extension"]
+
+# save_json(param, "./pmc_preset.json")
 
 # save_json(to_save, "./pmc_history.json")
