@@ -109,3 +109,4 @@ venv.bak/
 pyvenv.cfg
 lib64
 .directory
+pmc_history.json

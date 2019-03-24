@@ -3,13 +3,14 @@
 from PyQt5 import QtWidgets
 from pmc_ui import Ui_MainWindow
 from pmc_ver import pmc_version
-import hashlib
-import re
-import shutil
 #  import pmc_preset
 
 import os
 import sys
+import hashlib
+import re
+import shutil
+import json
 """
     from time import localtime, sleep  # For timeouts and time output
     import argparse  # Set variables via parameters
@@ -111,45 +112,90 @@ testvar = "meine testvariable /home/bla"
     sys.exit(app.exec())
 """
 
-source_files = []
-#  also possible: glob
-for root, dirs, files in os.walk(os.path.normpath("/home/flo/Downloads")):
-    for file in files:
-        if file.endswith(".txt"):
-            inter_path = os.path.join(root, file)
-            inter_regex = re.search(r"(\w*)(\.\w*)$", inter_path)
-            inter_basename = inter_regex.group(1)
-            inter_extension = inter_regex.group(2)
-            inter_stats = os.stat(inter_path)
-            inter_checksum = ""
-            source_files += [{'name_full': inter_path, 'name_base': inter_basename, 'name_extension': inter_extension,
-                              'size': inter_stats.st_size, 'time': inter_stats.st_mtime, 'checksum': inter_checksum}]
+
+# DEFINITION: Search for files, get basic directories:
+def search_files(where):
+    found_files = []
+    #  also possible: glob
+    for root, dirs, files in os.walk(os.path.normpath(where)):
+        for file in files:
+            if file.endswith(".txt"):
+                inter_path = os.path.join(root, file)
+                inter_regex = re.search(r"(\w*)(\.\w*)$", file)
+                inter_stats = os.stat(inter_path)
+                found_files += [{
+                    'name_full': inter_path,
+                    'name': file,
+                    'name_base': inter_regex.group(1),
+                    'name_extension': inter_regex.group(2),
+                    'size': inter_stats.st_size,
+                    'time': inter_stats.st_mtime,
+                }]
+
+    return found_files
 
 
-md5 = hashlib.md5()
-blocksize = 128*256
+# DEFINITION: Get hashes for files:
+def get_hashes(what):
+    md5 = hashlib.md5()
+    blocksize = 128*256
+    for i in what:
+        with open(i["name_full"], "rb") as file:
+            while True:
+                buf = file.read(blocksize)
+                if not buf:
+                    break
+                md5.update(buf)
+            i["checksum"] = md5.hexdigest()
+
+    return what
+
+
+def save_json(what, where):
+    with open(where, 'w') as outfile:
+        json.dump(what, outfile, ensure_ascii=False)
+
+
+def load_json(where):
+    with open(where, 'r', encoding='utf-8') as file:
+        inter = json.load(file)
+    return list(inter)
+
+
+def copy_files(source_files):
+    if not os.path.exists("/tmp/pmc"):
+        os.makedirs("/tmp/pmc")
+
+    for i in source_files:
+        shutil.copy2(i["name_full"], "/tmp/pmc")
+
+
+def print_files(source_files):
+    for i in source_files:
+        print("\n" + str(i), end="", file=f)
+
+    print("\n", file=f)
+
+
+source_files = search_files("/home/flo/Downloads")
+source_files = get_hashes(source_files)
+print_files(source_files)
+history_files = load_json("./pmc_history.json")
+print_files(history_files)
+
+
 for i in source_files:
-    with open(i["name_full"], "rb") as file:
-        while True:
-            buf = file.read(blocksize)
-            if not buf:
-                break
-            md5.update(buf)
+    for k in history_files:
+        if i["time"] == k["time"] and i["size"] == k["size"] and i["name"] == k["name"]:
+            i["time"] = -9999
+source_files = list(filter(lambda i: i["time"] != -9999, source_files))
 
-        i["checksum"] = md5.hexdigest()
+print_files(source_files)
 
-for i in source_files:
-    print("\n" + i["name_full"], end="\t|  ", file=f)
-    print(i["name_base"], end="\t|  ", file=f)
-    print(i["name_extension"], end="\t|  ", file=f)
-    print(str(i["size"]), end="\t|  ", file=f)
-    print(str(i["time"]), end="\t|  ", file=f)
-    print(i["checksum"], end="", file=f)
+to_save = source_files
+for i in to_save:
+    del i["name_full"]
+    del i["name_base"]
+    del i["name_extension"]
 
-print("", file=f)
-
-if not os.path.exists("/tmp/pmc"):
-    os.makedirs("/tmp/pmc")
-
-for i in source_files:
-    shutil.copy2(i["name_full"], "/tmp/pmc")
+# save_json(to_save, "./pmc_history.json")

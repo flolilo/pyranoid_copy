@@ -5,8 +5,8 @@ v0.0.1:
     [x] Proof of concept GUI (rudimentary controls, interaction with script) @done(19-03-21 15:13)
     [x] Copy a single file from `S` to `T`, check checksums @done(19-03-23 21:06)
     [-] Copy same file from `T` to `B`, check cheksums @cancelled(19-03-23 21:07)
-    [ ] Dupli-check a single file against history
-    [ ] Dupli-check a single file against `T` (& `B`) files
+    [x] Dupli-check a single file against history @done(19-03-24 17:00)
+    [x] Dupli-check a single file against `T` (& `B`) files @done(19-03-24 19:40)
 
 v0.0.2:
     [ ] Make **v0.1** code (except GUI) capable for multiple files
