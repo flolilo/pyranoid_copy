@@ -63,9 +63,7 @@ parser.add_argument("--preset-w-settings", dest="save_settings", type=int, defau
                     help="Save settings to preset")
 parser.add_argument("--verbose", dest="verbose", type=int, default=1,
                     help="Verbose. 2 = file, 1 = console, 0 = none")
-
 param = parser.parse_args()
-print(type(param))
 
 # DEFINITION: Set print location (none/terminal/file)
 if (param.verbose == 2):
@@ -240,7 +238,6 @@ if param.history_write != 0:
         del i["name_extension"]
     if param.history_write == 1:
         to_save += history_files
-    print(to_save, file=f)
 
     result = [dict(tupleized) for tupleized in set(tuple(item.items()) for item in to_save)]
 
