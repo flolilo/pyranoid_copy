@@ -220,6 +220,19 @@ def dedup_history(source, hist):
 # search files:
 source_files = search_files(param.source)
 
+# dedup source:
+if param.source_dedup == 1:
+    if param.verify_hash == 1:
+        source_files = get_hashes(source_files)
+
+    used = set()
+    unique = [x for x in source_files if x not in used and (used.add(x) or True)]
+    print(source_files, file=f)
+
+# get hashes:
+if param.verify_hash and (param.history_dedup == 1 or param.target_dedup == 1) or param.verify == 1:
+    source_files = get_hashes(source_files)
+
 # deduplicate via history:
 if param.history_dedup == 1:
     history_files = load_json(param.history_path)
@@ -241,6 +254,3 @@ if param.history_write != 0:
 
     save_json(to_save, param.history_path)
     to_save = None
-
-# get hashes:
-# source_files = get_hashes(source_files)
