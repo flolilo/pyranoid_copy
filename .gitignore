@@ -110,3 +110,4 @@ pyvenv.cfg
 lib64
 .directory
 pmc_history.json
+pmc_diagram.dia

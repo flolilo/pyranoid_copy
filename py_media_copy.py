@@ -33,12 +33,12 @@ parser.add_argument("--history-d", dest="history_dedup", type=int, default=1,
                     help="Search for duplicates in history-file.")
 parser.add_argument("--history-p", dest="history_path", default="./pmc_history.json",
                     help="Path of history-file.")
-parser.add_argument("--history-h", dest="history_hash", type=int, default=0,
-                    help="Use hashes for history-check.")
 parser.add_argument("--history-w", dest="history_write", type=int, default=1,
                     help="0 = don't write, 1 = append, -1 = overwrite.")
 parser.add_argument("--target-d", dest="target_dedup", type=int, default=0,
                     help="Check for duplicates in target-folder.")
+parser.add_argument("--dupli-h", dest="dedup_hash", type=int, default=0,
+                    help="Use hashes for dedup-check.")
 parser.add_argument("--target-owp", dest="target_protect", type=int, default=1,
                     help="Overwrite-protection.")
 parser.add_argument("--naming-sd", dest="naming_subdir", default="%y4%-%M%-%d%_%h%-%m%-%s%",
@@ -223,10 +223,8 @@ source_files = search_files(param.source)
 # deduplicate via history:
 if param.history_dedup == 1:
     history_files = load_json(param.history_path)
-    # print_files(history_files)
     source_files = dedup_history(source_files, history_files)
-    # print_files(source_files)
-
+    history_files = None
 
 # write history:
 if param.history_write != 0:
