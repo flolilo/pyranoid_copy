@@ -225,9 +225,25 @@ if param.source_dedup == 1:
     if param.verify_hash == 1:
         source_files = get_hashes(source_files)
 
-    used = set()
-    unique = [x for x in source_files if x not in used and (used.add(x) or True)]
-    print(source_files, file=f)
+    # used = set()
+    # unique = [x for x in source_files if x not in used and (used.add(x) or True)]
+
+    records = [
+                {"id": 123, "name": 'Course A', "enrolled_date": '1st Feb'},
+                {"id": 123, "name": 'Course B', "enrolled_date": '1st Feb'},
+                {"id": 123, "name": 'Course C', "enrolled_date": '1st Jan'},
+                {"id": 456, "name": 'Course D', "enrolled_date": '1st Jan'}
+              ]
+
+    seena = set()
+    seenb = set()
+    # https://stackoverflow.com/questions/11092511/python-list-of-unique-dictionaries#11092590
+    # https://stackoverflow.com/questions/55418748/create-a-list-of-dictionaries-with-unique-keys-from-a-list-of-dictionaries-with
+    new_dict = [d for d in records if not(
+                d['enrolled_date'] in seena or seena.add(d['enrolled_date'])) and not(d['id'] in seenb or seenb.add(d['id']))]
+
+    print(new_dict, file=f)
+    sys.exit(0)
 
 # get hashes:
 if param.verify_hash and (param.history_dedup == 1 or param.target_dedup == 1) or param.verify == 1:
