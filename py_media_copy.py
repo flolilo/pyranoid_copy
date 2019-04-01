@@ -163,16 +163,17 @@ def search_files(where):
 
 # DEFINITION: Get hashes for files:
 def get_hashes(what):
-    md5 = hashlib.md5()
+    algorithm = hashlib.sha1()
     blocksize = 128*256
     for i in what:
-        with open(i[0], "rb") as file:
-            while True:
-                buf = file.read(blocksize)
-                if not buf:
-                    break
-                md5.update(buf)
-            i[6] = md5.hexdigest()
+        if i[6] == "XYZ":
+            with open(i[0], "rb") as file:
+                while True:
+                    buf = file.read(blocksize)
+                    if not buf:
+                        break
+                    algorithm.update(buf)
+                i[6] = algorithm.hexdigest()
 
     return what
 
@@ -228,35 +229,48 @@ def dedup_files(source, compare):
 # ==============================================================================
 # ==================================================================================================
 
-# search files:
+# DEFINITION: search files:
 source_files = search_files(param.source)
 
+# DEFINITION: Dedups:
 # dedup source:
 if param.source_dedup == 1:
+    # get hashes:
     if param.verify_hash == 1:
         source_files = get_hashes(source_files)
-
     source_files = dedup_files(source_files, set())
 
-    for i in source_files:
-        print(i[0], file=f)
-
-    new_d = None
-
-# get hashes:
-if param.verify_hash and (param.history_dedup == 1 or param.target_dedup == 1) or param.verify == 1:
-    source_files = get_hashes(source_files)
-
-# deduplicate via history:
-#  CREDIT: https://stackoverflow.com/a/31793090
+# dedup history:
 if param.history_dedup == 1:
     history_files = load_json(param.history_path)
+    # get hashes:
+    if param.verify_hash == 1:
+        source_files = get_hashes(source_files)
     source_files = dedup_files(source_files, history_files)
-    print(source_files, file=f)
-    sys.exit(0)
     history_files = None
 
-# write history:
+# dedup target:
+if param.target_dedup == 1:
+    target_files = search_files(param.target)
+    target_files = [1],[4],[5]
+    # get hashes:
+    if param.verify_hash == 1:
+        source_files = get_hashes(source_files)
+        target_files = get_hashes(target_files)
+    source_files = dedup_files(source_files, target_files)
+    target_files = None
+
+# DEFINITION: get rest of the hashes:
+if param.verify == 1:
+    source_files = get_hashes(source_files)
+
+# DEFINITION: prepare paths:
+
+# DEFINITION: Copy:
+
+# DEFINITION: Verify:
+
+# DEFINITION: write history:
 if param.history_write != 0:
     history_files = load_json(param.history_path)
     to_save = source_files
