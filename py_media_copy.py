@@ -11,11 +11,11 @@ import hashlib  # hash algorithms
 import re  # regex
 import shutil  # High-level file copy
 import json  # saving/loading JSON files
-from collections import defaultdict
+#  from collections import defaultdict
 #  from time import localtime, sleep  # For timeouts and time output
 import argparse  # Set variables via parameters
 parser = argparse.ArgumentParser()
-parser.add_argument("--source", dest="source", default="/home/flo/Downloads",
+parser.add_argument("--source", dest="source", default="/home/flo/Pictures/_CANON/Professionell/2019-03-09 (FSG Kandidaten im Gespräch)/",
                     help="Source path(s). Multiple ones like 'path1$path2'")
 parser.add_argument("--target", dest="target", default="/tmp/pmc_test",
                     help="Target path(s). Multiple ones like 'path1$path2'")
@@ -29,11 +29,11 @@ parser.add_argument("--source-d", dest="source_dedup", type=int, default=1,
                     help="Search for duplicates in source(s)")
 parser.add_argument("--source-d-t", dest="source_dedup_tolerance", type=int, default=1,
                     help="Allow 3sec difference for --source-d")
-parser.add_argument("--history-d", dest="history_dedup", type=int, default=1,
+parser.add_argument("--history-d", dest="history_dedup", type=int, default=0,
                     help="Search for duplicates in history-file.")
 parser.add_argument("--history-p", dest="history_path", default="./pmc_history.json",
                     help="Path of history-file.")
-parser.add_argument("--history-w", dest="history_write", type=int, default=1,
+parser.add_argument("--history-w", dest="history_write", type=int, default=0,
                     help="0 = don't write, 1 = append, -1 = overwrite.")
 parser.add_argument("--target-d", dest="target_dedup", type=int, default=0,
                     help="Check for duplicates in target-folder.")
@@ -141,18 +141,21 @@ def search_files(where):
     #  also possible: glob
     for root, dirs, files in os.walk(os.path.normpath(where)):
         for file in files:
-            if file.endswith(".txt"):
-                inter_path = os.path.join(root, file)
-                inter_regex = re.search(r"(\w*)(\.\w*)$", file)
-                inter_stats = os.stat(inter_path)
-                found_files += [{
-                    'name_full': inter_path,
-                    'name': file,
-                    'name_base': inter_regex.group(1),
-                    'name_extension': inter_regex.group(2),
-                    'size': inter_stats.st_size,
-                    'time': inter_stats.st_mtime,
-                }]
+            # if file.endswith(".CR2"):
+            inter_path = os.path.join(root, file)
+            inter_regex = re.search(r"(\w*)(\.\w*)$", file)
+            inter_stats = os.stat(inter_path)
+            """ DEFINITION:
+            [0] full path
+            [1] file name
+            [2] basename
+            [3] extension
+            [4] size
+            [5] mod-date
+            [6] hash
+            [7] target path
+            """
+            found_files += [[inter_path, file, inter_regex.group(1), inter_regex.group(2), inter_stats.st_size, inter_stats.st_mtime, "XYZ", "XYZ"]]
     # print(found_files, file=f)
 
     return found_files
@@ -163,13 +166,13 @@ def get_hashes(what):
     md5 = hashlib.md5()
     blocksize = 128*256
     for i in what:
-        with open(i["name_full"], "rb") as file:
+        with open(i[0], "rb") as file:
             while True:
                 buf = file.read(blocksize)
                 if not buf:
                     break
                 md5.update(buf)
-            i["checksum"] = md5.hexdigest()
+            i[6] = md5.hexdigest()
 
     return what
 
@@ -187,13 +190,13 @@ def load_json(where):
 
 def create_subfolders(for_what):
     for i in for_what:
-        if not os.path.exists(i["target_path"]):
-            os.makedirs(i["target_path"])
+        if not os.path.exists(i[7]):
+            os.makedirs(i[7])
 
 
 def copy_files(what):
     for i in what:
-        shutil.copy2(i["name_full"], i["target_path"])
+        shutil.copy2(i[0], i[7])
 
 
 def print_files(source_files):
@@ -203,12 +206,20 @@ def print_files(source_files):
     print("\n", file=f)
 
 
-def dedup_history(source, hist):
-    for i in source:
-        for k in hist:
-            if i["time"] == k["time"] and i["size"] == k["size"] and i["name"] == k["name"]:
-                i["time"] = -9999
-    return list(filter(lambda i: i["time"] != -9999, source))
+def dedup_files(source, compare):
+    seen_set = compare
+    deduped_list = []
+    if len(seen_set) >= 1:
+        for i in source:
+            if tuple([i[1], i[4], i[5]]) not in seen_set:
+                deduped_list.append(i)
+    else:
+        for i in source:
+            if tuple([i[1], i[4], i[5]]) not in seen_set:
+                deduped_list.append(i)
+                seen_set.add(tuple([i[1], i[4], i[5]]))
+
+    return deduped_list
 
 
 # ==================================================================================================
@@ -225,18 +236,24 @@ if param.source_dedup == 1:
     if param.verify_hash == 1:
         source_files = get_hashes(source_files)
 
-    used = set()
-    unique = [x for x in source_files if x not in used and (used.add(x) or True)]
-    print(source_files, file=f)
+    source_files = dedup_files(source_files, set())
+
+    for i in source_files:
+        print(i[0], file=f)
+
+    new_d = None
 
 # get hashes:
 if param.verify_hash and (param.history_dedup == 1 or param.target_dedup == 1) or param.verify == 1:
     source_files = get_hashes(source_files)
 
 # deduplicate via history:
+#  CREDIT: https://stackoverflow.com/a/31793090
 if param.history_dedup == 1:
     history_files = load_json(param.history_path)
-    source_files = dedup_history(source_files, history_files)
+    source_files = dedup_files(source_files, history_files)
+    print(source_files, file=f)
+    sys.exit(0)
     history_files = None
 
 # write history:
@@ -244,9 +261,9 @@ if param.history_write != 0:
     history_files = load_json(param.history_path)
     to_save = source_files
     for i in to_save:
-        del i["name_full"]
-        del i["name_base"]
-        del i["name_extension"]
+        del i[0]
+        del i[2]
+        del i[3]
     if param.history_write == 1:
         to_save += history_files
 
