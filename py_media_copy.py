@@ -16,7 +16,7 @@ import json  # saving/loading JSON files
 import argparse  # Set variables via parameters
 parser = argparse.ArgumentParser()
 parser.add_argument("--source", dest="source",
-                    default="/home/flo/Pictures/_CANON/Professionell/2019-03-09 (FSG Kandidaten im Gespr‰ch)/",
+                    default="/home/flo/Pictures/_CANON/Professionell/2019-03-09 (FSG Kandidaten im Gespr√§ch)/",
                     help="Source path(s). Multiple ones like 'path1$path2'")
 parser.add_argument("--target", dest="target",
                     default="/tmp/pmc_test",
