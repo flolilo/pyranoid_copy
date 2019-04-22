@@ -11,6 +11,7 @@ import hashlib  # hash algorithms
 import re  # regex
 import shutil  # High-level file copy
 import json  # saving/loading JSON files
+import itertools
 #  from collections import defaultdict
 #  from time import localtime, sleep  # For timeouts and time output
 import argparse  # Set variables via parameters
@@ -43,7 +44,7 @@ parser.add_argument("--history-p", dest="history_path",
                     default="./pmc_history.json",
                     help="Path of history-file.")
 parser.add_argument("--history-w", dest="history_write",
-                    type=int, default=0,
+                    type=int, default=1,
                     help="0 = don't write, 1 = append, -1 = overwrite.")
 parser.add_argument("--target-d", dest="target_dedup",
                     type=int, default=0,
@@ -91,7 +92,7 @@ param = parser.parse_args()
 
 # DEFINITION: Set print location (none/terminal/file)
 if (param.verbose == 2):
-    f = open("./pmc.log", mode='a')
+    f = open("./pmc.log", mode='a+')
 elif (param.verbose == 0):
     f = open(os.devnull, 'w')
     sys.stdout = f
@@ -203,14 +204,18 @@ def get_hashes(what):
 
 
 def save_json(what, where):
-    with open(where, 'w') as outfile:
+    with open(where, 'w+') as outfile:
         json.dump(what, outfile, ensure_ascii=False)
 
 
 def load_json(where):
-    with open(where, 'r', encoding='utf-8') as file:
-        inter = json.load(file)
-    return list(inter)
+    # open(where, 'w+', encoding='utf-8').close
+    try:
+        with open(where, 'r+', encoding='utf-8') as file:
+            inter = json.load(file)
+        return list(inter)
+    except:
+        return None
 
 
 def create_subfolders(for_what):
@@ -299,13 +304,16 @@ if param.history_write != 0:
     history_files = load_json(param.history_path)
     to_save = source_files
     for i in to_save:
-        del i[0]
-        del i[2]
+        del i[7]
         del i[3]
-    if param.history_write == 1:
+        del i[2]
+        del i[0]
+    if param.history_write == 1 and history_files is not None:
         to_save += history_files
 
-    result = [dict(tupleized) for tupleized in set(tuple(item.items()) for item in to_save)]
+    # print(to_save, file=f)
+    to_save.sort()
+    to_save = list(to_save for to_save, _ in itertools.groupby(to_save))
 
     save_json(to_save, param.history_path)
     to_save = None
