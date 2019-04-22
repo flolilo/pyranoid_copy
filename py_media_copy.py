@@ -231,7 +231,8 @@ def create_subfolders(for_what):
 def copy_files(what):
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Copy files...' + '\x1b[0m', file=f)
     for i in what:
-        shutil.copy2(i[0], i[7])
+        # shutil.copy2(i[0], i[7])
+        print(str(i[0]) + " -> " + str(i[7]))
 
 
 def print_files(source_files):
@@ -302,6 +303,7 @@ if param.verify == 1:
 # DEFINITION: prepare paths:
 
 # DEFINITION: Copy:
+copy_files(source_files)
 
 # DEFINITION: Verify:
 
