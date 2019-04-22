@@ -13,7 +13,9 @@ import shutil  # High-level file copy
 import json  # saving/loading JSON files
 import itertools
 #  from collections import defaultdict
-#  from time import localtime, sleep  # For timeouts and time output
+# from time import sleep  # For timeouts and time output
+from datetime import datetime
+from tqdm import tqdm
 import argparse  # Set variables via parameters
 parser = argparse.ArgumentParser()
 parser.add_argument("--source", dest="source",
@@ -38,13 +40,13 @@ parser.add_argument("--source-d-t", dest="source_dedup_tolerance",
                     type=int, default=1,
                     help="Allow 3sec difference for --source-d")
 parser.add_argument("--history-d", dest="history_dedup",
-                    type=int, default=0,
+                    type=int, default=1,
                     help="Search for duplicates in history-file.")
 parser.add_argument("--history-p", dest="history_path",
                     default="./pmc_history.json",
                     help="Path of history-file.")
 parser.add_argument("--history-w", dest="history_write",
-                    type=int, default=1,
+                    type=int, default=2,
                     help="0 = don't write, 1 = append, -1 = overwrite.")
 parser.add_argument("--target-d", dest="target_dedup",
                     type=int, default=0,
@@ -161,7 +163,7 @@ print('\x1b[1;33;40m' + pmc_version + '\x1b[0m', file=f)
 def search_files(where):
     global f
     global param
-    print('\x1b[1;34;40m' + 'Searching files in ' + where + "..." + '\x1b[0m', file=f)
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Searching files in ' + where + "..." + '\x1b[0m', file=f)
     found_files = []
     #  also possible: glob
     for root, dirs, files in os.walk(os.path.normpath(where)):
@@ -190,7 +192,8 @@ def search_files(where):
 def get_hashes(what):
     algorithm = hashlib.sha1()
     blocksize = 128*256
-    for i in what:
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Getting hashes...' + '\x1b[0m', file=f)
+    for i in tqdm(what):
         if i[6] == "XYZ":
             with open(i[0], "rb") as file:
                 while True:
@@ -204,17 +207,18 @@ def get_hashes(what):
 
 
 def save_json(what, where):
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Saving JSON ' + where + '...' + '\x1b[0m', file=f)
     with open(where, 'w+') as outfile:
         json.dump(what, outfile, ensure_ascii=False)
 
 
 def load_json(where):
-    # open(where, 'w+', encoding='utf-8').close
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Loading JSON ' + where + '...' + '\x1b[0m', file=f)
     try:
         with open(where, 'r+', encoding='utf-8') as file:
             inter = json.load(file)
         return list(inter)
-    except:
+    except json.decoder.JSONDecodeError:
         return None
 
 
@@ -225,6 +229,7 @@ def create_subfolders(for_what):
 
 
 def copy_files(what):
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Copy files...' + '\x1b[0m', file=f)
     for i in what:
         shutil.copy2(i[0], i[7])
 
@@ -237,6 +242,7 @@ def print_files(source_files):
 
 
 def dedup_files(source, compare):
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Dedup files...' + '\x1b[0m', file=f)
     seen_set = compare
     deduped_list = []
     if len(seen_set) >= 1:
@@ -311,7 +317,6 @@ if param.history_write != 0:
     if param.history_write == 1 and history_files is not None:
         to_save += history_files
 
-    # print(to_save, file=f)
     to_save.sort()
     to_save = list(to_save for to_save, _ in itertools.groupby(to_save))
 
