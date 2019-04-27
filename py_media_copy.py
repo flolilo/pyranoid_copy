@@ -190,7 +190,12 @@ def search_files(where):
 
 # DEFINITION: Get hashes for files:
 def get_hashes(what):
-    algorithm = hashlib.sha1()
+    if sys.hexversion < 0x030600F0:
+        algorithm = hashlib.sha1()
+        # print("Using SHA1", file=f)
+    else:
+        algorithm = hashlib.blake2b()
+        # print("Using BLAKE2", file=f)
     blocksize = 128*256
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Getting hashes...' + '\x1b[0m', file=f)
     for i in tqdm(what):
@@ -267,6 +272,12 @@ def dedup_files(source, compare):
 
 # DEFINITION: search files:
 source_files = search_files(param.source)
+if len(source_files) <= 1:
+    print("No files found!", file=sys.stderr)
+    f.close()
+    sys.exit(0)
+else:
+    print(str(len(source_files)) + " files found", file=f)
 
 # DEFINITION: Dedups:
 # dedup source:
