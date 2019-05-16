@@ -19,10 +19,10 @@ from tqdm import tqdm
 import argparse  # Set variables via parameters
 parser = argparse.ArgumentParser()
 parser.add_argument("--source", dest="source",
-                    default="/home/flo/Pictures/_CANON/Professionell/2019-03-09 (FSG Kandidaten im Gespräch)/",
+                    default="./.testing/in",
                     help="Source path(s). Multiple ones like 'path1$path2'")
 parser.add_argument("--target", dest="target",
-                    default="/tmp/pmc_test",
+                    default="./.testing/out",
                     help="Target path(s). Multiple ones like 'path1$path2'")
 parser.add_argument("--ext-pref", dest="extension_preference",
                     type=int, default=0,
@@ -213,18 +213,28 @@ def get_hashes(what):
 
 def save_json(what, where):
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Saving JSON ' + where + '...' + '\x1b[0m', file=f)
-    with open(where, 'w+') as outfile:
-        json.dump(what, outfile, ensure_ascii=False)
+    try:
+        with open(where, 'w+') as outfile:
+            json.dump(what, outfile, ensure_ascii=False)
+    except:
+        print("Error!", file=f)
 
 
 def load_json(where):
+    global param
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Loading JSON ' + where + '...' + '\x1b[0m', file=f)
     try:
         with open(where, 'r+', encoding='utf-8') as file:
             inter = json.load(file)
         return list(inter)
     except json.decoder.JSONDecodeError:
-        return None
+        print("JSONDecodeError!", file=f)
+        param.history_dedup = 0
+        return set()
+    except FileNotFoundError:
+        print("JSON file not found.", file=f)
+        param.history_dedup = 0
+        return set()
 
 
 def create_subfolders(for_what):
