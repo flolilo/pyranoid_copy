@@ -229,11 +229,9 @@ def load_json(where):
         return list(inter)
     except json.decoder.JSONDecodeError:
         print("JSONDecodeError!", file=f)
-        param.history_dedup = 0
         return set()
     except FileNotFoundError:
         print("JSON file not found.", file=f)
-        param.history_dedup = 0
         return set()
 
 
