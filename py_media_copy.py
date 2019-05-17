@@ -58,8 +58,8 @@ parser.add_argument("--target-owp", dest="target_protect",
                     type=int, default=1,
                     help="Overwrite-protection.")
 parser.add_argument("--naming-sd", dest="naming_subdir",
-                    default="%y4%-%M%-%d%_%h%-%m%-%s%",
-                    help="Naming scheme for subdirs")
+                    default="%y-%m-%d_%H-%M-%S",
+                    help="Naming scheme for subdirs. See strftime.org for reference")
 parser.add_argument("--naming-f", dest="naming_file",
                     default="%n",
                     help="Naming scheme for files")
@@ -182,8 +182,10 @@ def search_files(where):
             [6] hash
             [7] target path
             """
-            found_files += [[inter_path, file, inter_regex.group(1), inter_regex.group(2), inter_stats.st_size, inter_stats.st_mtime, "XYZ", "XYZ"]]
-    # print(found_files, file=f)
+            found_files += [[inter_path, file, inter_regex.group(1), inter_regex.group(2), inter_stats.st_size,
+                             inter_stats.st_mtime, "XYZ", "XYZ"]]
+    # for i in found_files:
+    #     print(i, file=f)
 
     return found_files
 
@@ -320,6 +322,20 @@ if param.verify == 1:
     source_files = get_hashes(source_files)
 
 # DEFINITION: prepare paths:
+if len(param.naming_subdir) == 0:
+    try:
+        os.makedirs(param.source)
+    except FileExistsError:
+        pass
+else:
+    str = "/"
+    for i in source_files:
+        try:
+            # print(os.path.join(param.target, datetime.fromtimestamp(i[5]).strftime(param.naming_subdir)), file=f)
+            os.makedirs(os.path.join(param.target, datetime.fromtimestamp(i[5]).strftime(param.naming_subdir)))
+        except FileExistsError:
+            pass
+        # print(datetime.fromtimestamp(i[5]).strftime(param.naming_subdir), file=f)
 
 # DEFINITION: Copy:
 copy_files(source_files)
