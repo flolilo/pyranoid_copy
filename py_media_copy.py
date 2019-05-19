@@ -229,6 +229,7 @@ def load_json(where):
     try:
         with open(where, 'r+', encoding='utf-8') as file:
             inter = json.load(file)
+        print(str(len(inter)) + " entries loaded.", file=f)
         return list(inter)
     except json.decoder.JSONDecodeError:
         print("JSONDecodeError!", file=f)
@@ -250,7 +251,7 @@ def copy_files(what):
         try:
             shutil.copy2(i[0], os.path.join(i[7], str(i[2] + i[3])))
         except:
-            print(str(i[0]) + " -> " + str(i[7]) + " failed!", file=f)
+            print(str(i[0]) + " -> " + os.path.join(i[7], str(i[2] + i[3])) + " failed!", file=f)
 
 
 def print_files(source_files):
@@ -260,18 +261,37 @@ def print_files(source_files):
     print("\n", file=f)
 
 
-def dedup_files(source, compare_set):
+def dedup_files(source, compare):
+    global param
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Dedup files...' + '\x1b[0m', file=f)
     deduped = []
-    if len(compare_set) >= 1:
+    if len(compare) >= 1:
         for i in source:
-            if tuple([i[1], i[4], i[5]]) not in compare_set:
+            """
+            if ((param.dedup_hash != 1 and (tuple([i[1], i[4], i[5]]) not in compare)) or
+               (param.dedup_hash == 1 and (tuple([i[1], i[4], i[5], i[6]]) not in compare))):
                 deduped.append(i)
+            """
+            if tuple([i[1], i[4], i[5]]) not in compare:
+                print(str(i[1]) + str(i[4]) + str(i[5]), file=f)
+                deduped.append(i)
+            else:
+                print(i[1] + " is a duplicate.", file=f)
     else:
         for i in source:
-            if tuple([i[1], i[4], i[5]]) not in compare_set:
+            if tuple([i[1], i[4], i[5]]) not in compare:
+                print(str(i[1]) + str(i[4]) + str(i[5]), file=f)
                 deduped.append(i)
-                compare_set.add(tuple([i[1], i[4], i[5]]))
+                """
+                if param.dedup_hash == 1:
+                    compare.add(tuple([i[1], i[4], i[5], i[6]]))
+                else:
+                """
+                compare.add(tuple([i[1], i[4], i[5]]))
+                print(compare, file=f)
+            else:
+                print(i[1] + " is a duplicate.", file=f)
+
     print(str(len(source) - len(deduped)) + " duplicates found.", file=f)
 
     return deduped
@@ -296,7 +316,7 @@ else:
 # dedup source:
 if param.source_dedup == 1:
     # get hashes:
-    if param.verify_hash == 1:
+    if param.dedup_hash == 1:
         source_files = get_hashes(source_files)
     source_files = dedup_files(source_files, set())
 
@@ -304,7 +324,7 @@ if param.source_dedup == 1:
 if param.history_dedup == 1:
     history_files = load_json(param.history_path)
     # get hashes:
-    if param.verify_hash == 1:
+    if param.dedup_hash == 1:
         source_files = get_hashes(source_files)
     source_files = dedup_files(source_files, history_files)
     history_files = None
@@ -314,7 +334,7 @@ if param.target_dedup == 1:
     target_files = search_files(param.target)
     target_files = [1], [4], [5]
     # get hashes:
-    if param.verify_hash == 1:
+    if param.dedup_hash == 1:
         source_files = get_hashes(source_files)
         target_files = get_hashes(target_files)
     source_files = dedup_files(source_files, target_files)
@@ -339,17 +359,29 @@ else:
             pass
 # overwrite-protection:
 if param.target_protect != 0:
+    # output
     for i in source_files:
         k = 1
         append = ""
         while True:
-            # print(os.path.join(i[7], str(i[2] + i[3])), file=f)
             if os.path.isfile(os.path.join(i[7], str(i[2] + append + i[3]))):
-                append = "_" + str(k)
+                append = "_out" + str(k)
                 k += 1
             else:
                 i[2] = i[2] + append
-                print(i[2], file=f)
+                # print(i[2], file=f)
+                break
+    # input
+    for i in source_files:
+        k = 1
+        append = ""
+        while True:
+            if os.path.isfile(os.path.join(i[7], str(i[2] + append + i[3]))):
+                append = "_in" + str(k)
+                k += 1
+            else:
+                i[2] = i[2] + append
+                # print(i[2], file=f)
                 break
 
 
