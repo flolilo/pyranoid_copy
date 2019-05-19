@@ -13,9 +13,12 @@ import shutil  # High-level file copy
 import json  # saving/loading JSON files
 import itertools
 #  from collections import defaultdict
-# from time import sleep  # For timeouts and time output
+from time import sleep  # For timeouts and time output
 from datetime import datetime
-from tqdm import tqdm
+try:
+    from tqdm import tqdm
+except ImportError:
+    print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "python3 -m pip install -U tqdm" + '\x1b[0m')
 import argparse  # Set variables via parameters
 parser = argparse.ArgumentParser()
 parser.add_argument("--source", dest="source",
@@ -170,7 +173,7 @@ def search_files(where):
         for file in files:
             # if file.endswith(".CR2"):
             inter_path = os.path.join(root, file)
-            inter_regex = re.search(r"(\w*)(\.\w*)$", file)
+            inter_regex = re.search(r"(.*)(\.\w*)$", file)
             inter_stats = os.stat(inter_path)
             found_files += [[
                              inter_path,  # [0] full path
@@ -245,10 +248,9 @@ def copy_files(what):
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Copy files...' + '\x1b[0m', file=f)
     for i in tqdm(what):
         try:
-            shutil.copy2(i[0], i[7])
+            shutil.copy2(i[0], os.path.join(i[7], str(i[2] + i[3])))
         except:
             print(str(i[0]) + " -> " + str(i[7]) + " failed!", file=f)
-        # print(str(i[0]) + " -> " + str(i[7]))
 
 
 def print_files(source_files):
@@ -323,6 +325,7 @@ if param.verify == 1:
     source_files = get_hashes(source_files)
 
 # DEFINITION: prepare paths:
+# subdirs:
 if len(param.naming_subdir) == 0:
     try:
         os.makedirs(param.target)
@@ -334,6 +337,21 @@ else:
             os.makedirs(i[7])
         except FileExistsError:
             pass
+# overwrite-protection:
+if param.target_protect != 0:
+    for i in source_files:
+        k = 1
+        append = ""
+        while True:
+            # print(os.path.join(i[7], str(i[2] + i[3])), file=f)
+            if os.path.isfile(os.path.join(i[7], str(i[2] + append + i[3]))):
+                append = "_" + str(k)
+                k += 1
+            else:
+                i[2] = i[2] + append
+                print(i[2], file=f)
+                break
+
 
 # DEFINITION: Copy:
 copy_files(source_files)
