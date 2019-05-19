@@ -267,20 +267,27 @@ def dedup_files(source, compare):
     deduped = []
     if len(compare) >= 1:
         for i in source:
-            """
-            if ((param.dedup_hash != 1 and (tuple([i[1], i[4], i[5]]) not in compare)) or
-               (param.dedup_hash == 1 and (tuple([i[1], i[4], i[5], i[6]]) not in compare))):
-                deduped.append(i)
-            """
-            if tuple([i[1], i[4], i[5]]) not in compare:
-                print(str(i[1]) + str(i[4]) + str(i[5]), file=f)
-                deduped.append(i)
-            else:
-                print(i[1] + " is a duplicate.", file=f)
+            j = 0
+            while True:
+                """
+                if ((param.dedup_hash != 1 and (tuple([i[1], i[4], i[5]]) not in compare)) or
+                (param.dedup_hash == 1 and (tuple([i[1], i[4], i[5], i[6]]) not in compare))):
+                    deduped.append(i)
+                """
+                if i[1] == compare[j][0] and i[4] == compare[j][1] and i[5] == compare[j][2]:
+                    print(i[1] + " is a duplicate.", file=f)
+                    break
+                else:
+                    if (j + 1) < len(compare):
+                        j += 1
+                    else:
+                        print(str(i[1]) + ", " + str(i[4]) + ", " + str(i[5]), file=f)
+                        deduped.append(i)
+                        break
     else:
         for i in source:
             if tuple([i[1], i[4], i[5]]) not in compare:
-                print(str(i[1]) + str(i[4]) + str(i[5]), file=f)
+                # print(str(i[1]) + str(i[4]) + str(i[5]), file=f)
                 deduped.append(i)
                 """
                 if param.dedup_hash == 1:
@@ -288,7 +295,7 @@ def dedup_files(source, compare):
                 else:
                 """
                 compare.add(tuple([i[1], i[4], i[5]]))
-                print(compare, file=f)
+                # print(compare, file=f)
             else:
                 print(i[1] + " is a duplicate.", file=f)
 
@@ -328,6 +335,8 @@ if param.history_dedup == 1:
         source_files = get_hashes(source_files)
     source_files = dedup_files(source_files, history_files)
     history_files = None
+
+sys.exit(0)
 
 # dedup target:
 if param.target_dedup == 1:
