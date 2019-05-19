@@ -172,18 +172,16 @@ def search_files(where):
             inter_path = os.path.join(root, file)
             inter_regex = re.search(r"(\w*)(\.\w*)$", file)
             inter_stats = os.stat(inter_path)
-            """ DEFINITION:
-            [0] full path
-            [1] file name
-            [2] basename
-            [3] extension
-            [4] size
-            [5] mod-date
-            [6] hash
-            [7] target path
-            """
-            found_files += [[inter_path, file, inter_regex.group(1), inter_regex.group(2), inter_stats.st_size,
-                             inter_stats.st_mtime, "XYZ", "XYZ"]]
+            found_files += [[
+                             inter_path,  # [0] full path
+                             file,  # [1] file name
+                             inter_regex.group(1),  # [2] basename
+                             inter_regex.group(2),  # [3] extension
+                             inter_stats.st_size,  # [4] size
+                             inter_stats.st_mtime,  # [5] mod-date
+                             "XYZ",  # [6] hash
+                             os.path.join(param.target, datetime.fromtimestamp(inter_stats.st_mtime).strftime(param.naming_subdir))  # [7] target path
+                            ]]
     # for i in found_files:
     #     print(i, file=f)
 
@@ -257,21 +255,21 @@ def print_files(source_files):
     print("\n", file=f)
 
 
-def dedup_files(source, compare):
+def dedup_files(source, compare_set):
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Dedup files...' + '\x1b[0m', file=f)
-    seen_set = compare
-    deduped_list = []
-    if len(seen_set) >= 1:
+    deduped = []
+    if len(compare_set) >= 1:
         for i in source:
-            if tuple([i[1], i[4], i[5]]) not in seen_set:
-                deduped_list.append(i)
+            if tuple([i[1], i[4], i[5]]) not in compare_set:
+                deduped.append(i)
     else:
         for i in source:
-            if tuple([i[1], i[4], i[5]]) not in seen_set:
-                deduped_list.append(i)
-                seen_set.add(tuple([i[1], i[4], i[5]]))
+            if tuple([i[1], i[4], i[5]]) not in compare_set:
+                deduped.append(i)
+                compare_set.add(tuple([i[1], i[4], i[5]]))
+    print(str(len(source) - len(deduped)) + " duplicates found.", file=f)
 
-    return deduped_list
+    return deduped
 
 
 # ==================================================================================================
@@ -324,15 +322,14 @@ if param.verify == 1:
 # DEFINITION: prepare paths:
 if len(param.naming_subdir) == 0:
     try:
-        os.makedirs(param.source)
+        os.makedirs(param.target)
     except FileExistsError:
         pass
 else:
-    str = "/"
     for i in source_files:
         try:
             # print(os.path.join(param.target, datetime.fromtimestamp(i[5]).strftime(param.naming_subdir)), file=f)
-            os.makedirs(os.path.join(param.target, datetime.fromtimestamp(i[5]).strftime(param.naming_subdir)))
+            os.makedirs(i[7])
         except FileExistsError:
             pass
         # print(datetime.fromtimestamp(i[5]).strftime(param.naming_subdir), file=f)
