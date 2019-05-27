@@ -61,11 +61,11 @@ parser.add_argument("--target-owp", dest="target_protect",
                     type=int, default=1,
                     help="Overwrite-protection.")
 parser.add_argument("--naming-sd", dest="naming_subdir",
-                    default="%y-%m-%d_%H-%M-%S",
-                    help="Naming scheme for subdirs. See strftime.org for reference")
+                    default="%y-%m-%d",
+                    help="Naming scheme for subdirs. See strftime.org for reference for times. Empty string will create no subdir.")
 parser.add_argument("--naming-f", dest="naming_file",
-                    default="%n",
-                    help="Naming scheme for files")
+                    default="",
+                    help="Naming scheme for files. See strftime.org for reference for times. Empty string will not change name.")
 parser.add_argument("--verify", dest="verify",
                     type=int, default=1,
                     help="Verify files via checksum")
