@@ -14,7 +14,7 @@ v0.0.2:
 
 v0.0.3:
     [ ] File renaming
-    [ ] File overwrite-protection
+    [x] File overwrite-protection @done(19-05-27 22:45)
     [ ] Include/exclude files per extension
 
 v0.0.4:

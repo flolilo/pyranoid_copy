@@ -23,16 +23,16 @@ import argparse  # Set variables via parameters
 parser = argparse.ArgumentParser()
 parser.add_argument("--source", dest="source",
                     default="./.testing/in",
-                    help="Source path(s). Multiple ones like 'path1$path2'")
+                    help="Source path(s). Multiple ones like 'path1||path2'")
 parser.add_argument("--target", dest="target",
                     default="./.testing/out",
-                    help="Target path(s). Multiple ones like 'path1$path2'")
+                    help="Target path(s). Multiple ones like 'path1||path2'")
 parser.add_argument("--ext-pref", dest="extension_preference",
                     type=int, default=0,
                     help="0 = all; -1 = exclude; 1 = include")
 parser.add_argument("--ext-list", dest="extension_list",
                     default="",
-                    help="Extensions to in-/exclude. Use like 'ext1$ext2'")
+                    help="Extensions to in-/exclude. Use like 'ext1||ext2'")
 parser.add_argument("--source-r", dest="source_recurse",
                     type=int, default=1,
                     help="Search recursively (i.e. including subfolders) in source(s)")
@@ -162,16 +162,23 @@ print('\x1b[1;33;40m' + pmc_version + '\x1b[0m', file=f)
 """
 
 
-# DEFINITION: Search for files, get basic directories:
+def check_remaining_files(to_check):
+    if len(to_check) <= 1:
+        print("No files left!", file=sys.stderr)
+        f.close()
+        sys.exit(0)
+
+
 def search_files(where):
+    """DEFINITION: Search for files, get basic directories:"""
     global f
     global param
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Searching files in ' + where + "..." + '\x1b[0m', file=f)
     found_files = []
-    #  also possible: glob
+    # also possible: glob
     for root, dirs, files in os.walk(os.path.normpath(where)):
         for file in files:
-            # if file.endswith(".CR2"):
+            # TODO: if file.endswith(".CR2"):
             inter_path = os.path.join(root, file)
             inter_regex = re.search(r"(.*)(\.\w*)$", file)
             inter_stats = os.stat(inter_path)
@@ -183,16 +190,19 @@ def search_files(where):
                              inter_stats.st_size,  # [4] size
                              inter_stats.st_mtime,  # [5] mod-date
                              "XYZ",  # [6] hash
+                             # TODO: proper magic strings and regular strings:
                              os.path.join(param.target, datetime.fromtimestamp(inter_stats.st_mtime).strftime(param.naming_subdir))  # [7] target path
                             ]]
     # for i in found_files:
     #     print(i, file=f)
 
+    print(str(len(found_files)) + " files found", file=f)
+    check_remaining_files(found_files)
     return found_files
 
 
-# DEFINITION: Get hashes for files:
 def get_hashes(what):
+    """DEFINITION: Get hashes for files:"""
     if sys.hexversion < 0x030600F0:
         algorithm = hashlib.sha1()
         # print("Using SHA1", file=f)
@@ -274,14 +284,17 @@ def dedup_files(source, compare):
                 (param.dedup_hash == 1 and (tuple([i[1], i[4], i[5], i[6]]) not in compare))):
                     deduped.append(i)
                 """
+                # TODO: try https://stackoverflow.com/a/15544861
+                # TODO: try https://stackoverflow.com/q/17555218
+                # TODO: try https://www.peterbe.com/plog/uniqifiers-benchmark
                 if i[1] == compare[j][0] and i[4] == compare[j][1] and i[5] == compare[j][2]:
-                    print(i[1] + " is a duplicate.", file=f)
+                    # print(i[1] + " is a duplicate.", file=f)
                     break
                 else:
                     if (j + 1) < len(compare):
                         j += 1
                     else:
-                        print(str(i[1]) + ", " + str(i[4]) + ", " + str(i[5]), file=f)
+                        # print(str(i[1]) + ", " + str(i[4]) + ", " + str(i[5]), file=f)
                         deduped.append(i)
                         break
     else:
@@ -296,12 +309,55 @@ def dedup_files(source, compare):
                 """
                 compare.add(tuple([i[1], i[4], i[5]]))
                 # print(compare, file=f)
-            else:
-                print(i[1] + " is a duplicate.", file=f)
 
     print(str(len(source) - len(deduped)) + " duplicates found.", file=f)
-
+    check_remaining_files(deduped)
     return deduped
+
+
+def create_subdirs(source):
+    """Create subdirectories per magic string"""
+    global param
+    if len(param.naming_subdir) == 0:
+        try:
+            os.makedirs(param.target)
+        except FileExistsError:
+            pass
+    else:
+        for i in source:
+            try:
+                os.makedirs(i[7])
+            except FileExistsError:
+                pass
+
+
+def overwrite_protection(source):
+    global param
+    if param.target_protect != 0:
+        # output
+        for i in source:
+            k = 1
+            append = ""
+            while True:
+                if os.path.isfile(os.path.join(i[7], str(i[2] + append + i[3]))):
+                    append = "_out" + str(k)
+                    k += 1
+                else:
+                    i[2] = i[2] + append
+                    # print(i[2], file=f)
+                    break
+        # input
+        for i in source_files:
+            k = 1
+            append = ""
+            while True:
+                if os.path.isfile(os.path.join(i[7], str(i[2] + append + i[3]))):
+                    append = "_in" + str(k)
+                    k += 1
+                else:
+                    i[2] = i[2] + append
+                    # print(i[2], file=f)
+                    break
 
 
 # ==================================================================================================
@@ -312,12 +368,6 @@ def dedup_files(source, compare):
 
 # DEFINITION: search files:
 source_files = search_files(param.source)
-if len(source_files) <= 1:
-    print("No files found!", file=sys.stderr)
-    f.close()
-    sys.exit(0)
-else:
-    print(str(len(source_files)) + " files found", file=f)
 
 # DEFINITION: Dedups:
 # dedup source:
@@ -336,8 +386,6 @@ if param.history_dedup == 1:
     source_files = dedup_files(source_files, history_files)
     history_files = None
 
-sys.exit(0)
-
 # dedup target:
 if param.target_dedup == 1:
     target_files = search_files(param.target)
@@ -354,45 +402,10 @@ if param.verify == 1:
     source_files = get_hashes(source_files)
 
 # DEFINITION: prepare paths:
-# subdirs:
-if len(param.naming_subdir) == 0:
-    try:
-        os.makedirs(param.target)
-    except FileExistsError:
-        pass
-else:
-    for i in source_files:
-        try:
-            os.makedirs(i[7])
-        except FileExistsError:
-            pass
-# overwrite-protection:
-if param.target_protect != 0:
-    # output
-    for i in source_files:
-        k = 1
-        append = ""
-        while True:
-            if os.path.isfile(os.path.join(i[7], str(i[2] + append + i[3]))):
-                append = "_out" + str(k)
-                k += 1
-            else:
-                i[2] = i[2] + append
-                # print(i[2], file=f)
-                break
-    # input
-    for i in source_files:
-        k = 1
-        append = ""
-        while True:
-            if os.path.isfile(os.path.join(i[7], str(i[2] + append + i[3]))):
-                append = "_in" + str(k)
-                k += 1
-            else:
-                i[2] = i[2] + append
-                # print(i[2], file=f)
-                break
+create_subdirs(source_files)
 
+# DEFINITION: overwrite-protection:
+overwrite_protection(source_files)
 
 # DEFINITION: Copy:
 copy_files(source_files)
@@ -416,3 +429,4 @@ if param.history_write != 0:
 
     save_json(to_save, param.history_path)
     to_save = None
+    history_files = None
