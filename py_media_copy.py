@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#  from PyQt5 import QtWidgets
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+#  from PyQt5 import QtWidget
 #  from pmc_ui import Ui_MainWindow
 from pmc_ver import pmc_version
 #  import pmc_preset
@@ -182,22 +183,19 @@ def search_files(where):
             inter_path = os.path.join(root, file)
             inter_regex = re.search(r"(.*)(\.\w*)$", file)
             inter_stats = os.stat(inter_path)
-            found_files += [[
-                             inter_path,  # [0] full path
-                             file,  # [1] file name
-                             inter_regex.group(1),  # [2] basename
-                             inter_regex.group(2),  # [3] extension
-                             inter_stats.st_size,  # [4] size
-                             inter_stats.st_mtime,  # [5] mod-date
-                             "XYZ",  # [6] hash
-                             # TODO: proper magic strings and regular strings:
-                             os.path.join(param.target, datetime.fromtimestamp(inter_stats.st_mtime).strftime(param.naming_subdir))  # [7] target path
-                            ]]
-    # for i in found_files:
-    #     print(i, file=f)
+            """ DEFINITION:
+                [0] full path
+                [1] file name
+                [2] basename
+                [3] extension
+                [4] size
+                [5] mod-date
+                [6] hash
+                [7] target path
+            """
+            found_files += [[inter_path, file, inter_regex.group(1), inter_regex.group(2), inter_stats.st_size, inter_stats.st_mtime, "XYZ", "XYZ"]]
+    # print(found_files, file=f)
 
-    print(str(len(found_files)) + " files found", file=f)
-    check_remaining_files(found_files)
     return found_files
 
 
@@ -366,67 +364,65 @@ def overwrite_protection(source):
 # ==============================================================================
 # ==================================================================================================
 
-# DEFINITION: search files:
-source_files = search_files(param.source)
+while True:
+    # DEFINITION: search files:
+    source_files = search_files(param.source)
+    if len(source_files) << 1:
+        break
 
-# DEFINITION: Dedups:
-# dedup source:
-if param.source_dedup == 1:
-    # get hashes:
-    if param.dedup_hash == 1:
+    # DEFINITION: Dedups:
+    # dedup source:
+    if param.source_dedup == 1:
+        # get hashes:
+        if param.verify_hash == 1:
+            source_files = get_hashes(source_files)
+        source_files = dedup_files(source_files, set())
+
+    # dedup history:
+    if param.history_dedup == 1:
+        history_files = load_json(param.history_path)
+        # get hashes:
+        if param.verify_hash == 1:
+            source_files = get_hashes(source_files)
+        source_files = dedup_files(source_files, history_files)
+        history_files = None
+
+    # dedup target:
+    if param.target_dedup == 1:
+        target_files = search_files(param.target)
+        target_files = [1], [4], [5]
+        # get hashes:
+        if param.verify_hash == 1:
+            source_files = get_hashes(source_files)
+            target_files = get_hashes(target_files)
+        source_files = dedup_files(source_files, target_files)
+        target_files = None
+
+    # DEFINITION: get rest of the hashes:
+    if param.verify == 1:
         source_files = get_hashes(source_files)
-    source_files = dedup_files(source_files, set())
 
-# dedup history:
-if param.history_dedup == 1:
-    history_files = load_json(param.history_path)
-    # get hashes:
-    if param.dedup_hash == 1:
-        source_files = get_hashes(source_files)
-    source_files = dedup_files(source_files, history_files)
-    history_files = None
+    # DEFINITION: prepare paths:
 
-# dedup target:
-if param.target_dedup == 1:
-    target_files = search_files(param.target)
-    target_files = [1], [4], [5]
-    # get hashes:
-    if param.dedup_hash == 1:
-        source_files = get_hashes(source_files)
-        target_files = get_hashes(target_files)
-    source_files = dedup_files(source_files, target_files)
-    target_files = None
+    # DEFINITION: Copy:
+    copy_files(source_files)
 
-# DEFINITION: get rest of the hashes:
-if param.verify == 1:
-    source_files = get_hashes(source_files)
+    # DEFINITION: Verify:
 
-# DEFINITION: prepare paths:
-create_subdirs(source_files)
+    # DEFINITION: write history:
+    if param.history_write != 0:
+        history_files = load_json(param.history_path)
+        to_save = source_files
+        for i in to_save:
+            del i[7]
+            del i[3]
+            del i[2]
+            del i[0]
+        if param.history_write == 1 and history_files is not None:
+            to_save += history_files
 
-# DEFINITION: overwrite-protection:
-overwrite_protection(source_files)
+        to_save.sort()
+        to_save = list(to_save for to_save, _ in itertools.groupby(to_save))
 
-# DEFINITION: Copy:
-copy_files(source_files)
-
-# DEFINITION: Verify:
-
-# DEFINITION: write history:
-if param.history_write != 0:
-    history_files = load_json(param.history_path)
-    to_save = source_files
-    for i in to_save:
-        del i[7]
-        del i[3]
-        del i[2]
-        del i[0]
-    if param.history_write == 1 and history_files is not None:
-        to_save += history_files
-
-    to_save.sort()
-    to_save = list(to_save for to_save, _ in itertools.groupby(to_save))
-
-    save_json(to_save, param.history_path)
-    to_save = None
-    history_files = None
+        save_json(to_save, param.history_path)
+        to_save = None
