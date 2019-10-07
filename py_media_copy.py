@@ -20,6 +20,7 @@ try:
 except ImportError:
     print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "python3 -m pip install -U tqdm" + '\x1b[0m')
 import argparse  # Set variables via parameters
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--source", dest="source",
                     default="./.testing/in",
