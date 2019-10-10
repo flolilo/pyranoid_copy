@@ -69,7 +69,7 @@ parser.add_argument("--history-w",
                     dest="history_write",
                     type=int,
                     default=2,
-                    help="0 = don't write, 1 = append, -1 = overwrite.")
+                    help="0 = don't write, 1 = append, 2 = overwrite.")
 parser.add_argument("--target-d",
                     dest="target_dedup",
                     type=int,
@@ -237,13 +237,13 @@ def search_files(where):
                 [7] target path
             """
             found_files += [[inter_path, file, inter_regex.group(1), inter_regex.group(2), inter_stats.st_size, inter_stats.st_mtime, "XYZ", "XYZ"]]
-    print("    Found " + str(len(found_files)) + " files.", file=f)
+    print('    ' + str(len(found_files)) + " files found.", file=f)
 
     return found_files
 
 
 def get_hashes(what):
-    """DEFINITION: Get hashes for files:"""
+    # DEFINITION: Get hashes for files:
     if sys.hexversion < 0x030600F0:
         algorithm = hashlib.sha1()
         # print("Using SHA1", file=f)
@@ -268,10 +268,10 @@ def get_hashes(what):
 def save_json(what, where):
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Saving JSON ' + where + '...' + '\x1b[0m', file=f)
     try:
-        with open(where, 'w+') as outfile:
-            json.dump(what, outfile, ensure_ascii=False)
+        with open(where, 'w+', encoding='utf-8') as outfile:
+            json.dump(what, outfile, ensure_ascii=False, encoding='utf-8')
     except:
-        print("Error!", file=f)
+        print("    Error!", file=f)
 
 
 def load_json(where):
@@ -280,13 +280,13 @@ def load_json(where):
     try:
         with open(where, 'r+', encoding='utf-8') as file:
             inter = json.load(file)
-        print(str(len(inter)) + " entries loaded.", file=f)
+        print('    ' + str(len(inter)) + " entries loaded.", file=f)
         return list(inter)
     except json.decoder.JSONDecodeError:
-        print("JSONDecodeError!", file=f)
+        print("    JSONDecodeError!", file=f)
         return set()
     except FileNotFoundError:
-        print("JSON file not found.", file=f)
+        print("    JSON file not found.", file=f)
         return set()
 
 
@@ -302,7 +302,7 @@ def copy_files(what):
         try:
             shutil.copy2(i[0], os.path.join(i[7], str(i[2] + i[3])))
         except:
-            print(str(i[0]) + " -> " + os.path.join(i[7], str(i[2] + i[3])) + " failed!", file=f)
+            print('    ' + str(i[0]) + " -> " + os.path.join(i[7], str(i[2] + i[3])) + " failed!", file=f)
 
 
 def print_files(source_files):
@@ -351,8 +351,7 @@ def dedup_files(source, compare):
                 compare.add(tuple([i[1], i[4], i[5]]))
                 # print(compare, file=f)
 
-    print(str(len(source) - len(deduped)) + " duplicates found.", file=f)
-    check_remaining_files(deduped)
+    print('    ' + str(len(source) - len(deduped)) + " duplicates found.", file=f)
     return deduped
 
 
@@ -420,15 +419,20 @@ while True:
         if param.verify_hash == 1:
             source_files = get_hashes(source_files)
         source_files = dedup_files(source_files, set())
+        if len(source_files) < 1:
+            break
 
     # dedup history:
     if param.history_dedup == 1:
         history_files = load_json(param.history_path)
-        # get hashes:
-        if param.verify_hash == 1:
-            source_files = get_hashes(source_files)
-        source_files = dedup_files(source_files, history_files)
-        history_files = None
+        if len(history_files) > 0:
+            # get hashes:
+            if param.verify_hash == 1:
+                source_files = get_hashes(source_files)
+            source_files = dedup_files(source_files, history_files)
+            history_files = None
+            if len(source_files) < 1:
+                break
 
     # dedup target:
     if param.target_dedup == 1:
@@ -440,6 +444,8 @@ while True:
             target_files = get_hashes(target_files)
         source_files = dedup_files(source_files, target_files)
         target_files = None
+        if len(source_files) < 1:
+            break
 
     # DEFINITION: get rest of the hashes:
     if param.verify == 1:
@@ -453,7 +459,7 @@ while True:
     # DEFINITION: Verify:
 
     # DEFINITION: write history:
-    if param.history_write != 0:
+    if param.history_write >= 1:
         history_files = load_json(param.history_path)
         to_save = source_files
         for i in to_save:
@@ -461,6 +467,7 @@ while True:
             del i[3]
             del i[2]
             del i[0]
+
         if param.history_write == 1 and history_files is not None:
             to_save += history_files
 
@@ -470,4 +477,6 @@ while True:
         save_json(to_save, param.history_path)
         to_save = None
 
-print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Done!', file=f)
+    break
+
+print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- ' + '\x1b[1;32;40mDone!', file=f)
