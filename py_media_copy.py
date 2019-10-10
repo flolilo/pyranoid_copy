@@ -20,80 +20,121 @@ try:
     from tqdm import tqdm
 except ImportError:
     print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "python3 -m pip install -U tqdm" + '\x1b[0m')
+import colorama
 import argparse  # Set variables via parameters
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--source", dest="source",
+parser.add_argument("--source",
+                    dest="source",
                     default="./.testing/in",
                     help="Source path(s). Multiple ones like 'path1||path2'")
-parser.add_argument("--target", dest="target",
+parser.add_argument("--target",
+                    dest="target",
                     default="./.testing/out",
                     help="Target path(s). Multiple ones like 'path1||path2'")
-parser.add_argument("--ext-pref", dest="extension_preference",
-                    type=int, default=0,
+parser.add_argument("--ext-pref",
+                    dest="extension_preference",
+                    type=int,
+                    default=0,
                     help="0 = all; -1 = exclude; 1 = include")
-parser.add_argument("--ext-list", dest="extension_list",
+parser.add_argument("--ext-list",
+                    dest="extension_list",
                     default="",
                     help="Extensions to in-/exclude. Use like 'ext1||ext2'")
-parser.add_argument("--source-r", dest="source_recurse",
-                    type=int, default=1,
+parser.add_argument("--source-r",
+                    dest="source_recurse",
+                    type=int,
+                    default=1,
                     help="Search recursively (i.e. including subfolders) in source(s)")
-parser.add_argument("--source-d", dest="source_dedup",
-                    type=int, default=1,
+parser.add_argument("--source-d",
+                    dest="source_dedup",
+                    type=int,
+                    default=1,
                     help="Search for duplicates in source(s)")
-parser.add_argument("--source-d-t", dest="source_dedup_tolerance",
-                    type=int, default=1,
+parser.add_argument("--source-d-t",
+                    dest="source_dedup_tolerance",
+                    type=int,
+                    default=1,
                     help="Allow 3sec difference for --source-d")
-parser.add_argument("--history-d", dest="history_dedup",
-                    type=int, default=1,
+parser.add_argument("--history-d",
+                    dest="history_dedup",
+                    type=int,
+                    default=1,
                     help="Search for duplicates in history-file.")
-parser.add_argument("--history-p", dest="history_path",
+parser.add_argument("--history-p",
+                    dest="history_path",
                     default="./pmc_history.json",
                     help="Path of history-file.")
-parser.add_argument("--history-w", dest="history_write",
-                    type=int, default=2,
+parser.add_argument("--history-w",
+                    dest="history_write",
+                    type=int,
+                    default=2,
                     help="0 = don't write, 1 = append, -1 = overwrite.")
-parser.add_argument("--target-d", dest="target_dedup",
-                    type=int, default=0,
+parser.add_argument("--target-d",
+                    dest="target_dedup",
+                    type=int,
+                    default=0,
                     help="Check for duplicates in target-folder.")
-parser.add_argument("--dupli-h", dest="dedup_hash",
-                    type=int, default=0,
+parser.add_argument("--dupli-h",
+                    dest="dedup_hash",
+                    type=int,
+                    default=0,
                     help="Use hashes for dedup-check.")
-parser.add_argument("--target-owp", dest="target_protect",
-                    type=int, default=1,
+parser.add_argument("--target-owp",
+                    dest="target_protect",
+                    type=int,
+                    default=1,
                     help="Overwrite-protection.")
-parser.add_argument("--naming-sd", dest="naming_subdir",
+parser.add_argument("--naming-sd",
+                    dest="naming_subdir",
                     default="%y-%m-%d",
                     help="Naming scheme for subdirs. See strftime.org for reference for times. Empty string will create no subdir.")
-parser.add_argument("--naming-f", dest="naming_file",
+parser.add_argument("--naming-f",
+                    dest="naming_file",
                     default="",
                     help="Naming scheme for files. See strftime.org for reference for times. Empty string will not change name.")
-parser.add_argument("--verify", dest="verify",
-                    type=int, default=1,
+parser.add_argument("--verify",
+                    dest="verify",
+                    type=int,
+                    default=1,
                     help="Verify files via checksum")
-parser.add_argument("--verify-h", dest="verify_hash",
+parser.add_argument("--verify-h",
+                    dest="verify_hash",
                     default="MD5",
                     help="Hash for verification")
-parser.add_argument("--target-c", dest="target_compress",
-                    type=int, default=0,
+parser.add_argument("--target-c",
+                    dest="target_compress",
+                    type=int,
+                    default=0,
                     help="Compress files for target # >1")
-parser.add_argument("--unsleep", dest="unsleep",
-                    type=int, default=1,
+parser.add_argument("--unsleep",
+                    dest="unsleep",
+                    type=int,
+                    default=1,
                     help="Prevent system from sleep")
-parser.add_argument("--preset", dest="preset",
+parser.add_argument("--preset",
+                    dest="preset",
                     default="default",
                     help="Preset name")
-parser.add_argument("--preset-w-source", dest="save_source",
-                    type=int, default=0,
+parser.add_argument("--preset-w-source",
+                    dest="save_source",
+                    type=int,
+                    default=0,
                     help="Save source path(s) to preset")
-parser.add_argument("--preset-w-target", dest="save_target",
-                    type=int, default=0,
+parser.add_argument("--preset-w-target",
+                    dest="save_target",
+                    type=int,
+                    default=0,
                     help="Save target path(s) to preset")
-parser.add_argument("--preset-w-settings", dest="save_settings",
-                    type=int, default=0,
+parser.add_argument("--preset-w-settings",
+                    dest="save_settings",
+                    type=int,
+                    default=0,
                     help="Save settings to preset")
-parser.add_argument("--verbose", dest="verbose",
-                    type=int, default=1,
+parser.add_argument("--verbose",
+                    dest="verbose",
+                    type=int,
+                    default=1,
                     help="Verbose. 2 = file, 1 = console, 0 = none")
 param = parser.parse_args()
 
@@ -164,11 +205,12 @@ print('\x1b[1;33;40m' + pmc_version + '\x1b[0m', file=f)
 """
 
 
-def check_remaining_files(to_check):
-    if len(to_check) <= 1:
+""" def check_remaining_files(to_check):
+    if len(to_check) < 1:
         print("No files left!", file=sys.stderr)
         f.close()
         sys.exit(0)
+"""
 
 
 def search_files(where):
@@ -195,7 +237,7 @@ def search_files(where):
                 [7] target path
             """
             found_files += [[inter_path, file, inter_regex.group(1), inter_regex.group(2), inter_stats.st_size, inter_stats.st_mtime, "XYZ", "XYZ"]]
-    # print(found_files, file=f)
+    print("    Found " + str(len(found_files)) + " files.", file=f)
 
     return found_files
 
@@ -368,7 +410,7 @@ def overwrite_protection(source):
 while True:
     # DEFINITION: search files:
     source_files = search_files(param.source)
-    if len(source_files) << 1:
+    if len(source_files) < 1:
         break
 
     # DEFINITION: Dedups:
@@ -427,3 +469,5 @@ while True:
 
         save_json(to_save, param.history_path)
         to_save = None
+
+print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Done!', file=f)
