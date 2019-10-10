@@ -35,11 +35,11 @@ parser.add_argument("--target",
 parser.add_argument("--ext-pref",
                     dest="extension_preference",
                     type=int,
-                    default=0,
+                    default=1,
                     help="0 = all; -1 = exclude; 1 = include")
 parser.add_argument("--ext-list",
                     dest="extension_list",
-                    default="",
+                    default="cr2",
                     help="Extensions to in-/exclude. Use like 'ext1||ext2'")
 parser.add_argument("--source-r",
                     dest="source_recurse",
@@ -213,10 +213,18 @@ print('\x1b[1;33;40m' + pmc_version + '\x1b[0m', file=f)
 """
 
 
+def calculate_targetpath(for_what):
+    global param, f
+    for i in for_what:
+        i[5] = datetime.fromtimestamp(i[5]).strftime('%Y-%m-%d-%H:%M')
+        print(i[5], file=f)
+
+    return for_what
+
+
 def search_files(where):
     """DEFINITION: Search for files, get basic directories:"""
-    global f
-    global param
+    global param, f
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Searching files in ' + where + "..." + '\x1b[0m', file=f)
     found_files = []
     # also possible: glob
@@ -227,18 +235,26 @@ def search_files(where):
             inter_regex = re.search(r"(.*)(\.\w*)$", file)
             inter_stats = os.stat(inter_path)
             """ DEFINITION:
-                [0] full path
+                [0] full source path
                 [1] file name
                 [2] basename
                 [3] extension
                 [4] size
                 [5] mod-date
                 [6] hash
-                [7] target path
+                [7] full target path(s) <-- TODO: more than one useful?
             """
-            found_files += [[inter_path, file, inter_regex.group(1), inter_regex.group(2), inter_stats.st_size, inter_stats.st_mtime, "XYZ", "XYZ"]]
-    print('    ' + str(len(found_files)) + " files found.", file=f)
+            found_files += [[inter_path,
+                             file,
+                             inter_regex.group(1),
+                             inter_regex.group(2),
+                             inter_stats.st_size,
+                             inter_stats.st_mtime,
+                             "XYZ",
+                             "XYZ"]]
 
+    found_files = calculate_targetpath(found_files)
+    print('    ' + str(len(found_files)) + " files found.", file=f)
     return found_files
 
 
@@ -291,6 +307,7 @@ def load_json(where):
 
 
 def create_subfolders(for_what):
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Create folders...' + '\x1b[0m', file=f)
     for i in for_what:
         if not os.path.exists(i[7]):
             os.makedirs(i[7])
@@ -373,6 +390,7 @@ def create_subdirs(source):
 
 def overwrite_protection(source):
     global param
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Prevent overwriting of files...' + '\x1b[0m', file=f)
     if param.target_protect != 0:
         # output
         for i in source:
@@ -451,7 +469,10 @@ while True:
     if param.verify == 1:
         source_files = get_hashes(source_files)
 
+    for i in source_files:
+        print(i, file=f)
     # DEFINITION: prepare paths:
+    create_subdirs(source_files)
 
     # DEFINITION: Copy:
     copy_files(source_files)
@@ -477,6 +498,7 @@ while True:
         save_json(to_save, param.history_path)
         to_save = None
 
+    # all done:
     break
 
 print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- ' + '\x1b[1;32;40mDone!', file=f)
