@@ -41,7 +41,7 @@ parser.add_argument("--ext-pref",
                     type=int,
                     default=1,
                     help="0 = all; -1 = exclude; 1 = include")
-parser.add_argument("--ext-list",  # TODO: make this regex-like and for whole file
+parser.add_argument("--ext-list",
                     dest="extension_list",
                     default=".*cr2$|.*/bla.*",
                     help="Name(s) to include/exclude. Paths are converted to forward slashes (C:\ becomes C:/) and \
@@ -145,7 +145,7 @@ param = parser.parse_args()
 
 # DEFINITION: Set print location (none/terminal/file)
 if (param.verbose == 2):
-    f = open("./pmc.log", mode='a+')
+    f = Path("./pmc.log").open(mode='a+')
 elif (param.verbose == 0):
     f = open(os.devnull, 'w')
     sys.stdout = f
@@ -154,7 +154,7 @@ else:
 
 #  for glob:
 if (sys.hexversion < 0x030500F0):
-    print("Cannot run py_media-copy on versions older than 3.5 - sorry!", file=sys.stderr)
+    print("Cannot run py_media-copy on versions older than 3.5 - sorry! Please update.", file=sys.stderr)
     f.close()
     sys.exit(0)
 
@@ -165,6 +165,11 @@ print('\x1b[1;33;40m' + pmc_version + '\x1b[0m', file=f)
 #    Setting functions:
 # ==============================================================================
 # ==================================================================================================
+
+
+def print_time():
+    return str('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- ')
+
 
 """ GUI:
     testvar = "meine testvariable /home/bla"
@@ -221,7 +226,7 @@ print('\x1b[1;33;40m' + pmc_version + '\x1b[0m', file=f)
 def search_files(where):
     # DEFINITION: Search for files, get basic directories:
     global param, f
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Searching files in ' + where + " ..."
+    print(print_time() + 'Searching files in ' + where + " ..."
           + '\x1b[0m', file=f)
 
     def calculate_targetpath(for_what):
@@ -277,7 +282,7 @@ def get_hashes(what):
         algorithm = hashlib.blake2b()
         # print("Using BLAKE2", file=f)
     blocksize = 128*256
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Getting hashes...' + '\x1b[0m', file=f)
+    print(print_time() + 'Getting hashes...' + '\x1b[0m', file=f)
     for i in tqdm(what):
         if i[6] == "XYZ":
             with Path(i[0]).open("rb") as file:
@@ -292,10 +297,10 @@ def get_hashes(what):
 
 
 def save_json(what, where):
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Saving JSON ' + where
+    print(print_time() + 'Saving JSON ' + where
           + '...' + '\x1b[0m', file=f)
     try:
-        with open(where, 'w+', encoding='utf-8') as outfile:
+        with Path(where).open('w+', encoding='utf-8') as outfile:
             json.dump(what, outfile, ensure_ascii=False, encoding='utf-8')
     except Exception:
         print("    Error!", file=f)
@@ -303,10 +308,10 @@ def save_json(what, where):
 
 def load_json(where):
     global param
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Loading JSON ' + where
+    print(print_time() + 'Loading JSON ' + where
           + '...' + '\x1b[0m', file=f)
     try:
-        with open(where, 'r+', encoding='utf-8') as file:
+        with Path(where).open('r+', encoding='utf-8') as file:
             inter = json.load(file)
         print('    ' + str(len(inter)) + " entries loaded.", file=f)
         return list(inter)
@@ -319,14 +324,14 @@ def load_json(where):
 
 
 def create_subfolders(for_what):
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Create folders...' + '\x1b[0m', file=f)
+    print(print_time() + 'Create folders...' + '\x1b[0m', file=f)
     for i in for_what:
-        if not os.path.exists(i[7]):
+        if not os.path.exists(i[7]):  # TODO: Pathlib
             os.makedirs(i[7])
 
 
 def copy_files(what):
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Copy files...' + '\x1b[0m', file=f)
+    print(print_time() + 'Copy files...' + '\x1b[0m', file=f)
     for i in tqdm(what):
         try:
             shutil.copy2(i[0], os.path.join(i[7], str(i[2] + i[3])))
@@ -343,7 +348,7 @@ def print_files(source_files):
 
 def dedup_files(source, compare):
     global param
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Dedup files...' + '\x1b[0m', file=f)
+    print(print_time() + 'Dedup files...' + '\x1b[0m', file=f)
     deduped = []
     if len(compare) >= 1:
         for i in source:
@@ -402,7 +407,7 @@ def create_subdirs(source):
 
 def overwrite_protection(source):
     global param
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Prevent overwriting of files...'
+    print(print_time() + 'Prevent overwriting of files...'
           + '\x1b[0m', file=f)
     if param.target_protect != 0:
         # output
@@ -514,4 +519,4 @@ while True:
     # all done:
     break
 
-print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- ' + '\x1b[1;32;40mDone!', file=f)
+print(print_time() + '\x1b[1;32;40mDone!', file=f)
