@@ -17,13 +17,13 @@ import itertools
 from time import sleep  # For timeouts and time output
 from datetime import datetime
 try:
-    from tqdm import tqdm
-except ImportError:
-    print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "pip install tqdm" + '\x1b[0m')
-try:
     import colorama
 except ImportError:
     print('\x1b[1;31;40m' + "Please install colorama: " + '\x1b[1;37;40m' + "pip install colorama" + '\x1b[0m')
+try:
+    from tqdm import tqdm
+except ImportError:
+    print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "pip install tqdm" + '\x1b[0m')
 import argparse  # Set variables via parameters
 from pathlib import Path  # TODO: make all possible things with pathlib instead of os.path
 
@@ -242,23 +242,6 @@ def search_files(where):
         [6] hash
         [7] full target path(s) <-- TODO: more than one useful?
     """
-    # TODO: if file.endswith(".CR2"):
-    # path.normpath:
-    """for root, dirs, files in os.walk(os.path.normpath(where)):
-        for file in files:
-            inter_path = os.path.join(root, file)
-            inter_regex = re.search(r"(.*)(\.\w*)$", file)
-            inter_stats = os.stat(inter_path)
-            found_files += [[inter_path,
-                             file,
-                             inter_regex.group(1),
-                             inter_regex.group(2),
-                             inter_stats.st_size,
-                             inter_stats.st_mtime,
-                             "XYZ",
-                             "XYZ"]]
-    """
-    # glob:
     for i in Path(where).glob('**/*'):
         i = Path(i).resolve()
         i_suf = i.suffix
@@ -309,7 +292,7 @@ def save_json(what, where):
     try:
         with open(where, 'w+', encoding='utf-8') as outfile:
             json.dump(what, outfile, ensure_ascii=False, encoding='utf-8')
-    except:  # TODO: find a possibility for non-bare except
+    except Exception:
         print("    Error!", file=f)
 
 
@@ -342,7 +325,7 @@ def copy_files(what):
     for i in tqdm(what):
         try:
             shutil.copy2(i[0], os.path.join(i[7], str(i[2] + i[3])))
-        except:  # TODO: find a possibility for non-bare except
+        except Exception:
             print('    ' + str(i[0]) + " -> " + os.path.join(i[7], str(i[2] + i[3])) + " failed!", file=f)
 
 
