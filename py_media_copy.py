@@ -22,7 +22,7 @@ except ImportError:
     print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "python3 -m pip install -U tqdm" + '\x1b[0m')
 import colorama
 import argparse  # Set variables via parameters
-from pathlib import Path
+from pathlib import Path # TODO: make all possible things with pathlib instead of os.path
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--source",
@@ -38,7 +38,7 @@ parser.add_argument("--ext-pref",
                     type=int,
                     default=1,
                     help="0 = all; -1 = exclude; 1 = include")
-parser.add_argument("--ext-list",
+parser.add_argument("--ext-list",  # TODO: make this regex-like and for whole file
                     dest="extension_list",
                     default="cr2",
                     help="Extensions to in-/exclude. Use like 'ext1||ext2'")
@@ -224,7 +224,7 @@ def calculate_targetpath(for_what):
 
 
 def search_files(where):
-    """DEFINITION: Search for files, get basic directories:"""
+    # DEFINITION: Search for files, get basic directories:
     global param, f
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Searching files in ' + where + "..." + '\x1b[0m', file=f)
     found_files = []
@@ -238,10 +238,10 @@ def search_files(where):
         [6] hash
         [7] full target path(s) <-- TODO: more than one useful?
     """
+    # TODO: if file.endswith(".CR2"):
     # path.normpath:
     """for root, dirs, files in os.walk(os.path.normpath(where)):
         for file in files:
-            # TODO: if file.endswith(".CR2"):
             inter_path = os.path.join(root, file)
             inter_regex = re.search(r"(.*)(\.\w*)$", file)
             inter_stats = os.stat(inter_path)
@@ -257,15 +257,16 @@ def search_files(where):
     # glob:
     for i in Path(where).glob('**/*'):
         i = Path(i).resolve()
-        i_stat = i.stat()
-        found_files += [[str(i),
-                         i.name,
-                         i.stem,
-                         i.suffix,
-                         i_stat.st_size,
-                         i_stat.st_mtime,
-                         "XYZ",
-                         "XYZ"]]
+        if param.extension_preference == 1 and i.suffix.lower().replace('.', '') in param.extension_list or param.extension_preference == -1 and i.suffix.lower().replace('.', '') not in param.extension_list or param.extension_preference == 0:  # TODO: working, but make regex-like
+            i_stat = i.stat()
+            found_files += [[str(i),
+                            i.name,
+                            i.stem,
+                            i.suffix,
+                            i_stat.st_size,
+                            i_stat.st_mtime,
+                            "XYZ",
+                            "XYZ"]]
 
     found_files = calculate_targetpath(found_files)
     print('    ' + str(len(found_files)) + " files found.", file=f)
