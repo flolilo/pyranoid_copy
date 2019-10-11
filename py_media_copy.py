@@ -19,10 +19,13 @@ from datetime import datetime
 try:
     from tqdm import tqdm
 except ImportError:
-    print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "python3 -m pip install -U tqdm" + '\x1b[0m')
-import colorama
+    print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "pip install tqdm" + '\x1b[0m')
+try:
+    import colorama
+except ImportError:
+    print('\x1b[1;31;40m' + "Please install colorama: " + '\x1b[1;37;40m' + "pip install colorama" + '\x1b[0m')
 import argparse  # Set variables via parameters
-from pathlib import Path # TODO: make all possible things with pathlib instead of os.path
+from pathlib import Path  # TODO: make all possible things with pathlib instead of os.path
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--source",
@@ -89,11 +92,11 @@ parser.add_argument("--target-owp",
 parser.add_argument("--naming-sd",
                     dest="naming_subdir",
                     default="%y-%m-%d",
-                    help="Naming scheme for subdirs. See strftime.org for reference for times. Empty string will create no subdir.")
+                    help="Name scheme for subdirs. See strftime.org for reference. Empty string will create no subdir.")
 parser.add_argument("--naming-f",
                     dest="naming_file",
                     default="",
-                    help="Naming scheme for files. See strftime.org for reference for times. Empty string will not change name.")
+                    help="Name scheme for files. See strftime.org for reference. Empty string will not change name.")
 parser.add_argument("--verify",
                     dest="verify",
                     type=int,
@@ -149,7 +152,7 @@ else:
     f = sys.stdout
 
 #  for glob:
-if sys.hexversion < 0x030500F0:
+if (sys.hexversion < 0x030500F0):
     print("Cannot run py_media-copy on versions older than 3.5 - sorry!", file=sys.stderr)
     f.close()
     sys.exit(0)
@@ -226,7 +229,8 @@ def calculate_targetpath(for_what):
 def search_files(where):
     # DEFINITION: Search for files, get basic directories:
     global param, f
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Searching files in ' + where + "..." + '\x1b[0m', file=f)
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Searching files in ' + where + " ..."
+          + '\x1b[0m', file=f)
     found_files = []
     """ DEFINITION:
         [0] full source path
@@ -257,16 +261,19 @@ def search_files(where):
     # glob:
     for i in Path(where).glob('**/*'):
         i = Path(i).resolve()
-        if param.extension_preference == 1 and i.suffix.lower().replace('.', '') in param.extension_list or param.extension_preference == -1 and i.suffix.lower().replace('.', '') not in param.extension_list or param.extension_preference == 0:  # TODO: working, but make regex-like
+        i_suf = i.suffix
+        if (param.extension_preference == 1 and i_suf.lower().replace('.', '') in param.extension_list
+          or param.extension_preference == -1 and i_suf.lower().replace('.', '') not in param.extension_list
+          or param.extension_preference == 0):  # TODO: working, but make regex-like
             i_stat = i.stat()
             found_files += [[str(i),
-                            i.name,
-                            i.stem,
-                            i.suffix,
-                            i_stat.st_size,
-                            i_stat.st_mtime,
-                            "XYZ",
-                            "XYZ"]]
+                             i.name,
+                             i.stem,
+                             i_suf,
+                             i_stat.st_size,
+                             i_stat.st_mtime,
+                             "XYZ",
+                             "XYZ"]]
 
     found_files = calculate_targetpath(found_files)
     print('    ' + str(len(found_files)) + " files found.", file=f)
@@ -297,17 +304,19 @@ def get_hashes(what):
 
 
 def save_json(what, where):
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Saving JSON ' + where + '...' + '\x1b[0m', file=f)
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Saving JSON ' + where
+          + '...' + '\x1b[0m', file=f)
     try:
         with open(where, 'w+', encoding='utf-8') as outfile:
             json.dump(what, outfile, ensure_ascii=False, encoding='utf-8')
-    except:
+    except:  # TODO: find a possibility for non-bare except
         print("    Error!", file=f)
 
 
 def load_json(where):
     global param
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Loading JSON ' + where + '...' + '\x1b[0m', file=f)
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Loading JSON ' + where
+          + '...' + '\x1b[0m', file=f)
     try:
         with open(where, 'r+', encoding='utf-8') as file:
             inter = json.load(file)
@@ -333,7 +342,7 @@ def copy_files(what):
     for i in tqdm(what):
         try:
             shutil.copy2(i[0], os.path.join(i[7], str(i[2] + i[3])))
-        except:
+        except:  # TODO: find a possibility for non-bare except
             print('    ' + str(i[0]) + " -> " + os.path.join(i[7], str(i[2] + i[3])) + " failed!", file=f)
 
 
@@ -405,7 +414,8 @@ def create_subdirs(source):
 
 def overwrite_protection(source):
     global param
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Prevent overwriting of files...' + '\x1b[0m', file=f)
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Prevent overwriting of files...'
+          + '\x1b[0m', file=f)
     if param.target_protect != 0:
         # output
         for i in source:
