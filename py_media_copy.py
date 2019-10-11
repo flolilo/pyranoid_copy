@@ -22,6 +22,7 @@ except ImportError:
     print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "python3 -m pip install -U tqdm" + '\x1b[0m')
 import colorama
 import argparse  # Set variables via parameters
+from pathlib import Path
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--source",
@@ -217,7 +218,7 @@ def calculate_targetpath(for_what):
     global param, f
     for i in for_what:
         i[5] = datetime.fromtimestamp(i[5]).strftime('%Y-%m-%d-%H:%M')
-        print(i[5], file=f)
+        # print(i[5], file=f)
 
     return for_what
 
@@ -227,23 +228,23 @@ def search_files(where):
     global param, f
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Searching files in ' + where + "..." + '\x1b[0m', file=f)
     found_files = []
-    # also possible: glob
-    for root, dirs, files in os.walk(os.path.normpath(where)):
+    """ DEFINITION:
+        [0] full source path
+        [1] file name
+        [2] basename
+        [3] extension
+        [4] size
+        [5] mod-date
+        [6] hash
+        [7] full target path(s) <-- TODO: more than one useful?
+    """
+    # path.normpath:
+    """for root, dirs, files in os.walk(os.path.normpath(where)):
         for file in files:
             # TODO: if file.endswith(".CR2"):
             inter_path = os.path.join(root, file)
             inter_regex = re.search(r"(.*)(\.\w*)$", file)
             inter_stats = os.stat(inter_path)
-            """ DEFINITION:
-                [0] full source path
-                [1] file name
-                [2] basename
-                [3] extension
-                [4] size
-                [5] mod-date
-                [6] hash
-                [7] full target path(s) <-- TODO: more than one useful?
-            """
             found_files += [[inter_path,
                              file,
                              inter_regex.group(1),
@@ -252,6 +253,19 @@ def search_files(where):
                              inter_stats.st_mtime,
                              "XYZ",
                              "XYZ"]]
+    """
+    # glob:
+    for i in Path(where).glob('**/*'):
+        i = Path(i).resolve()
+        i_stat = i.stat()
+        found_files += [[str(i),
+                         i.name,
+                         i.stem,
+                         i.suffix,
+                         i_stat.st_size,
+                         i_stat.st_mtime,
+                         "XYZ",
+                         "XYZ"]]
 
     found_files = calculate_targetpath(found_files)
     print('    ' + str(len(found_files)) + " files found.", file=f)
