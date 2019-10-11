@@ -43,12 +43,12 @@ parser.add_argument("--ext-pref",
                     help="0 = all; -1 = exclude; 1 = include")
 parser.add_argument("--ext-list",  # TODO: make this regex-like and for whole file
                     dest="extension_list",
-                    default="cr2",
-                    help="Extensions to in-/exclude. Use like 'ext1||ext2'")
+                    default=".*cr2$|.*\/bla.*",
+                    help="Name(s) to include/exclude. Uses regex: see regular-expressions.info/refquick.html and regex101.com")
 parser.add_argument("--source-r",
                     dest="source_recurse",
                     type=int,
-                    default=1,
+                    default=0,
                     help="Search recursively (i.e. including subfolders) in source(s)")
 parser.add_argument("--source-d",
                     dest="source_dedup",
@@ -217,20 +217,19 @@ print('\x1b[1;33;40m' + pmc_version + '\x1b[0m', file=f)
 """
 
 
-def calculate_targetpath(for_what):
-    global param, f
-    for i in for_what:
-        i[5] = datetime.fromtimestamp(i[5]).strftime('%Y-%m-%d-%H:%M')
-        # print(i[5], file=f)
-
-    return for_what
-
-
 def search_files(where):
     # DEFINITION: Search for files, get basic directories:
     global param, f
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Searching files in ' + where + " ..."
           + '\x1b[0m', file=f)
+
+    def calculate_targetpath(for_what):
+        global param, f
+        for i in for_what:
+            i[5] = datetime.fromtimestamp(i[5]).strftime('%Y-%m-%d-%H:%M')
+            # print(i[5], file=f)
+        return for_what
+
     found_files = []
     """ DEFINITION:
         [0] full source path
@@ -242,7 +241,11 @@ def search_files(where):
         [6] hash
         [7] full target path(s) <-- TODO: more than one useful?
     """
-    for i in Path(where).glob('**/*'):
+    if(param.source_recurse == 1):
+        recurse = '**/*'
+    else:
+        recurse = '*'
+    for i in Path(where).glob(recurse):
         i = Path(i).resolve()
         i_suf = i.suffix
         if (param.extension_preference == 1 and i_suf.lower().replace('.', '') in param.extension_list
