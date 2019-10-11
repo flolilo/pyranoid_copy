@@ -43,8 +43,9 @@ parser.add_argument("--ext-pref",
                     help="0 = all; -1 = exclude; 1 = include")
 parser.add_argument("--ext-list",  # TODO: make this regex-like and for whole file
                     dest="extension_list",
-                    default=".*cr2$|.*\/bla.*",
-                    help="Name(s) to include/exclude. Uses regex: see regular-expressions.info/refquick.html and regex101.com")
+                    default=".*cr2$|.*/bla.*",
+                    help="Name(s) to include/exclude. Paths are converted to forward slashes (C:\ becomes C:/) and \
+                          case-insensitive regex is used: see regular-expressions.info/refquick.html and regex101.com")
 parser.add_argument("--source-r",
                     dest="source_recurse",
                     type=int,
@@ -242,26 +243,27 @@ def search_files(where):
         [7] full target path(s) <-- TODO: more than one useful?
     """
     if(param.source_recurse == 1):
-        recurse = '**/*'
+        recurse = '**/*.*'
     else:
-        recurse = '*'
+        recurse = '*/*.*'
     for i in Path(where).glob(recurse):
         i = Path(i).resolve()
-        i_suf = i.suffix
-        if (param.extension_preference == 1 and i_suf.lower().replace('.', '') in param.extension_list
-          or param.extension_preference == -1 and i_suf.lower().replace('.', '') not in param.extension_list
-          or param.extension_preference == 0):  # TODO: working, but make regex-like
+        if (param.extension_preference == 1 and re.search(param.extension_list, str(i.as_posix()), re.I) is not None
+          or param.extension_preference == -1 and re.search(param.extension_list, str(i.as_posix()), re.I) is None
+          or param.extension_preference == 0):
             i_stat = i.stat()
             found_files += [[str(i),
                              i.name,
                              i.stem,
-                             i_suf,
+                             i.suffix,
                              i_stat.st_size,
                              i_stat.st_mtime,
                              "XYZ",
                              "XYZ"]]
 
     found_files = calculate_targetpath(found_files)
+    for i in found_files:
+        print(i, file=f)
     print('    ' + str(len(found_files)) + " files found.", file=f)
     return found_files
 
@@ -278,7 +280,7 @@ def get_hashes(what):
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- Getting hashes...' + '\x1b[0m', file=f)
     for i in tqdm(what):
         if i[6] == "XYZ":
-            with open(i[0], "rb") as file:
+            with Path(i[0]).open("rb") as file:
                 while True:
                     buf = file.read(blocksize)
                     if not buf:
