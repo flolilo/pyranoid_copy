@@ -19,7 +19,8 @@ from datetime import datetime
 try:
     import colorama
 except ImportError:
-    print('\x1b[1;31;40m' + "Please install colorama: " + '\x1b[1;37;40m' + "pip install colorama" + '\x1b[0m')
+    print("For better readability, please install colorama: pip install colorama")
+    pass
 try:
     from tqdm import tqdm
 except ImportError:
@@ -167,8 +168,9 @@ print('\x1b[1;33;40m' + pmc_version + '\x1b[0m', file=f)
 # ==================================================================================================
 
 
-def print_time():
-    return str('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- ')
+def print_time(what):
+    global f
+    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- ' + what + '\x1b[0m', file=f)
 
 
 """ GUI:
@@ -226,8 +228,7 @@ def print_time():
 def search_files(where):
     # DEFINITION: Search for files, get basic directories:
     global param, f
-    print(print_time() + 'Searching files in ' + where + " ..."
-          + '\x1b[0m', file=f)
+    print_time(str("Searching files in " + where))
 
     def calculate_targetpath(for_what):
         global param, f
@@ -267,8 +268,7 @@ def search_files(where):
                              "XYZ"]]
 
     found_files = calculate_targetpath(found_files)
-    for i in found_files:
-        print(i, file=f)
+
     print('    ' + str(len(found_files)) + " files found.", file=f)
     return found_files
 
@@ -282,7 +282,7 @@ def get_hashes(what):
         algorithm = hashlib.blake2b()
         # print("Using BLAKE2", file=f)
     blocksize = 128*256
-    print(print_time() + 'Getting hashes...' + '\x1b[0m', file=f)
+    print_time('Getting hashes')
     for i in tqdm(what):
         if i[6] == "XYZ":
             with Path(i[0]).open("rb") as file:
@@ -297,8 +297,7 @@ def get_hashes(what):
 
 
 def save_json(what, where):
-    print(print_time() + 'Saving JSON ' + where
-          + '...' + '\x1b[0m', file=f)
+    print_time(str('Saving JSON ' + where))
     try:
         with Path(where).open('w+', encoding='utf-8') as outfile:
             json.dump(what, outfile, ensure_ascii=False, encoding='utf-8')
@@ -308,8 +307,7 @@ def save_json(what, where):
 
 def load_json(where):
     global param
-    print(print_time() + 'Loading JSON ' + where
-          + '...' + '\x1b[0m', file=f)
+    print_time(str('Loading JSON ' + where))
     try:
         with Path(where).open('r+', encoding='utf-8') as file:
             inter = json.load(file)
@@ -324,14 +322,14 @@ def load_json(where):
 
 
 def create_subfolders(for_what):
-    print(print_time() + 'Create folders...' + '\x1b[0m', file=f)
+    print_time('Create folders...')
     for i in for_what:
         if not os.path.exists(i[7]):  # TODO: Pathlib
             os.makedirs(i[7])
 
 
 def copy_files(what):
-    print(print_time() + 'Copy files...' + '\x1b[0m', file=f)
+    print_time('Copy files')
     for i in tqdm(what):
         try:
             shutil.copy2(i[0], os.path.join(i[7], str(i[2] + i[3])))
@@ -348,7 +346,7 @@ def print_files(source_files):
 
 def dedup_files(source, compare):
     global param
-    print(print_time() + 'Dedup files...' + '\x1b[0m', file=f)
+    print_time('Dedup files')
     deduped = []
     if len(compare) >= 1:
         for i in source:
@@ -407,8 +405,7 @@ def create_subdirs(source):
 
 def overwrite_protection(source):
     global param
-    print(print_time() + 'Prevent overwriting of files...'
-          + '\x1b[0m', file=f)
+    print_time('Prevent overwriting of files')
     if param.target_protect != 0:
         # output
         for i in source:
@@ -487,8 +484,6 @@ while True:
     if param.verify == 1:
         source_files = get_hashes(source_files)
 
-    for i in source_files:
-        print(i, file=f)
     # DEFINITION: prepare paths:
     create_subdirs(source_files)
 
@@ -519,4 +514,4 @@ while True:
     # all done:
     break
 
-print(print_time() + '\x1b[1;32;40mDone!', file=f)
+print_time('\x1b[1;32;40mDone!')
