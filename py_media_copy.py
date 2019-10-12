@@ -10,7 +10,7 @@ import os
 import sys
 import hashlib  # hash algorithms
 try:
-    from crc32c import crc32  # tryout: crc32c for intel
+    from crc32c import crc32  # TRYOUT: crc32c for intel
 except ImportError:
     from zlib import crc32
     pass
