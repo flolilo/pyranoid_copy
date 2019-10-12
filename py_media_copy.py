@@ -34,110 +34,104 @@ import argparse  # Set variables via parameters
 from pathlib import Path  # TODO: make all possible things with pathlib instead of os.path
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--source",
+parser.add_argument("--source", "-in",
                     dest="source",
                     default="./.testing/in",
-                    help="Source path(s). Multiple ones like 'path1||path2'")
-parser.add_argument("--target",
+                    help="Source path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
+parser.add_argument("--target", "-out",
                     dest="target",
                     default="./.testing/out",
-                    help="Target path(s). Multiple ones like 'path1||path2'")
-parser.add_argument("--filter-pref",
-                    dest="extension_preference",
+                    help="Target path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
+parser.add_argument("--filter_preference", "-filterpref",
+                    dest="filter_preference",
                     type=int,
                     default=0,
-                    help="0 = all; -1 = exclude; 1 = include")
-parser.add_argument("--filter-list",
-                    dest="extension_list",
+                    help="Filter preference. Works with --filter-list. \
+                          0 = all (no filter); -1 = exclude listed formats; 1 = include listed formats")
+parser.add_argument("--filter_list", "-filterlist",
+                    dest="filter_list",
                     default='.*cr2$|.*/bla.*',
-                    help="Name(s) to include/exclude. Paths are converted to forward slashes (C:\ becomes C:/) and \
+                    help="Name(s) to include/exclude. Paths are converted to forward slashes (C:\\ becomes C:/) and \
                           case-insensitive regex is used: see regular-expressions.info/refquick.html and regex101.com")
-parser.add_argument("--source-r",
+parser.add_argument("--recursive_search", "-r",
                     dest="source_recurse",
                     type=int,
                     default=0,
                     help="Search recursively (i.e. including subfolders) in source(s)")
-parser.add_argument("--source-d",
-                    dest="source_dedup",
+parser.add_argument("--deduplicate_source", "-dedupin",
+                    dest="dedup_source",
                     type=int,
                     default=1,
                     help="Search for duplicates in source(s)")
-parser.add_argument("--source-d-t",
-                    dest="source_dedup_tolerance",
+parser.add_argument("--deduplicate_source_tolerance", "-dedupintol",
+                    dest="dedup_source_tolerance",
                     type=int,
                     default=1,
-                    help="Allow 3sec difference for --source-d")
-parser.add_argument("--history-d",
-                    dest="history_dedup",
+                    help="Allow 3sec difference for --deduplicate_source")
+parser.add_argument("--deduplicate_history", "-deduphist",
+                    dest="dedup_history",
                     type=int,
                     default=1,
                     help="Search for duplicates in history-file.")
-parser.add_argument("--history-p",
+parser.add_argument("--history_path", "-histpath",
                     dest="history_path",
                     default="./pmc_history.json",
-                    help="Path of history-file.")
-parser.add_argument("--history-w",
-                    dest="history_write",
+                    help="Path of history-file. Can be relative/absolute.")
+parser.add_argument("--history_writemode", "-histw",
+                    dest="history_writemode",
                     type=int,
                     default=2,
-                    help="0 = don't write, 1 = append, 2 = overwrite.")
-parser.add_argument("--target-d",
-                    dest="target_dedup",
+                    help="0 = do not write, 1 = append, 2 = overwrite.")
+parser.add_argument("--dedup_target", "-dedupout",
+                    dest="dedup_target",
                     type=int,
                     default=0,
                     help="Check for duplicates in target-folder.")
-parser.add_argument("--dupli-h",
+parser.add_argument("--dedup_usehash", "-deduphash",
                     dest="dedup_hash",
                     type=int,
                     default=0,
-                    help="Use hashes for dedup-check.")
-parser.add_argument("--target-owp",
+                    help="Use hashes for dedup-check(s).")
+parser.add_argument("--target_protect_existing", "-owp",
                     dest="target_protect",
                     type=int,
                     default=1,
-                    help="Overwrite-protection.")
-parser.add_argument("--naming-sd",
+                    help="Overwrite-protection for existing files in target.")
+parser.add_argument("--naming_subdir", "-namesub",
                     dest="naming_subdir",
                     default="%y-%m-%d",
-                    help="Name scheme for subdirs. See strftime.org for reference. Empty string will create no subdir.")
-parser.add_argument("--naming-f",
+                    help="Name scheme for subdirs. For time and date, see strftime.org for reference. \
+                          Empty string will create no subdir.")
+parser.add_argument("--naming_file", "-namefile",
                     dest="naming_file",
                     default="",
-                    help="Name scheme for files. See strftime.org for reference. Empty string will not change name.")
-parser.add_argument("--verify",
+                    help="Name scheme for file names. For time and date, see strftime.org for reference. \
+                          Empty string will not change name.")
+parser.add_argument("--verify", "-test",
                     dest="verify",
                     type=int,
                     default=1,
                     help="Verify files via checksum")
-parser.add_argument("--verify-h",
-                    dest="verify_hash",
-                    default="MD5",
-                    help="Hash for verification")
-parser.add_argument("--target-c",
-                    dest="target_compress",
-                    type=int,
-                    default=0,
-                    help="Compress files for target # >1")
-parser.add_argument("--unsleep",
-                    dest="unsleep",
+parser.add_argument("--nosleep",
+                    dest="nosleep",
                     type=int,
                     default=1,
-                    help="Prevent system from sleep")
-parser.add_argument("--preset",
+                    help="Prevent system from standby.")
+parser.add_argument("--preset", "-pres",
                     dest="preset",
                     default="default",
                     help="Preset name")
-parser.add_argument("--preset-w-source",
+parser.add_argument("--preset_save_source", "-saveinpath",
                     dest="save_source",
                     type=int,
                     default=0,
                     help="Save source path(s) to preset")
-parser.add_argument("--preset-w-target",
+parser.add_argument("--preset_save_target", "-saveoutpath",
                     dest="save_target",
                     type=int,
                     default=0,
                     help="Save target path(s) to preset")
-parser.add_argument("--preset-w-settings",
+parser.add_argument("--preset_save_settings", "-savesettings",
                     dest="save_settings",
                     type=int,
                     default=0,
@@ -259,9 +253,9 @@ def search_files(where):
         recurse = '*/*.*'
     for i in Path(where).glob(recurse):
         i = Path(i).resolve()
-        if (param.extension_preference == 1 and re.search(param.extension_list, str(i.as_posix()), re.I) is not None
-          or param.extension_preference == -1 and re.search(param.extension_list, str(i.as_posix()), re.I) is None
-          or param.extension_preference == 0):
+        if (param.filter_preference == 1 and re.search(param.filter_list, str(i.as_posix()), re.I) is not None
+          or param.filter_preference == -1 and re.search(param.filter_list, str(i.as_posix()), re.I) is None
+          or param.filter_preference == 0):
             i_stat = i.stat()
             found_files += [[str(i),
                              i.name,
@@ -455,20 +449,20 @@ while True:
 
     # DEFINITION: Dedups:
     # dedup source:
-    if param.source_dedup == 1:
+    if param.dedup_source == 1:
         # get hashes:
-        if param.verify_hash == 1:
+        if param.verify == 1:
             source_files = get_hashes(source_files)
         source_files = dedup_files(source_files, set())
         if len(source_files) < 1:
             break
 
     # dedup history:
-    if param.history_dedup == 1:
+    if param.dedup_history == 1:
         history_files = load_json(param.history_path)
         if len(history_files) > 0:
             # get hashes:
-            if param.verify_hash == 1:
+            if param.verify == 1:
                 source_files = get_hashes(source_files)
             source_files = dedup_files(source_files, history_files)
             history_files = None
@@ -476,11 +470,11 @@ while True:
                 break
 
     # dedup target:
-    if param.target_dedup == 1:
+    if param.dedup_target == 1:
         target_files = search_files(param.target)
         target_files = [1], [4], [5]
         # get hashes:
-        if param.verify_hash == 1:
+        if param.verify == 1:
             source_files = get_hashes(source_files)
             target_files = get_hashes(target_files)
         source_files = dedup_files(source_files, target_files)
@@ -501,7 +495,7 @@ while True:
     # DEFINITION: Verify:
 
     # DEFINITION: write history:
-    if param.history_write >= 1:
+    if param.history_writemode > 0:
         history_files = load_json(param.history_path)
         to_save = source_files
         for i in to_save:
@@ -510,7 +504,7 @@ while True:
             del i[2]
             del i[0]
 
-        if param.history_write == 1 and history_files is not None:
+        if param.history_writemode == 1 and history_files is not None:
             to_save += history_files
 
         to_save.sort()
