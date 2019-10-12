@@ -136,7 +136,7 @@ parser.add_argument("--preset_save_settings", "-savesettings",
                     type=int,
                     default=0,
                     help="Save settings to preset")
-parser.add_argument("--verbose",
+parser.add_argument("--verbose",  # TODO: make verbose also for small prints like "using hash xyz" with more values?
                     dest="verbose",
                     type=int,
                     default=1,
@@ -145,7 +145,7 @@ param = parser.parse_args()
 
 # DEFINITION: Set print location (none/terminal/file)
 if (param.verbose == 2):
-    f = Path("./pmc.log").open(mode='a+')
+    f = Path("./pmc.log").open(mode='a+', encoding='utf-8')
 elif (param.verbose == 0):
     f = open(os.devnull, 'w')
     sys.stdout = f
@@ -278,7 +278,7 @@ def get_hashes(what):
         algorithm = hashlib.sha1()
         # print("Using SHA1", file=f)
     else:
-        algorithm = hashlib.blake2b()
+        algorithm = hashlib.blake2b()  # Use smaller hash-string (digest_size)
         # print("Using BLAKE2", file=f)
     blocksize = 128*256
     print_time('Getting hashes')
@@ -290,7 +290,7 @@ def get_hashes(what):
                     buf = file.read(blocksize)
                     if not buf:
                         break
-                    algorithm.update(buf)
+                    # algorithm.update(buf)
                     crcvalue = (crc32(buf, crcvalue) & 0xffffffff)
                 # i[6] = algorithm.hexdigest()
                 i[6] = crcvalue
