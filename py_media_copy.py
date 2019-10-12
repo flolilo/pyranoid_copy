@@ -9,6 +9,11 @@ from pmc_ver import pmc_version
 import os
 import sys
 import hashlib  # hash algorithms
+try:
+    from crc32c import crc32  # tryout: crc32c for intel
+except ImportError:
+    from zlib import crc32
+    pass
 import re  # regex
 import shutil  # High-level file copy
 import json  # saving/loading JSON files
@@ -37,14 +42,14 @@ parser.add_argument("--target",
                     dest="target",
                     default="./.testing/out",
                     help="Target path(s). Multiple ones like 'path1||path2'")
-parser.add_argument("--ext-pref",
+parser.add_argument("--filter-pref",
                     dest="extension_preference",
                     type=int,
-                    default=1,
+                    default=0,
                     help="0 = all; -1 = exclude; 1 = include")
-parser.add_argument("--ext-list",
+parser.add_argument("--filter-list",
                     dest="extension_list",
-                    default=".*cr2$|.*/bla.*",
+                    default='.*cr2$|.*/bla.*',
                     help="Name(s) to include/exclude. Paths are converted to forward slashes (C:\ becomes C:/) and \
                           case-insensitive regex is used: see regular-expressions.info/refquick.html and regex101.com")
 parser.add_argument("--source-r",
@@ -286,23 +291,26 @@ def get_hashes(what):
     for i in tqdm(what):
         if i[6] == "XYZ":
             with Path(i[0]).open("rb") as file:
+                crcvalue = 0
                 while True:
                     buf = file.read(blocksize)
                     if not buf:
                         break
                     algorithm.update(buf)
-                i[6] = algorithm.hexdigest()
+                    crcvalue = (crc32(buf, crcvalue) & 0xffffffff)
+                # i[6] = algorithm.hexdigest()
+                i[6] = crcvalue
 
     return what
 
 
 def save_json(what, where):
     print_time(str('Saving JSON ' + where))
-    try:
-        with Path(where).open('w+', encoding='utf-8') as outfile:
-            json.dump(what, outfile, ensure_ascii=False, encoding='utf-8')
-    except Exception:
-        print("    Error!", file=f)
+    # try:
+        # with open(where, 'w+', encoding='utf-8') as outfile:
+    Path(where).write_text(json.dumps(what, ensure_ascii=False, indent="\t", separators=(',', ':')), encoding='utf-8')
+    # except Exception:
+       # print("    Error!", file=f)
 
 
 def load_json(where):
@@ -485,10 +493,10 @@ while True:
         source_files = get_hashes(source_files)
 
     # DEFINITION: prepare paths:
-    create_subdirs(source_files)
+    # create_subdirs(source_files)
 
     # DEFINITION: Copy:
-    copy_files(source_files)
+    # copy_files(source_files)
 
     # DEFINITION: Verify:
 

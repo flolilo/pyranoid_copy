@@ -15,7 +15,7 @@ v0.0.2:
 v0.0.3:
     [ ] File renaming
     [x] File overwrite-protection @done(19-05-27 22:45)
-    [ ] Include/exclude files per extension
+    [x] Include/exclude files per extension @done(19-10-12 01:32)
 
 v0.0.4:
     [ ] Offer presets for settings
@@ -41,7 +41,7 @@ v0.0.10:
 
 v0.99.1:
     [ ] All of the above are tested and work reasonably (beta-stage)
-    [ ] Create ` devel`-branch
+    [ ] Create `devel`-branch
 
 v1.0.0:
     [ ] Like **v0.99.x**, but long-term tested. _(Therefore, not likely to be released soon - this should become a production tool and as such, I don't want your files to vanish!)_
