@@ -306,11 +306,11 @@ def get_hashes(what):
 
 def save_json(what, where):
     print_time(str('Saving JSON ' + where))
-    # try:
-        # with open(where, 'w+', encoding='utf-8') as outfile:
-    Path(where).write_text(json.dumps(what, ensure_ascii=False, indent="\t", separators=(',', ':')), encoding='utf-8')
-    # except Exception:
-       # print("    Error!", file=f)
+    try:
+        Path(where).write_text(json.dumps(what, ensure_ascii=False, indent="\t",
+                                          separators=(',', ':')), encoding='utf-8')
+    except Exception:
+        print("    Error!", file=f)
 
 
 def load_json(where):
