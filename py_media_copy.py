@@ -32,10 +32,10 @@ try:
 except ImportError:
     print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "pip install tqdm" + '\x1b[0m')
     sleep(3)
-import argparse  # Set variables via parameters
+from argparse import ArgumentParser  # Set variables via parameters
 from pathlib import Path  # TODO: make all possible things with pathlib instead of os.path
 
-parser = argparse.ArgumentParser()
+parser = ArgumentParser()
 parser.add_argument("--source", "-in",
                     dest="source",
                     default="./.testing/in",
