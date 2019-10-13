@@ -1,42 +1,24 @@
 ## Milestones
-(All v0.0.x-versions are considered alpha-stage! Any version jump could break anything. First stable is expected to be v0.99.1)
+All v0.0.x-versions are considered alpha-stage! **Any version jump could break anything (i.e. no semantic versioning below 0.99.x), first stable is expected to be v0.99.1.**
 
-v0.0.1:
+v0.0.1++:
     [x] Proof of concept GUI (rudimentary controls, interaction with script) @done(19-03-21 15:13)
     [x] Copy a single file from `S` to `T`, check checksums @done(19-03-23 21:06)
     [-] Copy same file from `T` to `B`, check cheksums @cancelled(19-03-23 21:07)
     [x] Dupli-check a single file against history @done(19-03-24 17:00)
     [x] Dupli-check a single file against `T` (& `B`) files @done(19-03-24 19:40)
-
-v0.0.2:
     [x] Make **v0.0.1** code (except GUI) capable for multiple files @done(19-03-24 19:44)
     [x] Offer parameters @done(19-03-24 20:15)
-
-v0.0.3:
     [ ] File renaming
     [x] File overwrite-protection @done(19-05-27 22:45)
     [x] Include/exclude files per extension @done(19-10-12 01:32)
-
-v0.0.4:
     [ ] Offer presets for settings
-
-v0.0.5:
     [ ] Implement GUI for setting things up (output via console)
     [ ] Create fallback to script-only for people without GUI-dependencies
-
-v0.0.6:
     [ ] Implement output via GUI?
-
-v0.0.7:
     [ ] ? Prevent computer from going to sleep ? (needs investigation whether feasible or not)
-
-v0.0.8:
     [ ] Saving/storing presets
-
-v0.0.9:
-    [ ] Test parameters
-
-v0.0.10:
+    [x] Test parameters @done(19-10-13 02:47)
     [ ] Make exceptions
 
 v0.99.1:
