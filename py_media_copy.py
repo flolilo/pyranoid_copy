@@ -25,11 +25,13 @@ try:
     import colorama
 except ImportError:
     print("For better readability, please install colorama: pip install colorama")
+    sleep(2)
     pass
 try:
     from tqdm import tqdm
 except ImportError:
     print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "pip install tqdm" + '\x1b[0m')
+    sleep(3)
 import argparse  # Set variables via parameters
 from pathlib import Path  # TODO: make all possible things with pathlib instead of os.path
 
@@ -43,9 +45,9 @@ parser.add_argument("--target", "-out",
                     default="./.testing/out",
                     help="Target path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
 parser.add_argument("--filter_preference", "-filterpref",
-                    dest="filter_preference",
+                    dest="filter_pref",
                     type=int,
-                    default=0,
+                    default=1,
                     help="Filter preference. Works with --filter-list. \
                           0 = all (no filter); -1 = exclude listed formats; 1 = include listed formats")
 parser.add_argument("--filter_list", "-filterlist",
@@ -54,7 +56,7 @@ parser.add_argument("--filter_list", "-filterlist",
                     help="Name(s) to include/exclude. Paths are converted to forward slashes (C:\\ becomes C:/) and \
                           case-insensitive regex is used: see regular-expressions.info/refquick.html and regex101.com")
 parser.add_argument("--recursive_search", "-r",
-                    dest="source_recurse",
+                    dest="recursive",
                     type=int,
                     default=0,
                     help="Search recursively (i.e. including subfolders) in source(s)")
@@ -76,12 +78,12 @@ parser.add_argument("--deduplicate_history", "-deduphist",
 parser.add_argument("--history_path", "-histpath",
                     dest="history_path",
                     default="./pmc_history.json",
-                    help="Path of history-file. Can be relative/absolute.")
+                    help="Path of history-file. Can be relative/absolute. For --history_writemode=3: 'in|out'")
 parser.add_argument("--history_writemode", "-histw",
                     dest="history_writemode",
                     type=int,
                     default=2,
-                    help="0 = do not write, 1 = append, 2 = overwrite.")
+                    help="0 = do not write, 1 = append, 2 = overwrite, 3 = new file/overwrite existing 2nd file.")
 parser.add_argument("--dedup_target", "-dedupout",
                     dest="dedup_target",
                     type=int,
@@ -154,9 +156,8 @@ else:
 
 #  for glob:
 if (sys.hexversion < 0x030500F0):
-    print("Cannot run py_media-copy on versions older than 3.5 - sorry! Please update.", file=sys.stderr)
     f.close()
-    sys.exit(0)
+    sys.exit('\x1b[1;31;40m' + "Cannot run py_media-copy on python < v3.5! Please update." + '\x1b[0m')
 
 print('\x1b[1;33;40m' + pmc_version + '\x1b[0m', file=f)
 
@@ -222,6 +223,119 @@ def print_time(what):
         f.close()
         sys.exit(0)
 """
+
+
+def check_params():
+    # DEFINITION: check all parameters
+    global param, f
+
+    def print_error(what):
+        global f
+        print('\x1b[1;31;40m' + "    " + what + '\x1b[0m', file=f)
+        f.close()
+        sleep(1)
+        sys.exit(1)
+
+    # --source:
+    try:
+        param.source = [Path(i).resolve() for i in re.split('\|', param.source) if len(i) > 0 and Path(i).is_dir()]
+    except Exception:
+        print_error("Error in --source!")
+    if (len(param.source) < 1):
+        print_error("No source path(s) actually found!")
+
+    # --target:
+    try:
+        param.target = [Path(i).resolve() for i in re.split('\|', param.target) if len(i) > 0 and Path(i).is_dir()]
+    except Exception:
+        print_error("Error in --target!")
+    if (len(param.target) < 1):
+        print_error("No target path(s) actually found!")
+
+    # --filter_preference & --filer_list:
+    if (not -1 <= param.filter_pref <= 1):
+        print_error("No valid int for --filter_preference!")
+    elif (param.filter_pref != 0 and len(param.filter_list) < 1):
+        print_error("--filter_list is empty!")
+
+    # --recursive_search:
+    if (not 0 <= param.recursive <= 1):
+        print_error("No valid int for --recursive_search!")
+
+    # --deduplicate_source & --deduplicate_source_tolerance:
+    if (not 0 <= param.dedup_source <= 1):
+        print_error("No valid int for --deduplicate_source!")
+    elif(param.dedup_source == 1 and not 0 <= param.dedup_source_tolerance <= 1):
+        print_error("No valid int for --deduplicate_source_tolerance!")
+
+    # TODO: --deduplicate_history & --history_path & --history_writemode:
+    if(not 0 <= param.dedup_history <= 1):
+        print_error("No valid int for --deduplicate_history!")
+    if(not 0 <= param.history_writemode <= 3):
+        print_error("No valid int for --history_writemode!")
+    if(param.dedup_history == 1 or param.history_writemode > 0):
+        param.history_path = [Path(i).resolve for i in re.split('\|', param.history_path) if Path(i).parent.is_dir()]
+        if(len(param.history_path) > 0):
+            if(0 < param.history_writemode <= 2):
+                param.history_path = param.history_path[0]
+            else:
+                if(len(param.history_path) > 1):
+                    param.history_path = [param.history_path[0], param.history_path[1]]
+                else:
+                    print_error("Not enough paths for --history_writemode 3!")
+        else:
+            print_error("No history-path!")
+    else:
+        print_error("TODO:")
+
+    # --dedup_target:
+    if (not 0 <= param.dedup_target <= 1):
+        print_error("No valid int for --dedup_target!")
+
+    # --dedup_usehash
+    if (not 0 <= param.dedup_hash <= 1):
+        print_error("No valid int for --dedup_usehash!")
+
+    # --target_protect_existing
+    if (not 0 <= param.target_protect <= 1):
+        print_error("No valid int for --target_protect_existing!")
+
+    # TODO: --naming_subdir:
+
+    # TODO: --naming_file:
+
+    # --verify:
+    if (not 0 <= param.verify <= 1):
+        print_error("No valid int for --verify!")
+
+    # --nosleep:
+    if (not 0 <= param.nosleep <= 1):
+        print_error("No valid int for --nosleep!")
+
+    # --preset:
+    if (len(param.preset) < 1):
+        print_error("No valid string for --preset!")
+
+    # --preset_save_source:
+    if (not 0 <= param.save_source <= 1):
+        print_error("No valid int for --preset_save_source!")
+
+    # --preset_save_target:
+    if (not 0 <= param.save_target <= 1):
+        print_error("No valid int for --preset_save_target!")
+
+    # --preset_save_settings:
+    if (not 0 <= param.save_settings <= 1):
+        print_error("No valid int for --preset_save_settings!")
+
+    # --verbose:
+    if (not 0 <= param.verbose <= 2):
+        print_error("No valid int for --verbose!")
+
+
+check_params()
+f.close()
+sys.exit(0)
 
 
 def search_files(where):
