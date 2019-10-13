@@ -13,5 +13,24 @@ This means highly granular controls and a focus on copying only.
  - **Checksum-/hash-based verification of copied file**
  - Include/exclude by regex pattern(s)
 
+## Installation:
+**This will change once this is in a working state. At the moment:
+```sh
+# get the repository:
+git clone <this_repo>
+cd ./<this_repo>
+
+# create virtual environment, activate it:
+python -m venv ./.venv
+<Powershell:> & ./.venv/Scripts/activate.ps1
+<sh:> source ./.venv/bin/activate
+
+# install requirements:
+python -m pip install -r ./requirements.txt
+
+# run py_media-copy:
+python ./py_media_copy.py
+```
+
 ## Milestones:
-See the TODO file.
+See the [TODO file](./TODO.todo).
