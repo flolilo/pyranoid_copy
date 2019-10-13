@@ -9,6 +9,7 @@ v0.0.1++:
     [x] Dupli-check a single file against `T` (& `B`) files @done(19-03-24 19:40)
     [x] Make **v0.0.1** code (except GUI) capable for multiple files @done(19-03-24 19:44)
     [x] Offer parameters @done(19-03-24 20:15)
+        [ ] Check parameters
     [ ] File renaming
     [x] File overwrite-protection @done(19-05-27 22:45)
     [x] Include/exclude files per extension @done(19-10-12 01:32)
