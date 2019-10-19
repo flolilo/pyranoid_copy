@@ -58,7 +58,7 @@ parser.add_argument("--filter_list", "-filterlist",
 parser.add_argument("--recursive_search", "-r",
                     dest="recursive",
                     type=int,
-                    default=0,
+                    default=1,
                     help="Search recursively (i.e. including subfolders) in source(s)")
 parser.add_argument("--deduplicate_source", "-dedupin",
                     dest="dedup_source",
@@ -144,6 +144,7 @@ parser.add_argument("--verbose",  # TODO: make verbose also for small prints lik
                     default=1,
                     help="Verbose. 2 = file, 1 = console, 0 = none")
 param = parser.parse_args()
+param.hash_calc_needed = 1
 
 # DEFINITION: Set print location (none/terminal/file)
 if (param.verbose == 2):
@@ -354,7 +355,8 @@ def search_files(where):
     else:
         recurse = '*/*.*'
 
-    for i in tqdm(where, desc="Paths", unit="Paths", bar_format="{desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
+    for i in tqdm(where, desc="Paths", unit="Paths",
+                  bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
         for j in Path(i).glob(recurse):
             j = Path(j).resolve()
             if (param.filter_pref == 1 and re.search(param.filter_list, str(j.as_posix()), re.I) is not None
@@ -370,8 +372,6 @@ def search_files(where):
                                 "XYZ",
                                 "XYZ"]]
 
-
-
     print('    ' + str(len(found_files)) + " files found.", file=f)
     return found_files
 
@@ -385,8 +385,9 @@ def get_hashes(what):
         algorithm = hashlib.blake2b()  # Use smaller hash-string (digest_size)
         # print("Using BLAKE2", file=f)
     blocksize = 128*256
-    print_time('Getting hashes')
-    for i in tqdm(what):
+    print_time("Getting hashes...")
+    for i in tqdm(what, desc="Files", unit="f",
+                  bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
         if i[6] == "XYZ":
             with Path(i[0]).open("rb") as file:
                 crcvalue = 0
@@ -402,41 +403,43 @@ def get_hashes(what):
     return what
 
 
-def dedup_files(source, compare):
+def dedup_files(source, compare, what_string):
     global param, f
-    print_time("Dedup files...")
+    print_time("Dedup " + what_string + " files...")
     deduped = []
-    if len(compare) >= 1:
-        for i in tqdm(source):
+    if (len(compare) > 0):
+        for i in tqdm(source, desc="Files", unit="f",
+                      bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
             j = 0
             while True:
                 """
-                if ((param.dedup_hash != 1 and (tuple([i[1], i[4], i[5]]) not in compare)) or
-                (param.dedup_hash == 1 and (tuple([i[1], i[4], i[5], i[6]]) not in compare))):
-                    deduped.append(i)
+                    if ((param.dedup_hash != 1 and (tuple([i[1], i[4], i[5]]) not in compare)) or
+                    (param.dedup_hash == 1 and (tuple([i[1], i[4], i[5], i[6]]) not in compare))):
+                        deduped.append(i)
                 """
                 # TODO: try https://stackoverflow.com/a/15544861
                 # TODO: try https://stackoverflow.com/q/17555218
                 # TODO: try https://www.peterbe.com/plog/uniqifiers-benchmark
-                if i[1] == compare[j][0] and i[4] == compare[j][1] and i[5] == compare[j][2]:
+                if (i[1] == compare[j][0] and i[4] == compare[j][1] and i[5] == compare[j][2]):
                     # print(i[1] + " is a duplicate.", file=f)
                     break
                 else:
-                    if (j + 1) < len(compare):
+                    if ((j + 1) < len(compare)):
                         j += 1
                     else:
                         # print(str(i[1]) + ", " + str(i[4]) + ", " + str(i[5]), file=f)
                         deduped.append(i)
                         break
     else:
-        for i in tqdm(source):
-            if tuple([i[1], i[4], i[5]]) not in compare:
+        for i in tqdm(source, desc="Files", unit="f",
+                      bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
+            if (tuple([i[1], i[4], i[5]]) not in compare):
                 # print(str(i[1]) + str(i[4]) + str(i[5]), file=f)
                 deduped.append(i)
                 """
-                if param.dedup_hash == 1:
-                    compare.add(tuple([i[1], i[4], i[5], i[6]]))
-                else:
+                    if param.dedup_hash == 1:
+                        compare.add(tuple([i[1], i[4], i[5], i[6]]))
+                    else:
                 """
                 compare.add(tuple([i[1], i[4], i[5]]))
                 # print(compare, file=f)
@@ -447,8 +450,8 @@ def dedup_files(source, compare):
 
 def calculate_targetpath(for_what):
     global param, f
-    for i in for_what:
-        i[5] = datetime.fromtimestamp(i[5]).strftime('%Y-%m-%d-%H:%M')
+    # for i in for_what:
+        # i[5] = datetime.fromtimestamp(i[5]).strftime('%Y-%m-%d-%H:%M')
         # print(i[5], file=f)
     return for_what
 
@@ -487,7 +490,8 @@ def create_subfolders(for_what):
 
 def copy_files(what):
     print_time('Copy files')
-    for i in tqdm(what):
+    for i in tqdm(what, desc="Files", unit="f",
+                  bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
         try:
             shutil.copy2(i[0], os.path.join(i[7], str(i[2] + i[3])))
         except Exception:
@@ -565,9 +569,9 @@ while True:
     # dedup source:
     if param.dedup_source == 1:
         # get hashes:
-        if param.verify == 1:
+        if param.dedup_hash == 1:
             source_files = get_hashes(source_files)
-        source_files = dedup_files(source_files, set())
+        source_files = dedup_files(source_files, set(), "source")
         if len(source_files) < 1:
             break
 
@@ -576,9 +580,9 @@ while True:
         history_files = load_json(param.history_path)
         if len(history_files) > 0:
             # get hashes:
-            if param.verify == 1:
+            if param.dedup_hash == 1:
                 source_files = get_hashes(source_files)
-            source_files = dedup_files(source_files, history_files)
+            source_files = dedup_files(source_files, history_files, "history")
             history_files = None
             if len(source_files) < 1:
                 break
@@ -588,7 +592,7 @@ while True:
         target_files = search_files(param.target)
         target_files = [1], [4], [5]
         # get hashes:
-        if param.verify == 1:
+        if param.dedup_hash == 1:
             source_files = get_hashes(source_files)
             target_files = get_hashes(target_files)
         source_files = dedup_files(source_files, target_files)
@@ -602,7 +606,7 @@ while True:
 
     # DEFINITION: prepare paths:
     # create_subdirs(source_files)
-    source_files = calculate_targetpath(source_files)
+    # source_files = calculate_targetpath(source_files)
 
     # DEFINITION: Copy:
     # copy_files(source_files)
