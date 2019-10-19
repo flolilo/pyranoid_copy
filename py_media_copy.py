@@ -38,7 +38,7 @@ from pathlib import Path  # TODO: make all possible things with pathlib instead 
 parser = ArgumentParser()
 parser.add_argument("--source", "-in",
                     dest="source",
-                    default="./.testing/in|./.testing/in",
+                    default="./.testing/in",
                     help="Source path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
 parser.add_argument("--target", "-out",
                     dest="target",
@@ -274,9 +274,9 @@ def check_params():
     if(not 0 <= param.history_writemode <= 3):
         print_error("No valid int for --history_writemode!")
     if(param.dedup_history == 1 or param.history_writemode > 0):
-        param.history_path = [Path(i).resolve for i in re.split('\|', param.history_path) if Path(i).parent.is_dir()]
+        param.history_path = [Path(i).resolve() for i in re.split('\|', param.history_path) if Path(i).parent.is_dir()]
         if(len(param.history_path) > 0):
-            if(0 < param.history_writemode <= 2):
+            if(param.history_writemode <= 2):
                 param.history_path = param.history_path[0]
             else:
                 if(len(param.history_path) > 1):
@@ -376,49 +376,6 @@ def search_files(where):
     return found_files
 
 
-def dedup_files(source, compare):
-    global param
-    print_time('Dedup files')
-    deduped = []
-    if len(compare) >= 1:
-        for i in source:
-            j = 0
-            while True:
-                """
-                if ((param.dedup_hash != 1 and (tuple([i[1], i[4], i[5]]) not in compare)) or
-                (param.dedup_hash == 1 and (tuple([i[1], i[4], i[5], i[6]]) not in compare))):
-                    deduped.append(i)
-                """
-                # TODO: try https://stackoverflow.com/a/15544861
-                # TODO: try https://stackoverflow.com/q/17555218
-                # TODO: try https://www.peterbe.com/plog/uniqifiers-benchmark
-                if i[1] == compare[j][0] and i[4] == compare[j][1] and i[5] == compare[j][2]:
-                    # print(i[1] + " is a duplicate.", file=f)
-                    break
-                else:
-                    if (j + 1) < len(compare):
-                        j += 1
-                    else:
-                        # print(str(i[1]) + ", " + str(i[4]) + ", " + str(i[5]), file=f)
-                        deduped.append(i)
-                        break
-    else:
-        for i in source:
-            if tuple([i[1], i[4], i[5]]) not in compare:
-                # print(str(i[1]) + str(i[4]) + str(i[5]), file=f)
-                deduped.append(i)
-                """
-                if param.dedup_hash == 1:
-                    compare.add(tuple([i[1], i[4], i[5], i[6]]))
-                else:
-                """
-                compare.add(tuple([i[1], i[4], i[5]]))
-                # print(compare, file=f)
-
-    print('    ' + str(len(source) - len(deduped)) + " duplicates found.", file=f)
-    return deduped
-
-
 def get_hashes(what):
     # DEFINITION: Get hashes for files:
     if sys.hexversion < 0x030600F0:
@@ -445,6 +402,49 @@ def get_hashes(what):
     return what
 
 
+def dedup_files(source, compare):
+    global param, f
+    print_time("Dedup files...")
+    deduped = []
+    if len(compare) >= 1:
+        for i in tqdm(source):
+            j = 0
+            while True:
+                """
+                if ((param.dedup_hash != 1 and (tuple([i[1], i[4], i[5]]) not in compare)) or
+                (param.dedup_hash == 1 and (tuple([i[1], i[4], i[5], i[6]]) not in compare))):
+                    deduped.append(i)
+                """
+                # TODO: try https://stackoverflow.com/a/15544861
+                # TODO: try https://stackoverflow.com/q/17555218
+                # TODO: try https://www.peterbe.com/plog/uniqifiers-benchmark
+                if i[1] == compare[j][0] and i[4] == compare[j][1] and i[5] == compare[j][2]:
+                    # print(i[1] + " is a duplicate.", file=f)
+                    break
+                else:
+                    if (j + 1) < len(compare):
+                        j += 1
+                    else:
+                        # print(str(i[1]) + ", " + str(i[4]) + ", " + str(i[5]), file=f)
+                        deduped.append(i)
+                        break
+    else:
+        for i in tqdm(source):
+            if tuple([i[1], i[4], i[5]]) not in compare:
+                # print(str(i[1]) + str(i[4]) + str(i[5]), file=f)
+                deduped.append(i)
+                """
+                if param.dedup_hash == 1:
+                    compare.add(tuple([i[1], i[4], i[5], i[6]]))
+                else:
+                """
+                compare.add(tuple([i[1], i[4], i[5]]))
+                # print(compare, file=f)
+
+    print('    ' + str(len(source) - len(deduped)) + " duplicates found.", file=f)
+    return deduped
+
+
 def calculate_targetpath(for_what):
     global param, f
     for i in for_what:
@@ -454,7 +454,7 @@ def calculate_targetpath(for_what):
 
 
 def save_json(what, where):
-    print_time(str('Saving JSON ' + where))
+    print_time(str('Saving JSON ' + str(where)))
     try:
         Path(where).write_text(json.dumps(what, ensure_ascii=False, indent="\t",
                                           separators=(',', ':')), encoding='utf-8')
@@ -463,8 +463,8 @@ def save_json(what, where):
 
 
 def load_json(where):
-    global param
-    print_time(str('Loading JSON ' + where))
+    global param, f
+    print_time('Loading JSON ' + str(where))
     try:
         with Path(where).open('r+', encoding='utf-8') as file:
             inter = json.load(file)
