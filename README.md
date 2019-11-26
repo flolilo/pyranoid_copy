@@ -8,7 +8,6 @@ This tool is mainly orientated on my [media-copytool](https://github.com/flolilo
 ## Features:
  - Will work on all (desktop) OSs that are supported by [Python ≥ 3.5](https://www.python.org/downloads/),
  - Optimised for copying large quantities of mission critical files, e.g. wedding photos:
-   - Checking CRC32 of every file after clearing the disk cache, thus reducing the risk of a bad copy
  - Lightweight,
  - Standalone binaries (i.e. `py_media_copy.exe`) available,
  - Highly granular controls:
@@ -30,7 +29,7 @@ This tool is mainly orientated on my [media-copytool](https://github.com/flolilo
  - Standalone planned / as little extra dependencies as feasible (and all on [`pip`](https://pypi.org/)) with decent usability (planned at the moment: [tqdm](https://github.com/tqdm/tqdm) required, [colorama](https://github.com/tartley/colorama) recommended, [crc32c](https://github.com/ICRAR/crc32c) if desired) for "source" installation (i.e. not using the binaries, but the script file itself).
  - (Smart) renaming options for files and subfolders: [Strftime magic strings](https://docs.python.org/3.7/library/datetime.html#strftime-and-strptime-behavior) (e.g. `%Y-%m-%d` for `2019-11-31`)
  - Redundancy checks against history file / target-folder / multiple inputs
- - **Checksum-/hash-based verification of copied file**
+ - Checking CRC32 of every file after clearing the disk cache, thus reducing the risk of a bad copy
  - Include/exclude by regex pattern(s) (e.g. `.*\.jpg` - [see my regex101.com example for what this does](https://regex101.com/r/0WHdUL/2))
 
 
