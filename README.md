@@ -6,7 +6,7 @@ This tool is mainly orientated on my [media-copytool](https://github.com/flolilo
 **Note that as of now, this tool is not even finished in a rough state - I am still in the progress of writing the main features and testing them.**
 
 ## Features:
- - Will work on all OSs that are supported by [Python > 3.5](https://www.python.org/downloads/),
+ - Will work on all OSs that are supported by [Python ≥ 3.5](https://www.python.org/downloads/),
  - Optimised for copying large quantities of mission critical files, e.g. wedding photos:
    - Checking CRC32 of every file after clearing the disk cache, thus reducing the risk of a bad copy
  - Lightweight,
