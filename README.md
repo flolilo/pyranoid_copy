@@ -53,5 +53,13 @@ python -m pip install -r ./requirements.txt
 python ./py_media_copy.py
 ```
 
+## Contribution:
+**You do not even need to be have an GitHub account to report issues - simply mail to [py_media-copy@fire.fundersclub.com](mailto:py_media-copy@fire.fundersclub.com)**. (It will not publish your mail address or name!)
+
+Please add as much information as possible - e.g. the used OS, Python version, pmc version, where the error occured, what the error is, ...
+
+Any help would be appreciated!
+
+
 ## Milestones:
 See the [TODO file](./TODO.todo).
