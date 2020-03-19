@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# SPDX-License-Identifier: BSD-3-Clause-Clear
+# SPDX-License-Identifier: BSD-3-Clause-Clear OR GPL-3.0-only
 #  from PyQt5 import QtWidget
 #  from pmc_ui import Ui_MainWindow
 from pmc_ver import pmc_version

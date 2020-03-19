@@ -54,7 +54,7 @@ python ./py_media_copy.py
 ```
 
 ## Contribution:
-**You do not even need to be have an GitHub account to report issues - simply mail to [py_media-copy@fire.fundersclub.com](mailto:py_media-copy@fire.fundersclub.com)**. (It will not publish your mail address or name!)
+**You do not even need to be have an GitHub account to report issues - simply mail to [py_media-copy@fire.fundersclub.com](mailto:py_media-copy@fire.fundersclub.com)**. (It will _not_ publish your mail address or name!)
 
 Please add as much information as possible - e.g. the used OS, Python version, pmc version, where the error occured, what the error is, ...
 
@@ -63,3 +63,7 @@ Any help would be appreciated!
 
 ## Milestones:
 See the [TODO file](./TODO.todo).
+
+
+## Licenses:
+See the [LICENSE file](./LICENSE.md). - You can all of my code under either the _GNU GPLv3_ or the _BSD 3-Clause Clear_ license. Please note that third party software is used in this project, but as of now, it requires the user to download the software (and agree to the respective license agreement). If this changes in the future, it will be reflected in this document.
