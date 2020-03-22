@@ -67,3 +67,5 @@ See the [TODO file](./TODO.todo).
 
 ## Licenses:
 See the [LICENSE file](./LICENSE.md). - You can all of my code under either the _GNU GPLv3_ or the _BSD 3-Clause Clear_ license. Please note that third party software is used in this project, but as of now, it requires the user to download the software (and agree to the respective license agreement). If this changes in the future, it will be reflected in this document.
+
+As coding should not be about reinventing the wheel, some code is copied verbatim (though most of the time, it does need modifications) from internet sources. See the `# CREDIT:` comments for links to my sources.
