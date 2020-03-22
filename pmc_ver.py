@@ -2,6 +2,7 @@
 from pathlib import Path
 
 
+# CREDIT: https://stackoverflow.com/a/56245722/8013879
 def get_git_revision(base_path):
     git_dir = Path(base_path) / '.git'
     with (git_dir / 'HEAD').open('r') as head:
