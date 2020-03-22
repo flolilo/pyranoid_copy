@@ -2,12 +2,13 @@
 py_media-copy
 =============
 
-A lightweight alternative to tools like Rapid Photo Downloader
+A lightweight & granular file copy tool built for DITs and photographers.
 
-This tool is mainly orientated on my `media-copytool <https://github.com/flolilo/media-copytool>`_, which I created
-because none of the existing Digital Asset Management (DAM) programs (to my knowledge) offered the options for
-importing fiels from media cards that I wanted (see `Features`_). The goal is to provide a faster implementation with
-at least feature parity to media-copytool. Note that the goal is not to recreate the code, but the features.
+This tool is mainly orientated on my `media-copytool <https://github.com/flolilo/media-copytool>`_ (scripted entirely in
+PowerShell and Windows only), which I created because none of the existing Digital Asset Management (DAM) programs (to
+my knowledge) offered the options for importing files from media cards that I wanted (see `Features`_). The goal is to
+provide a faster implementation with at least feature parity to media-copytool. Note that the goal is not to recreate
+the code, but the features.
 
 **Note that as of now, this tool is not even finished in a rough state - I am still in the progress of writing the main
 features and testing them.**
@@ -51,8 +52,8 @@ Details
   ``%Y-%m-%d`` for ``2019-11-31``),
 - Redundancy checks against history file / target-folder / multiple inputs,
 - Checking CRC32 of every file after clearing the disk cache, thus reducing the risk of a bad copy,
-- Include/exclude by regex pattern(s) (e.g. ``.*\.jpg`` - see `my regex101.com example <https://regex101.com/r/0WHdUL/2>`_
-  for what this does).
+- Include/exclude by regex pattern(s) (e.g. ``.*\.jpg`` - see 
+  `my regex101.com example <https://regex101.com/r/0WHdUL/2>`_ for what this does).
 
 
 Installation
