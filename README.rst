@@ -4,11 +4,10 @@ py_media-copy
 
 A lightweight & granular file copy tool built for DITs and photographers.
 
-This tool is mainly orientated on my `media-copytool <https://github.com/flolilo/media-copytool>`_ (scripted entirely in
-PowerShell and Windows only), which I created because none of the existing Digital Asset Management (DAM) programs (to
-my knowledge) offered the options for importing files from media cards that I wanted (see `Features`_). The goal is to
-provide a faster implementation with at least feature parity to media-copytool. Note that the goal is not to recreate
-the code, but the features.
+This tool should become the sucessor to my `media-copytool <https://github.com/flolilo/media-copytool>`_ (which is
+scripted entirely in PowerShell and Windows only). The reason that I created media-copytool is because none of the
+existing Digital Asset Management (DAM) programs (to my knowledge) offered the options for importing files from media
+cards that I wanted (see `Features`_). py_media-copy will be written in Python to maximise compatibility.
 
 **Note that as of now, this tool is not even finished in a rough state - I am still in the progress of writing the main
 features and testing them.**
