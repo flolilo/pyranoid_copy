@@ -1,4 +1,14 @@
-colorama==0.4.1
-crc32c==1.7
-PySimpleGUIWeb==0.28.1
-tqdm==4.36.1
+# [required]
+tqdm>=4.43.0
+
+# [recommended]
+colorama>=0.4.3
+crc32c>=2.0
+
+# [helpers for coding]
+flake8>=3.7.9
+
+# [GUI]  # Most likely only PySimpleGUI with 0.99.x
+PySimpleGUI>=4.16.0
+PySimpleGUIQt>=0.31.0
+PySimpleGUIWeb>=0.36.0
