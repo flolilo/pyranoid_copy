@@ -7,7 +7,7 @@ A lightweight & granular file copy tool built for DITs and photographers.
 This tool should become the sucessor to my `media-copytool <https://github.com/flolilo/media-copytool>`_ (which is
 scripted entirely in PowerShell and Windows only). The reason that I created media-copytool is because none of the
 existing Digital Asset Management (DAM) programs (to my knowledge) offered the options for importing files from media
-cards that I wanted (see `Features`_). py_media-copy will be written in Python to maximise compatibility.
+cards that I wanted (see `Proposed features`_). py_media-copy will be written in Python to maximise compatibility.
 
 **Note that as of now, this tool is not even finished in a rough state - I am still in the progress of writing the main
 features and testing them.**
@@ -15,11 +15,11 @@ features and testing them.**
 .. contents:: Index:
 
 
-Features
---------
+Proposed features
+-----------------
 
 - Will work on all (desktop) OSs that are supported by `Python ≥ 3.5 <https://www.python.org/downloads/>`_,
-- Optimised for copying large quantities of mission critical files, e.g. wedding photos:
+- Optimised for copying large quantities of mission critical files, e.g. wedding photos,
 - Lightweight,
 - Standalone binaries (i.e. ``py_media_copy.exe``) available,
 - Highly granular controls:
@@ -40,8 +40,7 @@ Features
 Details
 -------
 
-- Small `PySimpleGUIWeb (Remi) <https://github.com/PySimpleGUI/PySimpleGUI/tree/master/PySimpleGUIWeb>`_
-  for the parameters,
+- Lightweight `PySimpleGUI <https://github.com/PySimpleGUI/PySimpleGUI>`_ for the parameters with CLI as option,
 - Standalone planned / as little extra dependencies as feasible (and all on `pip <https://pypi.org/>`_) with decent
   usability (planned at the moment: `tqdm <https://github.com/tqdm/tqdm>`_ required,
   `colorama <https://github.com/tartley/colorama>`_ recommended, `crc32c <https://github.com/ICRAR/crc32c>`_ if
