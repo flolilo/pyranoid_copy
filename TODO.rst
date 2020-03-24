@@ -9,9 +9,6 @@ All v0.0.x-versions are considered alpha-stage! **Any version jump could break a
 v0.0.1++
 ''''''''
 
-.. todolist::
-    todo_include_todos: True
-
 - [x] Proof of concept GUI (rudimentary controls, interaction with script)
 - [x] Copy a single file from ``S`` to ``T``, check checksums
 - [-] Copy same file from ``T`` to ``B``, check cheksums
