@@ -6,7 +6,7 @@
 from pmc_ver import pmc_version
 #  import pmc_preset
 
-import os
+from os import devnull
 import sys
 # import hashlib  # hash algorithms
 try:
@@ -22,7 +22,7 @@ import itertools
 from time import sleep  # For timeouts and time output
 from datetime import datetime
 from argparse import ArgumentParser  # Set variables via parameters
-from pathlib import Path  # TODO: make all possible things with pathlib instead of os.path
+from pathlib import Path
 try:
     from colorama import Fore, Back, Style, init, deinit
     init()
@@ -88,11 +88,11 @@ except ImportError:
 parser = ArgumentParser()
 parser.add_argument("--source", "-in",
                     dest="source",
-                    default="./.testing/in",
+                    default="./.testing/in|/mnt/Eigene_Dateien/Pictures/_CANON/Privat/2019-04-04/",
                     help="Source path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
 parser.add_argument("--target", "-out",
                     dest="target",
-                    default="./.testing/out",
+                    default="./.testing/out|./.testing/outNEW",
                     help="Target path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
 parser.add_argument("--filter_preference", "-filterpref",
                     dest="filter_pref",
@@ -200,7 +200,7 @@ param = parser.parse_args()
 if (param.verbose == 2):
     f = Path("./pmc.log").open(mode='a+', encoding='utf-8')
 elif (param.verbose == 0):
-    f = open(os.devnull, 'w')
+    f = open(devnull, 'w')
     sys.stdout = f
 else:
     f = sys.stdout
@@ -485,24 +485,15 @@ def load_json(where):
         return set()
 
 
-""" TODO: Is this old?
-    def create_subfolders(for_what):
-        print_time('Create folders...')
-        for i in for_what:
-            if not os.path.exists(i[7]):  # TODO: Pathlib
-                os.makedirs(i[7])
-"""
-
-
 def copy_files(what):
     print_time('Copy files')
     for i in tqdm(what, desc="Files", unit="f",
                   bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
         for j in i[7]:
             try:
-                shutil.copy2(i[0], os.path.join(j, str(i[2] + i[3])))
+                shutil.copy2(i[0], Path(j).joinpath(str(i[2] + i[3])).resolve())
             except Exception:
-                print('    ' + str(i[0]) + " -> " + os.path.join(j, str(i[2] + i[3])) + " failed!", file=f)
+                print('    ' + str(i[0]) + " -> " + str(Path(j).joinpath(str(i[2] + i[3])).resolve()) + " failed!", file=f)
 
 
 def print_files(source_files):
@@ -538,24 +529,22 @@ def overwrite_protection(source):
             k = 1
             append = ""
             while True:
-                if os.path.isfile(os.path.join(i[7], str(i[2] + append + i[3]))):
+                if (Path(i[7]).joinpath(str(i[2] + append + i[3])).is_file()):
                     append = "_out" + str(k)
                     k += 1
                 else:
                     i[2] = i[2] + append
-                    # print(i[2], file=f)
                     break
         # input
         for i in source_files:
             k = 1
             append = ""
             while True:
-                if os.path.isfile(os.path.join(i[7], str(i[2] + append + i[3]))):
+                if (Path(i[7]).jointpath(str(i[2] + append + i[3])).is_file()):
                     append = "_in" + str(k)
                     k += 1
                 else:
                     i[2] = i[2] + append
-                    # print(i[2], file=f)
                     break
 
 
