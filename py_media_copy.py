@@ -24,33 +24,14 @@ from datetime import datetime
 from argparse import ArgumentParser  # Set variables via parameters
 from pathlib import Path
 try:
-    from colorama import Fore, Back, Style, init, deinit
-    init()
+    from colorama import Fore, Style, init, deinit
+    init(autoreset=True)
 except ImportError:
     print("For better readability, please install colorama: pip install colorama")
     sleep(2)
 
     # TODO: make those calls empty strings so that they are prettier than escape sequences.
     class Fore():
-        BLACK = ""
-        RED = ""
-        GREEN = ""
-        YELLOW = ""
-        BLUE = ""
-        MAGENTA = ""
-        CYAN = ""
-        WHITE = ""
-        RESET = ""
-        LIGHTBLACK_EX = ""
-        LIGHTRED_EX = ""
-        LIGHTGREEN_EX = ""
-        LIGHTYELLOW_EX = ""
-        LIGHTBLUE_EX = ""
-        LIGHTMAGENTA_EX = ""
-        LIGHTCYAN_EX = ""
-        LIGHTWHITE_EX = ""
-
-    class Back():
         BLACK = ""
         RED = ""
         GREEN = ""
@@ -82,17 +63,17 @@ except ImportError:
 try:
     from tqdm import tqdm
 except ImportError:
-    print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "pip install tqdm" + '\x1b[0m')
+    print(Style.BRIGHT + Fore.RED + "Please install tqdm: " + Fore.WHITE + "pip install tqdm")
     sleep(3)
 
 parser = ArgumentParser()
 parser.add_argument("--source", "-in",
                     dest="source",
-                    default="./.testing/in|/mnt/Eigene_Dateien/Pictures/_CANON/Privat/2019-04-04/",
+                    default="./.testing/in",
                     help="Source path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
 parser.add_argument("--target", "-out",
                     dest="target",
-                    default="./.testing/out|./.testing/outNEW",
+                    default="./.testing/out",
                     help="Target path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
 parser.add_argument("--filter_preference", "-filterpref",
                     dest="filter_pref",
@@ -208,9 +189,9 @@ else:
 #  for glob:
 if (sys.hexversion < 0x030500F0):
     f.close()
-    sys.exit('\x1b[1;31;40m' + "Cannot run py_media-copy on python < v3.5! Please update." + '\x1b[0m')
+    sys.exit("Cannot run py_media-copy on python < v3.5! Please update.")
 
-print('\x1b[1;33;40m' + pmc_version + '\x1b[0m', file=f)
+print(Style.BRIGHT + Fore.YELLOW + pmc_version, file=f)
 
 # ==================================================================================================
 # ==============================================================================
@@ -221,7 +202,7 @@ print('\x1b[1;33;40m' + pmc_version + '\x1b[0m', file=f)
 
 def print_time(what):
     global f
-    print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- ' + what + '\x1b[0m', file=f)
+    print(Style.BRIGHT + Fore.BLUE + datetime.now().strftime('%H:%M:%S') + ' -- ' + what, file=f)
 
 
 def check_remaining_files(to_check):
@@ -239,7 +220,7 @@ def check_params():
 
     def print_error(what):
         global f
-        print('\x1b[1;31;40m' + "    " + what + '\x1b[0m', file=f)
+        print(Style.BRIGHT + Fore.RED + "    " + what, file=f)
         f.close()
         sleep(1)
         sys.exit(1)
@@ -631,7 +612,7 @@ while True:
     # all done:
     break
 
-print_time('\x1b[1;32;40mDone!')
+print_time(Style.BRIGHT + Fore.GREEN + "Done!")
 deinit()
 f.close()
 sys.exit(0)
