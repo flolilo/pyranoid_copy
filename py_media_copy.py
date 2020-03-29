@@ -8,32 +8,82 @@ from pmc_ver import pmc_version
 
 import os
 import sys
-import hashlib  # hash algorithms
+# import hashlib  # hash algorithms
 try:
-    from crc32c import crc32  # TRYOUT: crc32c for intel
+    from crc32c import crc32  # crc32c for intel
 except ImportError:
-    from zlib import crc32
+    from zlib import crc32  # standard crc32
     pass
 import re  # regex
 import shutil  # High-level file copy
 import json  # saving/loading JSON files
 import itertools
-#  from collections import defaultdict
+# from collections import defaultdict
 from time import sleep  # For timeouts and time output
 from datetime import datetime
+from argparse import ArgumentParser  # Set variables via parameters
+from pathlib import Path  # TODO: make all possible things with pathlib instead of os.path
 try:
-    import colorama
+    from colorama import Fore, Back, Style, init, deinit
+    init()
 except ImportError:
     print("For better readability, please install colorama: pip install colorama")
     sleep(2)
+
+    # TODO: make those calls empty strings so that they are prettier than escape sequences.
+    class Fore():
+        BLACK = ""
+        RED = ""
+        GREEN = ""
+        YELLOW = ""
+        BLUE = ""
+        MAGENTA = ""
+        CYAN = ""
+        WHITE = ""
+        RESET = ""
+        LIGHTBLACK_EX = ""
+        LIGHTRED_EX = ""
+        LIGHTGREEN_EX = ""
+        LIGHTYELLOW_EX = ""
+        LIGHTBLUE_EX = ""
+        LIGHTMAGENTA_EX = ""
+        LIGHTCYAN_EX = ""
+        LIGHTWHITE_EX = ""
+
+    class Back():
+        BLACK = ""
+        RED = ""
+        GREEN = ""
+        YELLOW = ""
+        BLUE = ""
+        MAGENTA = ""
+        CYAN = ""
+        WHITE = ""
+        RESET = ""
+        LIGHTBLACK_EX = ""
+        LIGHTRED_EX = ""
+        LIGHTGREEN_EX = ""
+        LIGHTYELLOW_EX = ""
+        LIGHTBLUE_EX = ""
+        LIGHTMAGENTA_EX = ""
+        LIGHTCYAN_EX = ""
+        LIGHTWHITE_EX = ""
+
+    class Style():
+        DIM = ""
+        NORMAL = ""
+        BRIGHT = ""
+        RESET_ALL = ""
+
+    def deinit():
+        pass
+
     pass
 try:
     from tqdm import tqdm
 except ImportError:
     print('\x1b[1;31;40m' + "Please install tqdm: " + '\x1b[1;37;40m' + "pip install tqdm" + '\x1b[0m')
     sleep(3)
-from argparse import ArgumentParser  # Set variables via parameters
-from pathlib import Path  # TODO: make all possible things with pathlib instead of os.path
 
 parser = ArgumentParser()
 parser.add_argument("--source", "-in",
@@ -82,7 +132,7 @@ parser.add_argument("--history_path", "-histpath",
 parser.add_argument("--history_writemode", "-histw",
                     dest="history_writemode",
                     type=int,
-                    default=2,
+                    default=1,
                     help="0 = do not write, 1 = append, 2 = overwrite, 3 = new file/overwrite existing 2nd file.")
 parser.add_argument("--dedup_target", "-dedupout",
                     dest="dedup_target",
@@ -144,9 +194,9 @@ parser.add_argument("--verbose",  # TODO: make verbose also for small prints lik
                     default=1,
                     help="Verbose. 2 = file, 1 = console, 0 = none")
 param = parser.parse_args()
-param.hash_calc_needed = 1
+# param.hash_calc_needed = 1  # TODO: What was that for?
 
-# DEFINITION: Set print location (none/terminal/file)
+# DEF: Set print location (none/terminal/file)
 if (param.verbose == 2):
     f = Path("./pmc.log").open(mode='a+', encoding='utf-8')
 elif (param.verbose == 0):
@@ -174,60 +224,17 @@ def print_time(what):
     print('\x1b[1;34;40m' + datetime.now().strftime('%H:%M:%S') + ' -- ' + what + '\x1b[0m', file=f)
 
 
-""" GUI:
-    testvar = "meine testvariable /home/bla"
-    class getvariable:
-        def __init__(self):
-            md5 = hashlib.md5()
-            blocksize = 2**20
-            with open(os.path.normpath('./README.md'), "rb") as f:
-                while True:
-                    buf = f.read(blocksize)
-                    if not buf:
-                        break
-                    md5.update(buf)
-            # return md5.hexdigest()
-
-
-    class mainwindow(QtWidgets.QMainWindow):
-        def __init__(self):
-            global pmc_version
-            super(mainwindow, self).__init__()
-            self.ui = Ui_MainWindow()
-            self.ui.setupUi(self)
-            self.ui.textedit_outputconsole.append(pmc_version)
-            self.ui.textedit_source.setText("Template test\nhallo")
-            self.ui.pushbutton_start.clicked.connect(self.startBtnClicked)
-            self.ui.pushbutton_exit.clicked.connect(self.close)
-
-        def startBtnClicked(self):
-            global testvar
-            self.ui.textedit_outputconsole.append("button")
-            testvar = self.ui.textedit_source.toPlainText()
-            check = getvariable().md5.hexdigest
-            print(check, file=f)
-
-
-    app = QtWidgets.QApplication([])
-    application = mainwindow()
-
-    application.ui.textedit_target.setText(testvar)
-    application.show()
-
-    sys.exit(app.exec())
-"""
-
-
-""" def check_remaining_files(to_check):
+def check_remaining_files(to_check):
+    global f
     if len(to_check) < 1:
-        print("No files left!", file=sys.stderr)
-        f.close()
-        sys.exit(0)
-"""
+        print("No files left!", file=f)
+        return 0
+    else:
+        return 1
 
 
 def check_params():
-    # DEFINITION: check all parameters
+    """check all parameters"""
     global param, f
 
     def print_error(what):
@@ -335,12 +342,12 @@ def check_params():
 
 
 def search_files(where):
-    # DEFINITION: Search for files, get basic directories:
+    """Search for files, get basic attributes"""
     global param, f
     print_time("Searching files...")
 
     found_files = []
-    """ DEFINITION:
+    """ DEF:
         [0] full source path
         [1] file name
         [2] basename
@@ -377,13 +384,7 @@ def search_files(where):
 
 
 def get_hashes(what):
-    # DEFINITION: Get hashes for files:
-    if sys.hexversion < 0x030600F0:
-        algorithm = hashlib.sha1()
-        # print("Using SHA1", file=f)
-    else:
-        algorithm = hashlib.blake2b()  # Use smaller hash-string (digest_size)
-        # print("Using BLAKE2", file=f)
+    """Get hashes for files"""
     blocksize = 128*256
     print_time("Getting hashes...")
     for i in tqdm(what, desc="Files", unit="f",
@@ -395,9 +396,7 @@ def get_hashes(what):
                     buf = file.read(blocksize)
                     if not buf:
                         break
-                    # algorithm.update(buf)
                     crcvalue = (crc32(buf, crcvalue) & 0xffffffff)
-                # i[6] = algorithm.hexdigest()
                 i[6] = crcvalue
 
     return what
@@ -450,9 +449,11 @@ def dedup_files(source, compare, what_string):
 
 def calculate_targetpath(for_what):
     global param, f
-    # for i in for_what:
-        # i[5] = datetime.fromtimestamp(i[5]).strftime('%Y-%m-%d-%H:%M')
-        # print(i[5], file=f)
+    for i in for_what:
+        i[7] = Path(i[7]).resolve()
+        if(len(param.naming_subdir) >= 0):
+            # TODO: 1) check if time format or not; 2) handle mixed strings (e.g. Y-m-d FILENAME)
+            i[7] = Path(i[7]).joinpath(datetime.fromtimestamp(i[5]).strftime(param.naming_subdir)).resolve()
     return for_what
 
 
@@ -481,11 +482,13 @@ def load_json(where):
         return set()
 
 
-def create_subfolders(for_what):
-    print_time('Create folders...')
-    for i in for_what:
-        if not os.path.exists(i[7]):  # TODO: Pathlib
-            os.makedirs(i[7])
+""" TODO: Is this old?
+    def create_subfolders(for_what):
+        print_time('Create folders...')
+        for i in for_what:
+            if not os.path.exists(i[7]):  # TODO: Pathlib
+                os.makedirs(i[7])
+"""
 
 
 def copy_files(what):
@@ -507,18 +510,18 @@ def print_files(source_files):
 
 def create_subdirs(source):
     """Create subdirectories per magic string"""
-    global param
+    global param, f
     if len(param.naming_subdir) == 0:
         try:
-            os.makedirs(param.target)
-        except FileExistsError:
-            pass
+            Path(param.target).mkdir(parents=True, exist_ok=True)
+        except Exception:
+            print(Fore.RED + "    " + "Could not create folder " + param.target + Fore.RESET, file=f)
     else:
         for i in source:
             try:
-                os.makedirs(i[7])
-            except FileExistsError:
-                pass
+                Path(i[7]).mkdir(parents=True, exist_ok=True)
+            except Exception:
+                print(Fore.RED + "    " + "Could not create folder " + i[7] + Fore.RESET, file=f)
 
 
 def overwrite_protection(source):
@@ -560,21 +563,21 @@ def overwrite_protection(source):
 while True:
     check_params()
 
-    # DEFINITION: search files:
+    # DEF: search files:
     source_files = search_files(param.source)
-    if len(source_files) < 1:
+    if(check_remaining_files(source_files) == 0):
         break
 
-    # DEFINITION: Dedups:
+    # TODO: Multiple targets need multiple loops and splitting of param.target
+    # DEF: Dedups:
     # dedup source:
     if param.dedup_source == 1:
         # get hashes:
         if param.dedup_hash == 1:
             source_files = get_hashes(source_files)
         source_files = dedup_files(source_files, set(), "source")
-        if len(source_files) < 1:
+        if(check_remaining_files(source_files) == 0):
             break
-
     # dedup history:
     if param.dedup_history == 1:
         history_files = load_json(param.history_path)
@@ -584,9 +587,8 @@ while True:
                 source_files = get_hashes(source_files)
             source_files = dedup_files(source_files, history_files, "history")
             history_files = None
-            if len(source_files) < 1:
+            if(check_remaining_files(source_files) == 0):
                 break
-
     # dedup target:
     if param.dedup_target == 1:
         target_files = search_files(param.target)
@@ -597,23 +599,23 @@ while True:
             target_files = get_hashes(target_files)
         source_files = dedup_files(source_files, target_files)
         target_files = None
-        if len(source_files) < 1:
+        if(check_remaining_files(source_files) == 0):
             break
 
-    # DEFINITION: get rest of the hashes:
+    # DEF: get rest of the hashes:
     if param.verify == 1:
         source_files = get_hashes(source_files)
 
-    # DEFINITION: prepare paths:
-    # create_subdirs(source_files)
-    # source_files = calculate_targetpath(source_files)
+    # DEF: prepare paths:
+    source_files = calculate_targetpath(source_files)
+    create_subdirs(source_files)
 
-    # DEFINITION: Copy:
-    # copy_files(source_files)
+    # DEF: Copy:
+    copy_files(source_files)
 
-    # DEFINITION: Verify:
+    # DEF: Verify:
 
-    # DEFINITION: write history:
+    # DEF: write history:
     if param.history_writemode > 0:
         history_files = load_json(param.history_path)
         to_save = source_files
@@ -636,3 +638,6 @@ while True:
     break
 
 print_time('\x1b[1;32;40mDone!')
+deinit()
+f.close()
+sys.exit(0)
