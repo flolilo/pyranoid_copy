@@ -1,6 +1,7 @@
 [flake8]
 # Syntax: https://flake8.pycqa.org/en/latest/user/configuration.html
 # I like to have slightly longer and fewer lines, as I work in 16:9 or 16:10 and not on 4:3 ;-)
+# 100 is the goal, but sometimes 120 make sense IMHO.
 max-line-length=120
 # Ignore indented multilines, ignore comment indentation
 extend-ignore=E128,E116
