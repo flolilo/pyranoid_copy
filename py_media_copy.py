@@ -246,7 +246,7 @@ def check_params():
 
     # --source:
     try:
-        param.source = [Path(i).resolve() for i in re.split('\|', param.source) if len(i) > 0 and Path(i).is_dir()]
+        param.source = [Path(i).resolve() for i in re.split('\|', param.source) if len(i) > 0]
     except Exception:
         print_error("Error in --source!")
     if (len(param.source) < 1):
@@ -254,7 +254,8 @@ def check_params():
 
     # --target:
     try:
-        param.target = [Path(i).resolve() for i in re.split('\|', param.target) if len(i) > 0 and Path(i).is_dir()]
+        param.target = [Path(i).resolve() for i in re.split('\|', param.target) if len(i) > 0]
+        print(str(param.target), file=f)
     except Exception:
         print_error("Error in --target!")
     if (len(param.target) < 1):
@@ -282,7 +283,7 @@ def check_params():
     if(not 0 <= param.history_writemode <= 3):
         print_error("No valid int for --history_writemode!")
     if(param.dedup_history == 1 or param.history_writemode > 0):
-        param.history_path = [Path(i).resolve() for i in re.split('\|', param.history_path) if Path(i).parent.is_dir()]
+        param.history_path = [Path(i).resolve() for i in re.split('\|', param.history_path)]
         if(len(param.history_path) > 0):
             if(param.history_writemode <= 2):
                 param.history_path = param.history_path[0]
@@ -355,7 +356,7 @@ def search_files(where):
         [4] size
         [5] mod-date
         [6] hash
-        [7] full target path(s) <-- TODO: more than one useful?
+        [7] full target path(s) (list)
     """
     if(param.recursive == 1):
         recurse = '**/*.*'
@@ -497,10 +498,11 @@ def copy_files(what):
     print_time('Copy files')
     for i in tqdm(what, desc="Files", unit="f",
                   bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
-        try:
-            shutil.copy2(i[0], os.path.join(i[7], str(i[2] + i[3])))
-        except Exception:
-            print('    ' + str(i[0]) + " -> " + os.path.join(i[7], str(i[2] + i[3])) + " failed!", file=f)
+        for j in i[7]:
+            try:
+                shutil.copy2(i[0], os.path.join(j, str(i[2] + i[3])))
+            except Exception:
+                print('    ' + str(i[0]) + " -> " + os.path.join(j, str(i[2] + i[3])) + " failed!", file=f)
 
 
 def print_files(source_files):
