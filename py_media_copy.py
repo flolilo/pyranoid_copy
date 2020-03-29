@@ -377,7 +377,7 @@ def search_files(where):
                                 j_stat.st_size,
                                 j_stat.st_mtime,
                                 "XYZ",
-                                "XYZ"]]
+                                []]]
 
     print('    ' + str(len(found_files)) + " files found.", file=f)
     return found_files
@@ -450,10 +450,12 @@ def dedup_files(source, compare, what_string):
 def calculate_targetpath(for_what):
     global param, f
     for i in for_what:
-        i[7] = Path(i[7]).resolve()
-        if(len(param.naming_subdir) >= 0):
-            # TODO: 1) check if time format or not; 2) handle mixed strings (e.g. Y-m-d FILENAME)
-            i[7] = Path(i[7]).joinpath(datetime.fromtimestamp(i[5]).strftime(param.naming_subdir)).resolve()
+        for j in param.target:
+            if(len(param.naming_subdir) >= 0):
+                # TODO: 1) check if time format or not; 2) handle mixed strings (e.g. Y-m-d FILENAME)
+                i[7] = [Path(j).joinpath(datetime.fromtimestamp(i[5]).strftime(param.naming_subdir)).resolve()] + i[7]
+            else:
+                i[7] = [Path(j).resolve()] + i[7]
     return for_what
 
 
@@ -518,10 +520,11 @@ def create_subdirs(source):
             print(Fore.RED + "    " + "Could not create folder " + param.target + Fore.RESET, file=f)
     else:
         for i in source:
-            try:
-                Path(i[7]).mkdir(parents=True, exist_ok=True)
-            except Exception:
-                print(Fore.RED + "    " + "Could not create folder " + i[7] + Fore.RESET, file=f)
+            for j in i[7]:
+                try:
+                    Path(j).mkdir(parents=True, exist_ok=True)
+                except Exception:
+                    print(Fore.RED + "    " + "Could not create folder " + j + Fore.RESET, file=f)
 
 
 def overwrite_protection(source):
