@@ -16,17 +16,18 @@ v0.0.1++
 - [x] Dupli-check a single file against ``T`` (& ``B``) files
 - [x] Make **v0.0.1** code (except GUI) capable for multiple files
 - [x] Offer parameters
-    - [ ] Check parameters
-- [ ] File renaming
-- [x] File overwrite-protection
+    - [ ] Check parameters (done mostly, some missing yet)
+- [x] File renaming
+- [ ] File overwrite-protection:
+    - [ ] Sources
+    - [x] Targets
 - [x] Include/exclude files per extension
 - [ ] Offer presets for settings
+    - [ ] Saving/storing presets
 - [ ] Implement GUI for setting things up (output via console)
-- [ ] Create fallback to script-only for people without GUI-dependencies
-- [ ] Implement output via GUI?
+    - [ ] Create fallback to script-only for people without GUI-dependencies
+    - [ ] Implement output via GUI?
 - [ ] ? Prevent computer from going to sleep ? (needs investigation whether feasible or not)
-- [ ] Saving/storing presets
-- [x] Test parameters
 - [ ] Make ``exceptions``
 - [ ] LOW: create a paranoid-mode that re-reads hash values.
 

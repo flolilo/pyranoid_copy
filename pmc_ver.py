@@ -17,4 +17,4 @@ try:
 except Exception:
     git_ver = "N/A"
 
-pmc_version = "py_media-copy v0.0.4" + " (git: " + str(git_ver) + ")"
+pmc_version = "py_media-copy v0.0.5" + " (git: " + str(git_ver) + ")"
