@@ -16,11 +16,11 @@ v0.0.1++
 - [x] Dupli-check a single file against ``T`` (& ``B``) files
 - [x] Make **v0.0.1** code (except GUI) capable for multiple files
 - [x] Offer parameters
-    - [ ] Check parameters (done mostly, some missing yet)
-- [ ] File renaming
+    - [~] Check parameters (done mostly, some missing yet)
+- [x] File renaming
     - [x] Some wildcards, dates/time
     - [x] User-chosen prefix
-    - [ ] Counter
+    - [x] Counter
 - [ ] File overwrite-protection:
     - [ ] Sources
     - [x] Targets

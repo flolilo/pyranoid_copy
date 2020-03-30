@@ -80,7 +80,7 @@ parser.add_argument("--filter_preference", "-filterpref",
                           0 = all (no filter); -1 = exclude listed formats; 1 = include listed formats")
 parser.add_argument("--filter_list", "-filterlist",
                     dest="filter_list",
-                    default='.*cr2$|.*/bla.*',
+                    default='.*cr2$|.*/FDO.*',
                     help="Name(s) to include/exclude. Paths are converted to forward slashes (C:\\ becomes C:/) and \
                           case-insensitive regex is used: see regular-expressions.info/refquick.html and regex101.com")
 parser.add_argument("--recursive_search", "-r",
@@ -138,7 +138,8 @@ parser.add_argument("--naming_file", "-namefile",
                     default="",
                     help="Name scheme for file names. For time and date, see strftime.org for reference. \
                           Empty string will not change name. %fbn = file basename, %ffn = file full name, \
-                          %fe = file extension")
+                          %fe = file extension, %ct# = counter (! sorting (which counting bases on) is \
+                          based on the full source path of the file ! # is padding number (e.g. %ct3 = 001)")
 parser.add_argument("--verify", "-test",
                     dest="verify",
                     type=int,
@@ -362,6 +363,7 @@ def search_files(where):
                                 []]]
 
     print('    ' + str(len(found_files)) + " files found.", file=f)
+    found_files = sorted(found_files, key=lambda attris: attris[0])  # For %c in param.naming_file.
     return found_files
 
 
@@ -440,6 +442,7 @@ def calculate_targetpath(source):
     print_time(expl)
 
     # output
+    counter = 1
     for i in source:
         for j in param.target:
             # BaseName:
@@ -448,6 +451,14 @@ def calculate_targetpath(source):
                 inter_base = re.sub(r'%ffn', i[1], inter_base, re.I)
                 inter_base = re.sub(r'%fbn', i[2], inter_base, re.I)
                 inter_base = re.sub(r'%fe', i[3], inter_base, re.I)
+                counter_list = re.split(r'%ct(\d)', inter_base)
+                inter_counter = ""
+                for k in counter_list:
+                    if re.match(r'^\d{1}$', k, re.MULTILINE):
+                        inter_counter += str(counter).zfill(int(k))
+                    else:
+                        inter_counter += k
+                inter_base = inter_counter
                 inter_base = datetime.fromtimestamp(i[5]).strftime(inter_base)
             else:
                 inter_base = i[2]
@@ -474,6 +485,7 @@ def calculate_targetpath(source):
                         break
             else:
                 i[7] = [str(Path(j).joinpath(inter_sub + inter_base + i[3]).resolve())] + i[7]
+    counter += 1
 
     # TODO: OWP for source-files (i.e. check if 2 files to copy would have same path)
 
