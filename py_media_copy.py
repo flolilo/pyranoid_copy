@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: BSD-3-Clause-Clear OR GPL-3.0-only
-#  from PyQt5 import QtWidget
-#  from pmc_ui import Ui_MainWindow
 from pmc_ver import pmc_version
 #  import pmc_preset
 
 from os import devnull
-import sys
-# import hashlib  # hash algorithms
+from sys import stdout, hexversion
+from sys import exit as sysexit
 try:
     from crc32c import crc32  # crc32c for intel
 except ImportError:
@@ -18,7 +16,6 @@ import re  # regex
 import shutil  # High-level file copy
 import json  # saving/loading JSON files
 import itertools
-# from collections import defaultdict
 from time import sleep  # For timeouts and time output
 from datetime import datetime
 from argparse import ArgumentParser  # Set variables via parameters
@@ -134,12 +131,14 @@ parser.add_argument("--naming_subdir", "-namesub",
                     dest="naming_subdir",
                     default="%y-%m-%d",
                     help="Name scheme for subdirs. For time and date, see strftime.org for reference. \
-                          Empty string will create no subdir.")
+                          Empty string will create no subdir.%fbn = file basename, %ffn = file full name, \
+                          %fe = file extension")
 parser.add_argument("--naming_file", "-namefile",
                     dest="naming_file",
                     default="",
                     help="Name scheme for file names. For time and date, see strftime.org for reference. \
-                          Empty string will not change name.")
+                          Empty string will not change name. %fbn = file basename, %ffn = file full name, \
+                          %fe = file extension")
 parser.add_argument("--verify", "-test",
                     dest="verify",
                     type=int,
@@ -182,14 +181,15 @@ if (param.verbose == 2):
     f = Path("./pmc.log").open(mode='a+', encoding='utf-8')
 elif (param.verbose == 0):
     f = open(devnull, 'w')
-    sys.stdout = f
+    stdout = f
 else:
-    f = sys.stdout
+    f = stdout
 
 #  for glob:
-if (sys.hexversion < 0x030500F0):
+if (hexversion < 0x030500F0):
     f.close()
-    sys.exit("Cannot run py_media-copy on python < v3.5! Please update.")
+    deinit()
+    sysexit("Cannot run py_media-copy on python < v3.5! Please update.")
 
 print(Style.BRIGHT + Fore.YELLOW + pmc_version, file=f)
 
@@ -222,8 +222,9 @@ def check_params():
         global f
         print(Style.BRIGHT + Fore.RED + "    " + what, file=f)
         f.close()
+        deinit()
         sleep(1)
-        sys.exit(1)
+        sysexit(1)
 
     # --source:
     try:
@@ -236,7 +237,6 @@ def check_params():
     # --target:
     try:
         param.target = [Path(i).resolve() for i in re.split('\|', param.target) if len(i) > 0]
-        print(str(param.target), file=f)
     except Exception:
         print_error("Error in --target!")
     if (len(param.target) < 1):
@@ -429,16 +429,55 @@ def dedup_files(source, compare, what_string):
     return deduped
 
 
-def calculate_targetpath(for_what):
-    global param, f
-    for i in for_what:
+def calculate_targetpath(source):
+    # i[1] = i[2]+i[3]      %fbn|%fe|%ffn
+    """check if target path(s) are already existing (i.e. a file with this name already exists)"""
+    global param
+    if param.target_protect > 0:
+        expl = 'Calculate target paths (prevent overwriting)'
+    else:
+        expl = 'Calculate target paths (do not prevent overwriting)'
+    print_time(expl)
+
+    # output
+    for i in source:
         for j in param.target:
-            if(len(param.naming_subdir) >= 0):
-                # TODO: 1) check if time format or not; 2) handle mixed strings (e.g. Y-m-d FILENAME)
-                i[7] = [Path(j).joinpath(datetime.fromtimestamp(i[5]).strftime(param.naming_subdir)).resolve()] + i[7]
+            # BaseName:
+            if len(param.naming_file) > 0:
+                inter_base = param.naming_file
+                inter_base = re.sub(r'%ffn', i[1], inter_base, re.I)
+                inter_base = re.sub(r'%fbn', i[2], inter_base, re.I)
+                inter_base = re.sub(r'%fe', i[3], inter_base, re.I)
+                inter_base = datetime.fromtimestamp(i[5]).strftime(inter_base)
             else:
-                i[7] = [Path(j).resolve()] + i[7]
-    return for_what
+                inter_base = i[2]
+            # Subfolder:
+            if len(param.naming_subdir) > 0:
+                inter_sub = param.naming_subdir
+                inter_sub = re.sub(r'%ffn', i[1], inter_sub, re.I)
+                inter_sub = re.sub(r'%fbn', i[2], inter_sub, re.I)
+                inter_sub = re.sub(r'%fe', i[3], inter_sub, re.I)
+                inter_sub = datetime.fromtimestamp(i[5]).strftime(inter_sub)
+            else:
+                inter_sub = ""
+            inter_sub += "/"
+            # Test for output already existing:
+            if param.target_protect > 0:
+                k = 1
+                inter_test = Path(j).joinpath(inter_sub + inter_base + i[3]).resolve()
+                while True:
+                    if Path(inter_test).is_file():
+                        inter_test = Path(j).joinpath(inter_sub + inter_base + "_out" + str(k) + i[3]).resolve()
+                        k += 1
+                    else:
+                        i[7] = [str(Path(inter_test).resolve())] + i[7]
+                        break
+            else:
+                i[7] = [str(Path(j).joinpath(inter_sub + inter_base + i[3]).resolve())] + i[7]
+
+    # TODO: OWP for source-files (i.e. check if 2 files to copy would have same path)
+
+    return source
 
 
 def save_json(what, where):
@@ -472,61 +511,21 @@ def copy_files(what):
                   bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
         for j in i[7]:
             try:
-                shutil.copy2(i[0], Path(j).joinpath(str(i[2] + i[3])).resolve())
+                shutil.copy2(i[0], Path(j).resolve())
             except Exception:
-                print('    ' + str(i[0]) + " -> " + str(Path(j).joinpath(str(i[2] + i[3])).resolve()) + " failed!", file=f)
-
-
-def print_files(source_files):
-    for i in source_files:
-        print("\n" + str(i), end="", file=f)
-
-    print("\n", file=f)
+                print('    ' + str(i[0]) + " -> " + str(Path(j).joinpath(str(i[2] + i[3])).resolve()) +
+                      " failed!", file=f)
 
 
 def create_subdirs(source):
     """Create subdirectories per magic string"""
-    global param, f
-    if len(param.naming_subdir) == 0:
-        try:
-            Path(param.target).mkdir(parents=True, exist_ok=True)
-        except Exception:
-            print(Fore.RED + "    " + "Could not create folder " + param.target + Fore.RESET, file=f)
-    else:
-        for i in source:
-            for j in i[7]:
-                try:
-                    Path(j).mkdir(parents=True, exist_ok=True)
-                except Exception:
-                    print(Fore.RED + "    " + "Could not create folder " + j + Fore.RESET, file=f)
-
-
-def overwrite_protection(source):
-    global param
-    print_time('Prevent overwriting of files')
-    if param.target_protect != 0:
-        # output
-        for i in source:
-            k = 1
-            append = ""
-            while True:
-                if (Path(i[7]).joinpath(str(i[2] + append + i[3])).is_file()):
-                    append = "_out" + str(k)
-                    k += 1
-                else:
-                    i[2] = i[2] + append
-                    break
-        # input
-        for i in source_files:
-            k = 1
-            append = ""
-            while True:
-                if (Path(i[7]).jointpath(str(i[2] + append + i[3])).is_file()):
-                    append = "_in" + str(k)
-                    k += 1
-                else:
-                    i[2] = i[2] + append
-                    break
+    print_time("Create subdirectories")
+    for i in source:
+        for j in i[7]:
+            try:
+                Path(j).resolve().parent.mkdir(parents=True, exist_ok=True)
+            except Exception:
+                print(Fore.RED + "    " + "Could not create folder " + str(Path(j).parents[0].resolve()), file=f)
 
 
 # ==================================================================================================
@@ -543,7 +542,6 @@ while True:
     if(check_remaining_files(source_files) == 0):
         break
 
-    # TODO: Multiple targets need multiple loops and splitting of param.target
     # DEF: Dedups:
     # dedup source:
     if param.dedup_source == 1:
@@ -613,6 +611,7 @@ while True:
     break
 
 print_time(Style.BRIGHT + Fore.GREEN + "Done!")
+print(Style.RESET_ALL + Fore.RESET, file=f)
 deinit()
 f.close()
-sys.exit(0)
+sysexit(0)
