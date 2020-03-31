@@ -27,7 +27,6 @@ except ImportError:
     print("For better readability, please install colorama: pip install colorama")
     sleep(2)
 
-    # TODO: make those calls empty strings so that they are prettier than escape sequences.
     class Fore():
         BLACK = ""
         RED = ""
@@ -66,7 +65,7 @@ except ImportError:
 parser = ArgumentParser()
 parser.add_argument("--source", "-in",
                     dest="source",
-                    default="./.testing/in",
+                    default="./.testing/in|./.testing/in|./.testing/in",
                     help="Source path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
 parser.add_argument("--target", "-out",
                     dest="target",
@@ -441,11 +440,11 @@ def calculate_targetpath(source):
         expl = 'Calculate target paths (do not prevent overwriting)'
     print_time(expl)
 
-    # output
     counter = 1
+    already_used_names = []
     for i in source:
         for j in param.target:
-            # BaseName:
+            # BaseName (pre-OWP):
             if len(param.naming_file) > 0:
                 inter_base = param.naming_file
                 inter_base = re.sub(r'%ffn', i[1], inter_base, re.I)
@@ -474,20 +473,27 @@ def calculate_targetpath(source):
             inter_sub += "/"
             # Test for output already existing:
             if param.target_protect > 0:
-                k = 1
-                inter_test = Path(j).joinpath(inter_sub + inter_base + i[3]).resolve()
+                k_out = 1
+                k_in = 1
+                inter_test = Path(j).joinpath(inter_sub + inter_base).resolve()
                 while True:
-                    if Path(inter_test).is_file():
-                        inter_test = Path(j).joinpath(inter_sub + inter_base + "_out" + str(k) + i[3]).resolve()
-                        k += 1
-                    else:
-                        i[7] = [str(Path(inter_test).resolve())] + i[7]
+                    if Path(inter_test).joinpath(i[3]).resolve().is_file():  # if file alread exists...
+                        inter_test = Path(j).joinpath(inter_sub + inter_base + "_out" + str(k_out)).resolve()
+                        k_out += 1
+                    else:  # if file does not exist with that name...
+                        inter_test_in = inter_test
+                        while True:
+                            if (str(Path(inter_test_in).resolve()) + i[3]) in already_used_names:  # if file with this name already will be copied...
+                                inter_test_in = str(Path(inter_test).resolve()) + "_in" + str(k_in)
+                                k_in += 1
+                            else:
+                                i[7] = [str(Path(inter_test_in).resolve()) + i[3]] + i[7]
+                                already_used_names = [str(Path(inter_test_in).resolve()) + i[3]] + already_used_names
+                                break
                         break
-            else:
+            else:  # No OWP:
                 i[7] = [str(Path(j).joinpath(inter_sub + inter_base + i[3]).resolve())] + i[7]
-    counter += 1
-
-    # TODO: OWP for source-files (i.e. check if 2 files to copy would have same path)
+        counter += 1
 
     return source
 

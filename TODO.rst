@@ -21,8 +21,8 @@ v0.0.1++
     - [x] Some wildcards, dates/time
     - [x] User-chosen prefix
     - [x] Counter
-- [ ] File overwrite-protection:
-    - [ ] Sources
+- [x] File overwrite-protection:
+    - [x] Sources
     - [x] Targets
 - [x] Include/exclude files per extension
 - [ ] Offer presets for settings
@@ -31,7 +31,7 @@ v0.0.1++
     - [ ] Create fallback to script-only for people without GUI-dependencies
     - [ ] Implement output via GUI?
 - [ ] ? Prevent computer from going to sleep ? (needs investigation whether feasible or not)
-- [ ] Make ``exceptions``
+- [ ] Evaluate ``exception`` for as much functions as possible.
 - [ ] LOW: create a paranoid-mode that re-reads hash values.
 
 
