@@ -372,14 +372,17 @@ def get_hashes(what):
     for i in tqdm(what, desc="Files", unit="f",
                   bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
         if i[6] == "XYZ":
-            with Path(i[0]).open("rb") as file:
-                crcvalue = 0
-                while True:
-                    buf = file.read(blocksize)
-                    if not buf:
-                        break
-                    crcvalue = (crc32(buf, crcvalue) & 0xffffffff)
-                i[6] = crcvalue
+            try:
+                with Path(i[0]).open("rb") as file:
+                    crcvalue = 0
+                    while True:
+                        buf = file.read(blocksize)
+                        if not buf:
+                            break
+                        crcvalue = f'{(crc32(buf, crcvalue) & 0xffffffff):x}'
+                    i[6] = crcvalue
+            except Exception:
+                print(Style.BRIGHT + Fore.MAGENTA + "    Cannot calculate CRC32 of " + str(i[0]), file=f)
 
     return what
 
