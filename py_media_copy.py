@@ -69,76 +69,76 @@ parser.add_argument("--preset", "-pres",
                     help="Preset name")
 parser.add_argument("--source", "-in",
                     dest="source",
-                    default="./.testing/in|./.testing/in|./.testing/in",
+                    default="--",
                     help="Source path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
 parser.add_argument("--target", "-out",
                     dest="target",
-                    default="./.testing/out",
+                    default="--",
                     help="Target path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
 parser.add_argument("--filter_preference", "-filterpref",
                     dest="filter_pref",
                     type=int,
-                    default=1,
+                    default=-1,
                     help="Filter preference. Works with --filter-list. \
                           0 = all (no filter); -1 = exclude listed formats; 1 = include listed formats")
 parser.add_argument("--filter_list", "-filterlist",
                     dest="filter_list",
-                    default='.*cr2$|.*/FDO.*',
+                    default='--',
                     help="Name(s) to include/exclude. Paths are converted to forward slashes (C:\\ becomes C:/) and \
                           case-insensitive regex is used: see regular-expressions.info/refquick.html and regex101.com")
 parser.add_argument("--recursive_search", "-r",
                     dest="recursive",
                     type=int,
-                    default=1,
+                    default=-1,
                     help="Search recursively (i.e. including subfolders) in source(s)")
 parser.add_argument("--deduplicate_source", "-dedupin",
                     dest="dedup_source",
                     type=int,
-                    default=1,
+                    default=-1,
                     help="Search for duplicates in source(s)")
 parser.add_argument("--deduplicate_source_tolerance", "-dedupintol",
                     dest="dedup_source_tolerance",
                     type=int,
-                    default=1,
+                    default=-1,
                     help="Allow 3sec difference for --deduplicate_source")
 parser.add_argument("--deduplicate_history", "-deduphist",
                     dest="dedup_history",
                     type=int,
-                    default=1,
+                    default=-1,
                     help="Search for duplicates in history-file.")
 parser.add_argument("--history_path", "-histpath",
                     dest="history_path",
-                    default="./pmc_history.json",
+                    default="--",
                     help="Path of history-file. Can be relative/absolute. For --history_writemode=3: 'in|out'")
 parser.add_argument("--history_writemode", "-histw",
                     dest="history_writemode",
                     type=int,
-                    default=1,
+                    default=-1,
                     help="0 = do not write, 1 = append, 2 = overwrite, 3 = new file/overwrite existing 2nd file.")
 parser.add_argument("--dedup_target", "-dedupout",
                     dest="dedup_target",
                     type=int,
-                    default=0,
+                    default=-1,
                     help="Check for duplicates in target-folder.")
 parser.add_argument("--dedup_usehash", "-deduphash",
                     dest="dedup_hash",
                     type=int,
-                    default=0,
+                    default=-1,
                     help="Use hashes for dedup-check(s).")
 parser.add_argument("--target_protect_existing", "-owp",
                     dest="target_protect",
                     type=int,
-                    default=1,
+                    default=-1,
                     help="Overwrite-protection for existing files in target.")
 parser.add_argument("--naming_subdir", "-namesub",
                     dest="naming_subdir",
-                    default="%y-%m-%d",
+                    default="--",
                     help="Name scheme for subdirs. For time and date, see strftime.org for reference. \
                           Empty string will create no subdir.%fbn = file basename, %ffn = file full name, \
                           %fe = file extension")
 parser.add_argument("--naming_file", "-namefile",
                     dest="naming_file",
-                    default="",
+                    default="--",
                     help="Name scheme for file names. For time and date, see strftime.org for reference. \
                           Empty string will not change name. %fbn = file basename, %ffn = file full name, \
                           %fe = file extension, %ct# = counter (! sorting (which counting bases on) is \
@@ -146,32 +146,32 @@ parser.add_argument("--naming_file", "-namefile",
 parser.add_argument("--verify", "-test",
                     dest="verify",
                     type=int,
-                    default=1,
+                    default=-1,
                     help="Verify files via checksum")
 parser.add_argument("--nosleep",
                     dest="nosleep",
                     type=int,
-                    default=1,
+                    default=-1,
                     help="Prevent system from standby.")
 parser.add_argument("--preset_save_source", "-saveinpath",
                     dest="save_source",
                     type=int,
-                    default=0,
+                    default=-1,
                     help="Save source path(s) to preset")
 parser.add_argument("--preset_save_target", "-saveoutpath",
                     dest="save_target",
                     type=int,
-                    default=0,
+                    default=-1,
                     help="Save target path(s) to preset")
 parser.add_argument("--preset_save_settings", "-savesettings",
                     dest="save_settings",
                     type=int,
-                    default=0,
+                    default=-1,
                     help="Save settings to preset")
 parser.add_argument("--verbose",  # TODO: make verbose also for small prints like "using hash xyz" with more values?
                     dest="verbose",
                     type=int,
-                    default=1,
+                    default=-1,
                     help="Verbose. 2 = file, 1 = console, 0 = none")
 param = parser.parse_args()
 
