@@ -1,0 +1,30 @@
+{
+	"preset":"default",
+	"source":[
+		"/tmp/pmc/py_media-copy/.testing/in",
+		"/tmp/pmc/py_media-copy/.testing/in",
+		"/tmp/pmc/py_media-copy/.testing/in"
+	],
+	"target":[
+		"/tmp/pmc/py_media-copy/.testing/out"
+	],
+	"filter_pref":1,
+	"filter_list":".*cr2$|.*/FDO.*",
+	"recursive":1,
+	"dedup_source":0,
+	"dedup_source_tolerance":1,
+	"dedup_history":0,
+	"history_path":"/tmp/pmc/py_media-copy/pmc_history.json",
+	"history_writemode":1,
+	"dedup_target":0,
+	"dedup_hash":0,
+	"target_protect":1,
+	"naming_subdir":"%Y-%m-%d",
+	"naming_file":"",
+	"verify":1,
+	"nosleep":1,
+	"save_source":0,
+	"save_target":0,
+	"save_settings":0,
+	"verbose":1
+}

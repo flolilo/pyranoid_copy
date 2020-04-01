@@ -63,6 +63,10 @@ except ImportError:
     sleep(3)
 
 parser = ArgumentParser()
+parser.add_argument("--preset", "-pres",
+                    dest="preset",
+                    default="default",
+                    help="Preset name")
 parser.add_argument("--source", "-in",
                     dest="source",
                     default="./.testing/in|./.testing/in|./.testing/in",
@@ -149,10 +153,6 @@ parser.add_argument("--nosleep",
                     type=int,
                     default=1,
                     help="Prevent system from standby.")
-parser.add_argument("--preset", "-pres",
-                    dest="preset",
-                    default="default",
-                    help="Preset name")
 parser.add_argument("--preset_save_source", "-saveinpath",
                     dest="save_source",
                     type=int,
@@ -174,11 +174,10 @@ parser.add_argument("--verbose",  # TODO: make verbose also for small prints lik
                     default=1,
                     help="Verbose. 2 = file, 1 = console, 0 = none")
 param = parser.parse_args()
-# param.hash_calc_needed = 1  # TODO: What was that for?
 
 # DEF: Set print location (none/terminal/file)
 if (param.verbose == 2):
-    f = Path("./pmc.log").open(mode='a+', encoding='utf-8')
+    f = Path("./pmc.log").resolve().open(mode='a+', encoding='utf-8')
 elif (param.verbose == 0):
     f = open(devnull, 'w')
     stdout = f
@@ -228,7 +227,7 @@ def check_params():
 
     # --source:
     try:
-        param.source = [Path(i).resolve() for i in re.split('\|', param.source) if len(i) > 0]
+        param.source = [str(Path(i).resolve()) for i in re.split('\|', param.source) if len(i) > 0]
     except Exception:
         print_error("Error in --source!")
     if (len(param.source) < 1):
@@ -236,7 +235,7 @@ def check_params():
 
     # --target:
     try:
-        param.target = [Path(i).resolve() for i in re.split('\|', param.target) if len(i) > 0]
+        param.target = [str(Path(i).resolve()) for i in re.split('\|', param.target) if len(i) > 0]
     except Exception:
         print_error("Error in --target!")
     if (len(param.target) < 1):
@@ -264,7 +263,7 @@ def check_params():
     if(not 0 <= param.history_writemode <= 3):
         print_error("No valid int for --history_writemode!")
     if(param.dedup_history == 1 or param.history_writemode > 0):
-        param.history_path = [Path(i).resolve() for i in re.split('\|', param.history_path)]
+        param.history_path = [str(Path(i).resolve()) for i in re.split('\|', param.history_path)]
         if(len(param.history_path) > 0):
             if(param.history_writemode <= 2):
                 param.history_path = param.history_path[0]
@@ -482,8 +481,8 @@ def calculate_targetpath(source):
                         k_out += 1
                     else:  # if file does not exist with that name...
                         inter_test_in = inter_test
-                        while True:
-                            if (str(Path(inter_test_in).resolve()) + i[3]) in already_used_names:  # if file with this name already will be copied...
+                        while True:  # if file with this name already will be copied...
+                            if (str(Path(inter_test_in).resolve()) + i[3]) in already_used_names:
                                 inter_test_in = str(Path(inter_test).resolve()) + "_in" + str(k_in)
                                 k_in += 1
                             else:
@@ -504,7 +503,7 @@ def save_json(what, where):
         Path(where).write_text(json.dumps(what, ensure_ascii=False, indent="\t",
                                           separators=(',', ':')), encoding='utf-8')
     except Exception:
-        print("    Error!", file=f)
+        print(Style.BRIGHT + Fore.MAGENTA + "    Error!", file=f)
 
 
 def load_json(where):
@@ -554,6 +553,7 @@ def create_subdirs(source):
 
 while True:
     check_params()
+    save_json(vars(param), Path("./pmc_presets.json").resolve())
 
     # DEF: search files:
     source_files = search_files(param.source)
