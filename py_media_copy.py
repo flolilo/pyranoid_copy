@@ -174,12 +174,12 @@ parser.add_argument("--verbose",  # TODO: make verbose also for small prints lik
                     type=int,
                     default=-1,
                     help="Verbose. 2 = file, 1 = console, 0 = none")
-param = parser.parse_args()
+param = vars(parser.parse_args())  # convert namespace to dictionary
 
 # DEF: Set print location (none/terminal/file)
-if (param.verbose == 2):
+if (param['verbose'] == 2):
     f = Path("./pmc.log").resolve().open(mode='a+', encoding='utf-8')
-elif (param.verbose == 0):
+elif (param['verbose'] == 0):
     f = open(devnull, 'w')
     sys_stdout = f
 else:
@@ -214,6 +214,13 @@ def check_remaining_files(to_check):
         return 1
 
 
+def read_presets():
+    """Read parameters for all params that were not set by user."""
+    global param, f
+    for i in param:
+        print(str(i), file=f)
+
+
 def check_params():
     """check all parameters"""
     global param, f
@@ -227,50 +234,53 @@ def check_params():
         sys_exit(what)
 
     # --source:
+    if (param['source'] == "--"):
+        # TODO: load source from JSON
+        print("--", file=f)
     try:
-        param.source = [str(Path(i).resolve()) for i in re.split('\|', param.source) if len(i) > 0]
+        param['source'] = [str(Path(i).resolve()) for i in re.split('\|', param['source']) if len(i) > 0]
     except Exception:
         print_error("Error in --source!")
-    if (len(param.source) < 1):
+    if (len(param['source']) < 1):
         print_error("No source path(s) actually found!")
 
     # --target:
     try:
-        param.target = [str(Path(i).resolve()) for i in re.split('\|', param.target) if len(i) > 0]
+        param['target'] = [str(Path(i).resolve()) for i in re.split('\|', param['target']) if len(i) > 0]
     except Exception:
         print_error("Error in --target!")
-    if (len(param.target) < 1):
+    if (len(param['target']) < 1):
         print_error("No target path(s) actually found!")
 
     # --filter_preference & --filer_list:
-    if (not -1 <= param.filter_pref <= 1):
+    if (not -1 <= param['filter_pref'] <= 1):
         print_error("No valid int for --filter_preference!")
-    elif (param.filter_pref != 0 and len(param.filter_list) < 1):
+    elif (param['filter_pref'] != 0 and len(param['filter_list']) < 1):
         print_error("--filter_list is empty!")
 
     # --recursive_search:
-    if (not 0 <= param.recursive <= 1):
+    if (not 0 <= param['recursive'] <= 1):
         print_error("No valid int for --recursive_search!")
 
     # --deduplicate_source & --deduplicate_source_tolerance:
-    if (not 0 <= param.dedup_source <= 1):
+    if (not 0 <= param['dedup_source'] <= 1):
         print_error("No valid int for --deduplicate_source!")
-    elif(param.dedup_source == 1 and not 0 <= param.dedup_source_tolerance <= 1):
+    elif(param['dedup_source'] == 1 and not 0 <= param['dedup_source_tolerance'] <= 1):
         print_error("No valid int for --deduplicate_source_tolerance!")
 
     # TODO: --deduplicate_history & --history_path & --history_writemode:
-    if(not 0 <= param.dedup_history <= 1):
+    if(not 0 <= param['dedup_history'] <= 1):
         print_error("No valid int for --deduplicate_history!")
-    if(not 0 <= param.history_writemode <= 3):
+    if(not 0 <= param['history_writemode'] <= 3):
         print_error("No valid int for --history_writemode!")
-    if(param.dedup_history == 1 or param.history_writemode > 0):
-        param.history_path = [str(Path(i).resolve()) for i in re.split('\|', param.history_path)]
-        if(len(param.history_path) > 0):
-            if(param.history_writemode <= 2):
-                param.history_path = param.history_path[0]
+    if(param['dedup_history'] == 1 or param['history_writemode'] > 0):
+        param['history_path'] = [str(Path(i).resolve()) for i in re.split('\|', param['history_path'])]
+        if(len(param['history_path']) > 0):
+            if(param['history_writemode'] <= 2):
+                param['history_path'] = param['history_path'][0]
             else:
-                if(len(param.history_path) > 1):
-                    param.history_path = [param.history_path[0], param.history_path[1]]
+                if(len(param['history_path']) > 1):
+                    param['history_path'] = [param['history_path'][0], param['history_path'][1]]
                 else:
                     print_error("Not enough paths for --history_writemode 3!")
         else:
@@ -279,15 +289,15 @@ def check_params():
         print_error("TODO:")
 
     # --dedup_target:
-    if (not 0 <= param.dedup_target <= 1):
+    if (not 0 <= param['dedup_target'] <= 1):
         print_error("No valid int for --dedup_target!")
 
     # --dedup_usehash
-    if (not 0 <= param.dedup_hash <= 1):
+    if (not 0 <= param['dedup_hash'] <= 1):
         print_error("No valid int for --dedup_usehash!")
 
     # --target_protect_existing
-    if (not 0 <= param.target_protect <= 1):
+    if (not 0 <= param['target_protect'] <= 1):
         print_error("No valid int for --target_protect_existing!")
 
     # TODO: --naming_subdir:
@@ -295,31 +305,31 @@ def check_params():
     # TODO: --naming_file:
 
     # --verify:
-    if (not 0 <= param.verify <= 1):
+    if (not 0 <= param['verify'] <= 1):
         print_error("No valid int for --verify!")
 
     # --nosleep:
-    if (not 0 <= param.nosleep <= 1):
+    if (not 0 <= param['nosleep'] <= 1):
         print_error("No valid int for --nosleep!")
 
     # --preset:
-    if (len(param.preset) < 1):
+    if (len(param['preset']) < 1):
         print_error("No valid string for --preset!")
 
     # --preset_save_source:
-    if (not 0 <= param.save_source <= 1):
+    if (not 0 <= param['save_source'] <= 1):
         print_error("No valid int for --preset_save_source!")
 
     # --preset_save_target:
-    if (not 0 <= param.save_target <= 1):
+    if (not 0 <= param['save_target'] <= 1):
         print_error("No valid int for --preset_save_target!")
 
     # --preset_save_settings:
-    if (not 0 <= param.save_settings <= 1):
+    if (not 0 <= param['save_settings'] <= 1):
         print_error("No valid int for --preset_save_settings!")
 
     # --verbose:
-    if (not 0 <= param.verbose <= 2):
+    if (not 0 <= param['verbose'] <= 2):
         print_error("No valid int for --verbose!")
 
 
@@ -339,7 +349,7 @@ def search_files(where):
         [6] hash
         [7] full target path(s) (list)
     """
-    if(param.recursive == 1):
+    if(param['recursive'] == 1):
         recurse = '**/*.*'
     else:
         recurse = '*/*.*'
@@ -348,9 +358,9 @@ def search_files(where):
                   bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
         for j in Path(i).glob(recurse):
             j = Path(j).resolve()
-            if (param.filter_pref == 1 and re.search(param.filter_list, str(j.as_posix()), re.I) is not None
-              or param.filter_pref == -1 and re.search(param.filter_list, str(j.as_posix()), re.I) is None
-              or param.filter_pref == 0):
+            if (param['filter_pref'] == 1 and re.search(param['filter_list'], str(j.as_posix()), re.I) is not None
+              or param['filter_pref'] == -1 and re.search(param['filter_list'], str(j.as_posix()), re.I) is None
+              or param['filter_pref'] == 0):
                 j_stat = j.stat()
                 found_files += [[str(j),
                                 j.name,
@@ -362,7 +372,7 @@ def search_files(where):
                                 []]]
 
     print('    ' + str(len(found_files)) + " files found.", file=f)
-    found_files = sorted(found_files, key=lambda attris: attris[0])  # For %c in param.naming_file.
+    found_files = sorted(found_files, key=lambda attris: attris[0])  # For %c in param['naming_file'].
     return found_files
 
 
@@ -398,8 +408,8 @@ def dedup_files(source, compare, what_string):
             j = 0
             while True:
                 """
-                    if ((param.dedup_hash != 1 and (tuple([i[1], i[4], i[5]]) not in compare)) or
-                    (param.dedup_hash == 1 and (tuple([i[1], i[4], i[5], i[6]]) not in compare))):
+                    if ((param['dedup_hash'] != 1 and (tuple([i[1], i[4], i[5]]) not in compare)) or
+                    (param['dedup_hash'] == 1 and (tuple([i[1], i[4], i[5], i[6]]) not in compare))):
                         deduped.append(i)
                 """
                 # TODO: try https://stackoverflow.com/a/15544861
@@ -422,7 +432,7 @@ def dedup_files(source, compare, what_string):
                 # print(str(i[1]) + str(i[4]) + str(i[5]), file=f)
                 deduped.append(i)
                 """
-                    if param.dedup_hash == 1:
+                    if param['dedup_hash'] == 1:
                         compare.add(tuple([i[1], i[4], i[5], i[6]]))
                     else:
                 """
@@ -437,7 +447,7 @@ def calculate_targetpath(source):
     # i[1] = i[2]+i[3]      %fbn|%fe|%ffn
     """check if target path(s) are already existing (i.e. a file with this name already exists)"""
     global param
-    if param.target_protect > 0:
+    if param['target_protect'] > 0:
         expl = 'Calculate target paths (prevent overwriting)'
     else:
         expl = 'Calculate target paths (do not prevent overwriting)'
@@ -446,10 +456,10 @@ def calculate_targetpath(source):
     counter = 1
     already_used_names = []
     for i in source:
-        for j in param.target:
+        for j in param['target']:
             # BaseName (pre-OWP):
-            if len(param.naming_file) > 0:
-                inter_base = param.naming_file
+            if len(param['naming_file']) > 0:
+                inter_base = param['naming_file']
                 inter_base = re.sub(r'%ffn', i[1], inter_base, re.I)
                 inter_base = re.sub(r'%fbn', i[2], inter_base, re.I)
                 inter_base = re.sub(r'%fe', i[3], inter_base, re.I)
@@ -465,8 +475,8 @@ def calculate_targetpath(source):
             else:
                 inter_base = i[2]
             # Subfolder:
-            if len(param.naming_subdir) > 0:
-                inter_sub = param.naming_subdir
+            if len(param['naming_subdir']) > 0:
+                inter_sub = param['naming_subdir']
                 inter_sub = re.sub(r'%ffn', i[1], inter_sub, re.I)
                 inter_sub = re.sub(r'%fbn', i[2], inter_sub, re.I)
                 inter_sub = re.sub(r'%fe', i[3], inter_sub, re.I)
@@ -475,7 +485,7 @@ def calculate_targetpath(source):
                 inter_sub = ""
             inter_sub += "/"
             # Test for output already existing:
-            if param.target_protect > 0:
+            if param['target_protect'] > 0:
                 k_out = 1
                 k_in = 1
                 inter_test = Path(j).joinpath(inter_sub + inter_base).resolve()
@@ -556,40 +566,43 @@ def create_subdirs(source):
 # ==================================================================================================
 
 while True:
+    # with Path("./pmc_presets.json").open('r+', encoding='utf-8') as file:
+    #     inter = json.load(file)
+    # param = inter
     check_params()
-    save_json(vars(param), Path("./pmc_presets.json").resolve())
+    # TODO: save_json(param, Path("./pmc_presets.json").resolve())
 
     # DEF: search files:
-    source_files = search_files(param.source)
+    source_files = search_files(param['source'])
     if(check_remaining_files(source_files) == 0):
         break
 
     # DEF: Dedups:
     # dedup source:
-    if param.dedup_source == 1:
+    if param['dedup_source'] == 1:
         # get hashes:
-        if param.dedup_hash == 1:
+        if param['dedup_hash'] == 1:
             source_files = get_hashes(source_files)
         source_files = dedup_files(source_files, set(), "source")
         if(check_remaining_files(source_files) == 0):
             break
     # dedup history:
-    if param.dedup_history == 1:
-        history_files = load_json(param.history_path)
+    if param['dedup_history'] == 1:
+        history_files = load_json(param['history_path'])
         if len(history_files) > 0:
             # get hashes:
-            if param.dedup_hash == 1:
+            if param['dedup_hash'] == 1:
                 source_files = get_hashes(source_files)
             source_files = dedup_files(source_files, history_files, "history")
             history_files = None
             if(check_remaining_files(source_files) == 0):
                 break
     # dedup target:
-    if param.dedup_target == 1:
-        target_files = search_files(param.target)
+    if param['dedup_target'] == 1:
+        target_files = search_files(param['target'])
         target_files = [1], [4], [5]
         # get hashes:
-        if param.dedup_hash == 1:
+        if param['dedup_hash'] == 1:
             source_files = get_hashes(source_files)
             target_files = get_hashes(target_files)
         source_files = dedup_files(source_files, target_files)
@@ -598,7 +611,7 @@ while True:
             break
 
     # DEF: get rest of the hashes:
-    if param.verify == 1:
+    if param['verify'] == 1:
         source_files = get_hashes(source_files)
 
     # DEF: prepare paths:
@@ -611,8 +624,8 @@ while True:
     # DEF: Verify:
 
     # DEF: write history:
-    if param.history_writemode > 0:
-        history_files = load_json(param.history_path)
+    if param['history_writemode'] > 0:
+        history_files = load_json(param['history_path'])
         to_save = source_files
         for i in to_save:
             del i[7]
@@ -620,13 +633,13 @@ while True:
             del i[2]
             del i[0]
 
-        if param.history_writemode == 1 and history_files is not None:
+        if param['history_writemode'] == 1 and history_files is not None:
             to_save += history_files
 
         to_save.sort()
         to_save = list(to_save for to_save, _ in itertools.groupby(to_save))
 
-        save_json(to_save, param.history_path)
+        save_json(to_save, param['history_path'])
         to_save = None
 
     # all done:
