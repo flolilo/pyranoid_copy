@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: BSD-3-Clause-Clear OR GPL-3.0-only
 from pmc_ver import pmc_version
-#  import pmc_preset
 
 from os import devnull
-from sys import stdout, hexversion
-from sys import exit as sysexit
+from sys import hexversion
+from sys import stdout as sys_stdout
+from sys import exit as sys_exit
 try:
     from crc32c import crc32  # crc32c for intel
 except ImportError:
@@ -61,6 +61,7 @@ try:
 except ImportError:
     print(Style.BRIGHT + Fore.RED + "Please install tqdm: " + Fore.WHITE + "pip install tqdm")
     sleep(3)
+    sys_exit("Please install tqdm:\tpip install tqdm")
 
 parser = ArgumentParser()
 parser.add_argument("--preset", "-pres",
@@ -180,15 +181,15 @@ if (param.verbose == 2):
     f = Path("./pmc.log").resolve().open(mode='a+', encoding='utf-8')
 elif (param.verbose == 0):
     f = open(devnull, 'w')
-    stdout = f
+    sys_stdout = f
 else:
-    f = stdout
+    f = sys_stdout
 
 #  for glob:
 if (hexversion < 0x030500F0):
     f.close()
     deinit()
-    sysexit("Cannot run py_media-copy on python < v3.5! Please update.")
+    sys_exit("Cannot run py_media-copy on python < v3.5! Please update.")
 
 print(Style.BRIGHT + Fore.YELLOW + pmc_version, file=f)
 
@@ -223,7 +224,7 @@ def check_params():
         f.close()
         deinit()
         sleep(1)
-        sysexit(1)
+        sys_exit(what)
 
     # --source:
     try:
@@ -635,4 +636,4 @@ print_time(Style.BRIGHT + Fore.GREEN + "Done!")
 print(Style.RESET_ALL + Fore.RESET, file=f)
 deinit()
 f.close()
-sysexit(0)
+sys_exit(0)
