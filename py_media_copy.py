@@ -380,8 +380,8 @@ def get_hashes(what):
                         buf = file.read(blocksize)
                         if not buf:
                             break
-                        crcvalue = f'{(crc32(buf, crcvalue) & 0xffffffff):x}'
-                    i[6] = crcvalue
+                        crcvalue = (crc32(buf, crcvalue) & 0xffffffff)
+                    i[6] = f'{crcvalue:x}'
             except Exception:
                 print(Style.BRIGHT + Fore.MAGENTA + "    Cannot calculate CRC32 of " + str(i[0]), file=f)
 
