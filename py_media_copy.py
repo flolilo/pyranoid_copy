@@ -186,7 +186,7 @@ elif (param['verbose'] == 0):
 else:
     f = sys_stdout
 
-#  for glob:
+#  for glob, we need Python >= v3.5:
 if (hexversion < 0x030500F0):
     f.close()
     deinit()
