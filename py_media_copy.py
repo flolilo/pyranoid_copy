@@ -27,6 +27,7 @@ except ImportError:
     print("For better readability, please install colorama: pip install colorama")
     sleep(2)
 
+    # DEF: create empty strings and functions for everything necessary:
     class Fore():
         BLACK = ""
         RED = ""
