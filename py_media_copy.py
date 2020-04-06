@@ -229,11 +229,10 @@ def read_presets():
         if str(i['preset']) == str(param['preset']):
             preset_specified = i
     if len(preset_specified) == 0:
-        print("Preset not found!", file=f)
+        print(Style.BRIGHT + Fore.MAGENTA + "Preset not found!", file=f)
 
     for key, value in param.items():
         if str(param[key]) == "-1" and key in preset_specified:
-            print(str(key) + " : " + str(preset_specified[key]), file=f)
             param[key] = preset_specified[key]
 
 
@@ -278,7 +277,6 @@ def check_params():
         print_error("No target path(s) actually found!")
 
     # --filter_preference & --filter_list:
-    # TODO: This should also make a list
     if (not -1 <= param['filter_pref'] <= 1):
         print_error("No valid int for --filter_preference!")
     elif (param['filter_pref'] != 0 and len(param['filter_list']) < 1):
@@ -295,7 +293,6 @@ def check_params():
         print_error("No valid int for --deduplicate_source_tolerance!")
 
     # TODO: --deduplicate_history & --history_path & --history_writemode:
-    # TODO: implement list test (load preference)
     if(not 0 <= param['dedup_history'] <= 1):
         print_error("No valid int for --deduplicate_history!")
     if(not 0 <= param['history_writemode'] <= 3):
