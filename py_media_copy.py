@@ -192,7 +192,6 @@ if (hexversion < 0x030500F0):
     deinit()
     sys_exit("Cannot run py_media-copy on python < v3.5! Please update.")
 
-print(Style.BRIGHT + Fore.YELLOW + pmc_version, file=f)
 
 # ==================================================================================================
 # ==============================================================================
@@ -589,10 +588,8 @@ def create_subdirs(source):
 # ==============================================================================
 # ==================================================================================================
 
+print(Style.BRIGHT + Fore.YELLOW + pmc_version, file=f)
 while True:
-    # with Path("./pmc_presets.json").open('r+', encoding='utf-8') as file:
-    #     inter = json.load(file)
-    # param = inter
     read_presets()
     check_params()
     # TODO: save_json(param, Path("./pmc_presets.json").resolve())
