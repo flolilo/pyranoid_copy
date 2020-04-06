@@ -218,12 +218,23 @@ def check_remaining_files(to_check):
 def read_presets():
     """Read parameters for all params that were not set by user."""
     global param, f
+    try:
     with Path("./pmc_presets.json").open('r+', encoding='utf-8') as file:
-        inter = json.load(file)
-    for key, value in inter.items():
-        print(str(key) + " : " + str(value), file=f)
+            presets_complete = json.load(file)
+    except Exception:
+        print("Preset-file could not be loaded!", file=f)
+
+    preset_specified = dict()
+    for i in presets_complete:
+        if str(i['preset']) == str(param['preset']):
+            preset_specified = i
+    if len(preset_specified) == 0:
+        print("Preset not found!", file=f)
+
     for key, value in param.items():
-        print(str(key) + " : " + str(value), file=f)
+        if str(param[key]) == "-1" and key in preset_specified:
+            print(str(key) + " : " + str(preset_specified[key]), file=f)
+            param[key] = preset_specified[key]
 
 
 def check_params():
