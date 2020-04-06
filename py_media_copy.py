@@ -250,11 +250,14 @@ def check_params():
         sys_exit(what)
 
     # --source:
-    if (param['source'] == "--"):
-        # TODO: load source from JSON
-        print("--", file=f)
     try:
+        if type(param['source']) == str:
         param['source'] = [str(Path(i).resolve()) for i in re.split('\|', param['source']) if len(i) > 0]
+        elif type(param['source']) == list:
+            for i in param['source']:
+                param['source'] = [str(Path(i).resolve()) for i in param['source'] if len(i) > 0]
+        else:
+            raise Exception('--source is neither list nor string!')
     except Exception:
         print_error("Error in --source!")
     if (len(param['source']) < 1):
@@ -262,13 +265,20 @@ def check_params():
 
     # --target:
     try:
+        if type(param['target']) == str:
         param['target'] = [str(Path(i).resolve()) for i in re.split('\|', param['target']) if len(i) > 0]
+        elif type(param['target']) == list:
+            for i in param['target']:
+                param['target'] = [str(Path(i).resolve()) for i in param['target'] if len(i) > 0]
+        else:
+            raise Exception('--target is neither list nor string!')
     except Exception:
         print_error("Error in --target!")
     if (len(param['target']) < 1):
         print_error("No target path(s) actually found!")
 
-    # --filter_preference & --filer_list:
+    # --filter_preference & --filter_list:
+    # TODO: This should also make a list
     if (not -1 <= param['filter_pref'] <= 1):
         print_error("No valid int for --filter_preference!")
     elif (param['filter_pref'] != 0 and len(param['filter_list']) < 1):
@@ -285,6 +295,7 @@ def check_params():
         print_error("No valid int for --deduplicate_source_tolerance!")
 
     # TODO: --deduplicate_history & --history_path & --history_writemode:
+    # TODO: implement list test (load preference)
     if(not 0 <= param['dedup_history'] <= 1):
         print_error("No valid int for --deduplicate_history!")
     if(not 0 <= param['history_writemode'] <= 3):
@@ -585,8 +596,8 @@ while True:
     # with Path("./pmc_presets.json").open('r+', encoding='utf-8') as file:
     #     inter = json.load(file)
     # param = inter
-    check_params()
     read_presets()
+    check_params()
     # TODO: save_json(param, Path("./pmc_presets.json").resolve())
 
     # DEF: search files:
