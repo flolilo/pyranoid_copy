@@ -217,8 +217,9 @@ def check_remaining_files(to_check):
 def read_presets():
     """Read parameters for all params that were not set by user."""
     global param, f
+    preset_file = str(Path("./pmc_presets.json").resolve())
     try:
-    with Path("./pmc_presets.json").open('r+', encoding='utf-8') as file:
+        with Path(preset_file).open('r+', encoding='utf-8') as file:
             presets_complete = json.load(file)
     except Exception:
         print("Preset-file could not be loaded!", file=f)
@@ -354,6 +355,27 @@ def check_params():
     # --verbose:
     if (not 0 <= param['verbose'] <= 2):
         print_error("No valid int for --verbose!")
+
+
+def save_params(what):
+    params_to_save = what
+    preset_file = str(Path("./pmc_presets.json").resolve())
+
+    del params_to_save['save_settings']
+    if params_to_save['save_source'] < 1:
+        del params_to_save['source']
+    del params_to_save['save_source']
+    if params_to_save['save_target'] < 1:
+        del params_to_save['target']
+    del params_to_save['save_target']
+
+    existing_presets = load_json(preset_file)
+
+    all_presets = existing_presets + [params_to_save]
+    # CREDIT: https://stackoverflow.com/a/9428041/8013879
+    to_save = [i for n, i in enumerate(all_presets) if i not in all_presets[n + 1:]]
+
+    save_json(to_save, Path(preset_file).resolve())
 
 
 def search_files(where):
@@ -592,7 +614,8 @@ print(Style.BRIGHT + Fore.YELLOW + pmc_version, file=f)
 while True:
     read_presets()
     check_params()
-    # TODO: save_json(param, Path("./pmc_presets.json").resolve())
+    if param['save_settings'] == 1:
+        save_params(param)
 
     # DEF: search files:
     source_files = search_files(param['source'])
