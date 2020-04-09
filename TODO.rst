@@ -25,13 +25,13 @@ v0.0.1++
     - [x] Sources
     - [x] Targets
 - [x] Include/exclude files per extension
-- [ ] Offer presets for settings
-    - [ ] Saving/storing presets
+- [ ] Offer presets for settings (Saving/storing presets)
 - [ ] Implement GUI for setting things up (output via console)
     - [ ] Create fallback to script-only for people without GUI-dependencies
-    - [ ] Implement output via GUI?
+    - [ ] ? Implement output via GUI ?
 - [ ] ? Prevent computer from going to sleep ? (needs investigation whether feasible or not)
 - [ ] Evaluate ``exception`` for as much functions as possible.
+- [ ] LOW: Option to ignore files with date before/after set date (i.e. only files before 2020-04-01).
 - [ ] LOW: create a paranoid-mode that re-reads hash values.
 
 
@@ -40,9 +40,12 @@ v0.99.0
 
 - [ ] All of the above are tested and work reasonably (beta-stage)
 - [ ] Create ``devel``-branch
+- [ ] Create binaries for Win/OSX/Linux, add to releases
+- [ ] Create source package with only necessary stuff (vs. ``master``/``devel`` branch's ``requirements.txt``)
 
 
 v1.0.0
 ''''''
 
 - [ ] Like **v0.99.x**, but long-term tested. *(Therefore, not likely to be released soon - this should become a production tool and as such, I don't want your files to vanish!)*
+- [ ] Create 1.0.0 release (binaries & source package)
