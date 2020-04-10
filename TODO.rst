@@ -25,7 +25,9 @@ v0.0.1++
     - [x] Sources
     - [x] Targets
 - [x] Include/exclude files per extension
-- [ ] Offer presets for settings (Saving/storing presets)
+- [x] Offer presets for settings (Saving/storing presets)
+    - [ ] LOW: Store paths relative when feasible
+    - [ ] LOW: ``re.sub(r'[?a-zA-z0-9-_','', param['preset'])`` (i.e. preset names only alphanumeric plus dash and underscore)
 - [ ] Implement GUI for setting things up (output via console)
     - [ ] Create fallback to script-only for people without GUI-dependencies
     - [ ] ? Implement output via GUI ?

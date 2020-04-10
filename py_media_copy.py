@@ -214,20 +214,26 @@ def check_remaining_files(to_check):
         return 1
 
 
-def read_presets():
+def read_presets(preset_file=str(Path("./pmc_presets.json").resolve())):
     """Read parameters for all params that were not set by user."""
-    global param, f
-    preset_file = str(Path("./pmc_presets.json").resolve())
+    global param, f  # TODO: mayble delete global
+    # (https://docs.python.org/3/faq/programming.html#what-are-the-rules-for-local-and-global-variables-in-python)
     try:
         with Path(preset_file).open('r+', encoding='utf-8') as file:
-            presets_complete = json.load(file)
+            presets_from_file = json.load(file)
     except Exception:
         print("Preset-file could not be loaded!", file=f)
 
+    return presets_from_file
+
+
+def merge_params():
+    presets_from_file = read_presets()
     preset_specified = dict()
-    for i in presets_complete:
+    for i in presets_from_file:
         if str(i['preset']) == str(param['preset']):
             preset_specified = i
+            break
     if len(preset_specified) == 0:
         print(Style.BRIGHT + Fore.MAGENTA + "Preset not found!", file=f)
 
@@ -238,7 +244,8 @@ def read_presets():
 
 def check_params():
     """check all parameters"""
-    global param, f
+    global param, f  # TODO: mayble delete global
+    # (https://docs.python.org/3/faq/programming.html#what-are-the-rules-for-local-and-global-variables-in-python)
 
     def print_error(what):
         global f
@@ -357,10 +364,11 @@ def check_params():
         print_error("No valid int for --verbose!")
 
 
-def save_params(what):
-    params_to_save = what
-    preset_file = str(Path("./pmc_presets.json").resolve())
-
+def save_params(preset_file=str(Path("./pmc_presets.json").resolve())):
+    """Save parameters in file."""
+    global param  # TODO: mayble delete global
+    # (https://docs.python.org/3/faq/programming.html#what-are-the-rules-for-local-and-global-variables-in-python)
+    params_to_save = param.copy()
     del params_to_save['save_settings']
     if params_to_save['save_source'] < 1:
         del params_to_save['source']
@@ -369,9 +377,21 @@ def save_params(what):
         del params_to_save['target']
     del params_to_save['save_target']
 
-    existing_presets = load_json(preset_file)
+    presets_from_file = read_presets()
+    # TODO: leave non-i untouched, change i with params, then save non-i and i
+    x = 0
+    for i in presets_from_file:
+        if str(i['preset']) == str(param['preset']):
+            for key, value in i.items():
+                if str(param[key]) != "-1":
+                    i[key] = param[key]
+                x = 1
+            break
+    if x == 0:
+        all_presets = presets_from_file + [params_to_save]
+    else:
+        all_presets = presets_from_file
 
-    all_presets = existing_presets + [params_to_save]
     # CREDIT: https://stackoverflow.com/a/9428041/8013879
     to_save = [i for n, i in enumerate(all_presets) if i not in all_presets[n + 1:]]
 
@@ -612,10 +632,10 @@ def create_subdirs(source):
 
 print(Style.BRIGHT + Fore.YELLOW + pmc_version, file=f)
 while True:
-    read_presets()
+    merge_params()
     check_params()
     if param['save_settings'] == 1:
-        save_params(param)
+        save_params()
 
     # DEF: search files:
     source_files = search_files(param['source'])
