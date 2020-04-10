@@ -443,6 +443,7 @@ def search_files(where):
 
 def get_hashes(what):
     """Get hashes for files"""
+    # TODO: Unify hash-getting with verify_files()
     blocksize = 128*256
     print_time("Getting hashes...")
     for i in tqdm(what, desc="Files", unit="f",
@@ -576,6 +577,30 @@ def calculate_targetpath(source):
     return source
 
 
+def verify_files(what):
+    # TODO: Unify hash-getting with get_hashes()
+    errors = 0
+    blocksize = 128*256
+    print_time("Verifying hashes...")
+    for i in tqdm(what, desc="Files", unit="f",
+                  bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
+        try:
+            with Path(i[7][0]).open("rb") as file:
+                crcvalue = 0
+                while True:
+                    buf = file.read(blocksize)
+                    if not buf:
+                        break
+                    crcvalue = (crc32(buf, crcvalue) & 0xffffffff)
+        except Exception:
+            print(Style.BRIGHT + Fore.MAGENTA + "    Cannot calculate CRC32 of " + str(i[0]), file=f)
+
+        if i[6] != f'{crcvalue:x}':
+            errors += 1
+
+    return errors
+
+
 def save_json(what, where):
     print_time(str('Saving JSON ' + str(where)))
     try:
@@ -686,7 +711,10 @@ while True:
     # DEF: Copy:
     copy_files(source_files)
 
+    # DEF: Flush write cache
+
     # DEF: Verify:
+    verify_files(source_files)
 
     # DEF: write history:
     if param['history_writemode'] > 0:
