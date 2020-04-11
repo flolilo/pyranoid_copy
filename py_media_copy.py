@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: BSD-3-Clause-Clear OR GPL-3.0-only
 from pmc_ver import pmc_version
 
-from os import devnull
+from os import devnull, system, sync
 from sys import hexversion
 from sys import stdout as sys_stdout
 from sys import exit as sys_exit
@@ -198,7 +198,6 @@ if (hexversion < 0x030500F0):
 #    Setting functions:
 # ==============================================================================
 # ==================================================================================================
-
 
 def print_time(what):
     global f
@@ -441,27 +440,33 @@ def search_files(where):
     return found_files
 
 
-def get_hashes(what):
+def get_source_hashes(what):
     """Get hashes for files"""
     # TODO: Unify hash-getting with verify_files()
-    blocksize = 128*256
     print_time("Getting hashes...")
     for i in tqdm(what, desc="Files", unit="f",
                   bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
         if i[6] == "XYZ":
+            i[6] = get_hashes(i[0])
+    return what
+
+
+def get_hashes(what):
+    blocksize = 128*256
             try:
-                with Path(i[0]).open("rb") as file:
+        with Path(what).open("rb") as file:
                     crcvalue = 0
                     while True:
                         buf = file.read(blocksize)
                         if not buf:
                             break
                         crcvalue = (crc32(buf, crcvalue) & 0xffffffff)
-                    i[6] = f'{crcvalue:x}'
+            hashstring = f'{crcvalue:x}'
             except Exception:
-                print(Style.BRIGHT + Fore.MAGENTA + "    Cannot calculate CRC32 of " + str(i[0]), file=f)
+        print(Style.BRIGHT + Fore.MAGENTA + "    Cannot calculate CRC32 of " + str(what), file=f)
+        hashstring = "XYZ"
 
-    return what
+    return hashstring
 
 
 def dedup_files(source, compare, what_string):
@@ -580,25 +585,19 @@ def calculate_targetpath(source):
 def verify_files(what):
     # TODO: Unify hash-getting with get_hashes()
     errors = 0
-    blocksize = 128*256
     print_time("Verifying hashes...")
     for i in tqdm(what, desc="Files", unit="f",
                   bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
-        try:
-            with Path(i[7][0]).open("rb") as file:
-                crcvalue = 0
-                while True:
-                    buf = file.read(blocksize)
-                    if not buf:
-                        break
-                    crcvalue = (crc32(buf, crcvalue) & 0xffffffff)
-        except Exception:
-            print(Style.BRIGHT + Fore.MAGENTA + "    Cannot calculate CRC32 of " + str(i[0]), file=f)
+        for j in range(len(i[7])):
+            target_hash = get_hashes(i[7][j])
+            if i[6] != target_hash:
+                errors += 1
+            else:
+                i[7].pop(j)
 
-        if i[6] != f'{crcvalue:x}':
-            errors += 1
+    print("    " + str(errors) + " files not properly copied")
 
-    return errors
+    return what
 
 
 def save_json(what, where):
@@ -672,7 +671,7 @@ while True:
     if param['dedup_source'] == 1:
         # get hashes:
         if param['dedup_hash'] == 1:
-            source_files = get_hashes(source_files)
+            source_files = get_source_hashes(source_files)
         source_files = dedup_files(source_files, set(), "source")
         if(check_remaining_files(source_files) == 0):
             break
@@ -682,7 +681,7 @@ while True:
         if len(history_files) > 0:
             # get hashes:
             if param['dedup_hash'] == 1:
-                source_files = get_hashes(source_files)
+                source_files = get_source_hashes(source_files)
             source_files = dedup_files(source_files, history_files, "history")
             history_files = None
             if(check_remaining_files(source_files) == 0):
@@ -693,8 +692,8 @@ while True:
         target_files = [1], [4], [5]
         # get hashes:
         if param['dedup_hash'] == 1:
-            source_files = get_hashes(source_files)
-            target_files = get_hashes(target_files)
+            source_files = get_source_hashes(source_files)
+            target_files = get_source_hashes(target_files)
         source_files = dedup_files(source_files, target_files)
         target_files = None
         if(check_remaining_files(source_files) == 0):
@@ -702,7 +701,7 @@ while True:
 
     # DEF: get rest of the hashes:
     if param['verify'] == 1:
-        source_files = get_hashes(source_files)
+        source_files = get_source_hashes(source_files)
 
     # DEF: prepare paths:
     source_files = calculate_targetpath(source_files)
@@ -712,9 +711,26 @@ while True:
     copy_files(source_files)
 
     # DEF: Flush write cache
+    if system == "posix":
+        print_time("Flushing disk write cache...")
+        try:
+            sync()
+        except Exception:
+            print(Style.BRIGHT + Fore.MAGENTA + "    " +
+                  "Error occured during os.sync(). This should not be too troubling...", file=f)
+            sleep(5)
+    elif system == "Windows":
+        # TODO: powershell Write-VolumeCache -DriveLetter
+        # "$($(Split-Path -Path $UserParams.OutputPath -Qualifier).Replace(":",''))" -ErrorAction Stop
+        print_time("Flushing disk write cache is not yet implemented for your system")
+        sleep(5)
+    else:
+        print_time("Flushing disk write cache is not implemented for your system")
+        sleep(5)
 
     # DEF: Verify:
-    verify_files(source_files)
+    source_files = verify_files(source_files)
+    source_files = [i for n, i in enumerate(source_files) if len(i[7]) >= 1]
 
     # DEF: write history:
     if param['history_writemode'] > 0:
