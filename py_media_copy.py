@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: BSD-3-Clause-Clear OR GPL-3.0-only
+"""py_media-copy - A lightweight & granular file copy tool built for DITs and photographers."""
+__author__ = "flolilo"
+__license__ = "See SPDX-License-Identifier"
+__contact__ = "See github.com/flolilo/py_media-copy"
+__version__ = "See pmc_ver.py"
+
 try:
     from pmc_ver import pmc_version
 except ImportError:
