@@ -261,7 +261,7 @@ def check_params():
     # --source:
     try:
         if type(param['source']) == str:
-        param['source'] = [str(Path(i).resolve()) for i in re.split('\|', param['source']) if len(i) > 0]
+            param['source'] = [str(Path(i).resolve()) for i in re.split('\|', param['source']) if len(i) > 0]
         elif type(param['source']) == list:
             for i in param['source']:
                 param['source'] = [str(Path(i).resolve()) for i in param['source'] if len(i) > 0]
@@ -275,7 +275,7 @@ def check_params():
     # --target:
     try:
         if type(param['target']) == str:
-        param['target'] = [str(Path(i).resolve()) for i in re.split('\|', param['target']) if len(i) > 0]
+            param['target'] = [str(Path(i).resolve()) for i in re.split('\|', param['target']) if len(i) > 0]
         elif type(param['target']) == list:
             for i in param['target']:
                 param['target'] = [str(Path(i).resolve()) for i in param['target'] if len(i) > 0]
@@ -457,16 +457,16 @@ def get_source_hashes(what):
 
 def get_hashes(what):
     blocksize = 128*256
-            try:
+    try:
         with Path(what).open("rb") as file:
-                    crcvalue = 0
-                    while True:
-                        buf = file.read(blocksize)
-                        if not buf:
-                            break
-                        crcvalue = (crc32(buf, crcvalue) & 0xffffffff)
+            crcvalue = 0
+            while True:
+                buf = file.read(blocksize)
+                if not buf:
+                    break
+                crcvalue = (crc32(buf, crcvalue) & 0xffffffff)
             hashstring = f'{crcvalue:x}'
-            except Exception:
+    except Exception:
         print(Style.BRIGHT + Fore.MAGENTA + "    Cannot calculate CRC32 of " + str(what), file=f)
         hashstring = "XYZ"
 
@@ -735,12 +735,12 @@ while True:
 
         # DEF: Flush write cache
         if system == "posix":
-             print_time("Flushing disk write cache...")
+            print_time("Flushing disk write cache...")
             try:
-                  sync()
+                sync()
             except Exception:
                 print(Style.BRIGHT + Fore.MAGENTA + "    " +
-                      "Error occured during os.sync(). This should not be too troubling...", file=f)
+                    "Error occured during os.sync(). This should not be too troubling...", file=f)
                 sleep(5)
         elif system == "Windows":
             # TODO: powershell Write-VolumeCache -DriveLetter
