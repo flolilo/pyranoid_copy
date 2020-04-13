@@ -98,6 +98,19 @@ parser.add_argument("--filter_list", "-filterlist",
                     default="-99",
                     help="Name(s) to include/exclude. Paths are converted to forward slashes (C:\\ becomes C:/) and \
                           case-insensitive regex is used: see regular-expressions.info/refquick.html and regex101.com")
+parser.add_argument("--limit_timespan", "-limittimespan",
+                    dest="limit_timespan",
+                    type=int,
+                    default=-99,
+                    help="Only copy files older (-1) or younger (1) than --timespan. 0 disables this, thus copying all \
+                          files.")
+parser.add_argument("--timespan", "-timespan",
+                    dest="timespan",
+                    default="-99",
+                    help="Timespan specified as yyyy|MM|dd|HH|mm|ss. You do not need to enter less significant values, \
+                          e.g. \"2020|12|31|23|59\" and \"2020|12|31\"are valid, but \"2020|12|31||59\" is not. \
+                          This value has no effect if --limit_timespan is set to 0.")
+
 parser.add_argument("--recursive_search", "-r",
                     dest="recursive",
                     type=int,
