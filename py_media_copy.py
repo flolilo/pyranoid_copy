@@ -108,9 +108,8 @@ parser.add_argument("--timespan", "-timespan",
                     dest="timespan",
                     default="-99",
                     help="Timespan specified as yyyy|MM|dd|HH|mm|ss. You do not need to enter less significant values, \
-                          e.g. \"2020|12|31|23|59\" and \"2020|12|31\"are valid, but \"2020|12|31||59\" is not. \
+                          e.g. '2020|12|31|23|59' and '2020|12|31' are valid, but '2020|12|31||59' is not. \
                           This value has no effect if --limit_timespan is set to 0.")
-
 parser.add_argument("--recursive_search", "-r",
                     dest="recursive",
                     type=int,
