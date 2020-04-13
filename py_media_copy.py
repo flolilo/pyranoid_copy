@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: BSD-3-Clause-Clear OR GPL-3.0-only
-from pmc_ver import pmc_version
-
+try:
+    from pmc_ver import pmc_version
+except ImportError:
+    pmc_version = "N/A"
 from os import devnull, system, sync
 from sys import hexversion
 from sys import stdout as sys_stdout
@@ -422,25 +424,28 @@ def search_files(where):
     else:
         recurse = '*/*.*'
 
-    for i in tqdm(where, desc="Paths", unit="Paths",
-                  bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
-        for j in Path(i).glob(recurse):
-            j = Path(j).resolve()
-            if (param['filter_pref'] == 1 and re.search(param['filter_list'], str(j.as_posix()), re.I) is not None
-              or param['filter_pref'] == -1 and re.search(param['filter_list'], str(j.as_posix()), re.I) is None
-              or param['filter_pref'] == 0):
-                j_stat = j.stat()
-                found_files += [[str(j),
-                                j.name,
-                                j.stem,
-                                j.suffix,
-                                j_stat.st_size,
-                                j_stat.st_mtime,
-                                "XYZ",
-                                []]]
+    try:
+        for i in tqdm(where, desc="Paths", unit="Paths",
+                    bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
+            for j in Path(i).glob(recurse):
+                j = Path(j).resolve()
+                if (param['filter_pref'] == 1 and re.search(param['filter_list'], str(j.as_posix()), re.I) is not None
+                or param['filter_pref'] == -1 and re.search(param['filter_list'], str(j.as_posix()), re.I) is None
+                or param['filter_pref'] == 0):
+                    j_stat = j.stat()
+                    found_files += [[str(j),
+                                    j.name,
+                                    j.stem,
+                                    j.suffix,
+                                    j_stat.st_size,
+                                    j_stat.st_mtime,
+                                    "XYZ",
+                                    []]]
 
-    print('    ' + str(len(found_files)) + " files found.", file=f)
-    found_files = sorted(found_files, key=lambda attris: attris[0])  # For %c in param['naming_file'].
+        print('    ' + str(len(found_files)) + " files found.", file=f)
+        found_files = sorted(found_files, key=lambda attris: attris[0])  # For %c in param['naming_file'].
+    except Exception:
+        print(Style.BRIGHT + Fore.RED + "    " + "Error while searching files!", file=f)
     return found_files
 
 
