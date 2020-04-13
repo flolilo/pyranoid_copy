@@ -159,15 +159,15 @@ parser.add_argument("--naming_subdir", "-namesub",
                     dest="naming_subdir",
                     default="-99",
                     help="Name scheme for subdirs. For time and date, see strftime.org for reference. \
-                          Empty string will create no subdir.%fbn = file basename, %ffn = file full name, \
-                          %fe = file extension")
+                          Empty string will create no subdir.%%fbn = file basename, %%ffn = file full name, \
+                          %%fe = file extension")
 parser.add_argument("--naming_file", "-namefile",
                     dest="naming_file",
                     default="-99",
                     help="Name scheme for file names. For time and date, see strftime.org for reference. \
-                          Empty string will not change name. %fbn = file basename, %ffn = file full name, \
-                          %fe = file extension, %ct# = counter (! sorting (which counting bases on) is \
-                          based on the full source path of the file ! # is padding number (e.g. %ct3 = 001)")
+                          Empty string will not change name. %%fbn = file basename, %%ffn = file full name, \
+                          %%fe = file extension, %%ct# = counter (! sorting (which counting bases on) is \
+                          based on the full source path of the file ! # is padding number (e.g. %%ct3 = 001)")
 parser.add_argument("--verify", "-test",
                     dest="verify",
                     type=int,
