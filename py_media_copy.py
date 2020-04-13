@@ -648,6 +648,23 @@ def create_subdirs(source):
                 print(Fore.RED + "    " + "Could not create folder " + str(Path(j).parents[0].resolve()), file=f)
 
 
+def save_history(what):
+    history_files = load_json(param['history_path'])
+    for i in what:
+        del i[7]
+        del i[3]
+        del i[2]
+        del i[0]
+
+    if param['history_writemode'] == 1 and history_files is not None:
+        what += history_files
+
+    what.sort()
+    what = list(what for what, _ in itertools.groupby(what))
+
+    save_json(what, param['history_path'])
+
+
 # ==================================================================================================
 # ==============================================================================
 #    Chronology / Workflow:
@@ -734,22 +751,7 @@ while True:
 
     # DEF: write history:
     if param['history_writemode'] > 0:
-        history_files = load_json(param['history_path'])
-        to_save = source_files
-        for i in to_save:
-            del i[7]
-            del i[3]
-            del i[2]
-            del i[0]
-
-        if param['history_writemode'] == 1 and history_files is not None:
-            to_save += history_files
-
-        to_save.sort()
-        to_save = list(to_save for to_save, _ in itertools.groupby(to_save))
-
-        save_json(to_save, param['history_path'])
-        to_save = None
+        save_history(source_files)
 
     # all done:
     break
