@@ -724,6 +724,8 @@ while True:
     source_files = calculate_targetpath(source_files)
     create_subdirs(source_files)
 
+    # DEF: Looping copying and verifying until all files are properly copied
+    while True:
     # DEF: Copy:
     copy_files(source_files)
 
@@ -746,8 +748,15 @@ while True:
         sleep(5)
 
     # DEF: Verify:
+        if param['verify'] == 1:
     source_files = verify_files(source_files)
     source_files = [i for n, i in enumerate(source_files) if len(i[7]) >= 1]
+            if len(source_files) == 0:
+                break
+            elif input(str(len(source_files)) + " could not be verified. Try again? y/n\t") not in ["yes", "y", "1"]:
+                break
+        else:
+            break
 
     # DEF: write history:
     if param['history_writemode'] > 0:
