@@ -67,17 +67,19 @@ except ImportError:
     sys_exit("Please install tqdm:\tpip install tqdm")
 
 parser = ArgumentParser()
+# DEF: -1 (or "-1" for strings) is the default - it means that merge_params() used either the preset
+# from file or from GUI/CLI
 parser.add_argument("--preset", "-pres",
                     dest="preset",
                     default="default",
                     help="Preset name")
 parser.add_argument("--source", "-in",
                     dest="source",
-                    default="--",
+                    default="-1",
                     help="Source path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
 parser.add_argument("--target", "-out",
                     dest="target",
-                    default="--",
+                    default="-1",
                     help="Target path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
 parser.add_argument("--filter_preference", "-filterpref",
                     dest="filter_pref",
@@ -87,7 +89,7 @@ parser.add_argument("--filter_preference", "-filterpref",
                           0 = all (no filter); -1 = exclude listed formats; 1 = include listed formats")
 parser.add_argument("--filter_list", "-filterlist",
                     dest="filter_list",
-                    default='--',
+                    default="-1",
                     help="Name(s) to include/exclude. Paths are converted to forward slashes (C:\\ becomes C:/) and \
                           case-insensitive regex is used: see regular-expressions.info/refquick.html and regex101.com")
 parser.add_argument("--recursive_search", "-r",
@@ -112,7 +114,7 @@ parser.add_argument("--deduplicate_history", "-deduphist",
                     help="Search for duplicates in history-file.")
 parser.add_argument("--history_path", "-histpath",
                     dest="history_path",
-                    default="--",
+                    default="-1",
                     help="Path of history-file. Can be relative/absolute. For --history_writemode=3: 'in|out'")
 parser.add_argument("--history_writemode", "-histw",
                     dest="history_writemode",
@@ -136,13 +138,13 @@ parser.add_argument("--target_protect_existing", "-owp",
                     help="Overwrite-protection for existing files in target.")
 parser.add_argument("--naming_subdir", "-namesub",
                     dest="naming_subdir",
-                    default="--",
+                    default="-1",
                     help="Name scheme for subdirs. For time and date, see strftime.org for reference. \
                           Empty string will create no subdir.%fbn = file basename, %ffn = file full name, \
                           %fe = file extension")
 parser.add_argument("--naming_file", "-namefile",
                     dest="naming_file",
-                    default="--",
+                    default="-1",
                     help="Name scheme for file names. For time and date, see strftime.org for reference. \
                           Empty string will not change name. %fbn = file basename, %ffn = file full name, \
                           %fe = file extension, %ct# = counter (! sorting (which counting bases on) is \
