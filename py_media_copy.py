@@ -726,31 +726,31 @@ while True:
 
     # DEF: Looping copying and verifying until all files are properly copied
     while True:
-    # DEF: Copy:
-    copy_files(source_files)
+        # DEF: Copy:
+        copy_files(source_files)
 
-    # DEF: Flush write cache
-    if system == "posix":
-        print_time("Flushing disk write cache...")
-        try:
-            sync()
-        except Exception:
-            print(Style.BRIGHT + Fore.MAGENTA + "    " +
-                  "Error occured during os.sync(). This should not be too troubling...", file=f)
+        # DEF: Flush write cache
+        if system == "posix":
+             print_time("Flushing disk write cache...")
+            try:
+                  sync()
+            except Exception:
+                print(Style.BRIGHT + Fore.MAGENTA + "    " +
+                      "Error occured during os.sync(). This should not be too troubling...", file=f)
+                sleep(5)
+        elif system == "Windows":
+            # TODO: powershell Write-VolumeCache -DriveLetter
+            # "$($(Split-Path -Path $UserParams.OutputPath -Qualifier).Replace(":",''))" -ErrorAction Stop
+            print_time("Flushing disk write cache is not yet implemented for your system")
             sleep(5)
-    elif system == "Windows":
-        # TODO: powershell Write-VolumeCache -DriveLetter
-        # "$($(Split-Path -Path $UserParams.OutputPath -Qualifier).Replace(":",''))" -ErrorAction Stop
-        print_time("Flushing disk write cache is not yet implemented for your system")
-        sleep(5)
-    else:
-        print_time("Flushing disk write cache is not implemented for your system")
-        sleep(5)
+        else:
+            print_time("Flushing disk write cache is not implemented for your system")
+            sleep(5)
 
-    # DEF: Verify:
+        # DEF: Verify:
         if param['verify'] == 1:
-    source_files = verify_files(source_files)
-    source_files = [i for n, i in enumerate(source_files) if len(i[7]) >= 1]
+            source_files = verify_files(source_files)
+            source_files = [i for n, i in enumerate(source_files) if len(i[7]) >= 1]
             if len(source_files) == 0:
                 break
             elif input(str(len(source_files)) + " could not be verified. Try again? y/n\t") not in ["yes", "y", "1"]:
