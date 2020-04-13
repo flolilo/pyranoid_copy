@@ -200,11 +200,13 @@ if (hexversion < 0x030500F0):
 # ##################################################################################################
 
 def print_time(what):
+    """Print current time plus a message."""
     global f
     print(Style.BRIGHT + Fore.BLUE + datetime.now().strftime('%H:%M:%S') + ' -- ' + what, file=f)
 
 
 def check_remaining_files(to_check):
+    """Check if there are any files left in given set."""
     global f
     if len(to_check) < 1:
         print("No files left!", file=f)
@@ -227,6 +229,7 @@ def read_presets(preset_file=str(Path("./pmc_presets.json").resolve())):
 
 
 def merge_params():
+    """Read presets from file via read_presets(), then merge them with current params."""
     presets_from_file = read_presets()
     preset_specified = dict()
     for i in presets_from_file:
