@@ -224,6 +224,7 @@ def read_presets(preset_file=str(Path("./pmc_presets.json").resolve())):
             presets_from_file = json.load(file)
     except Exception:
         print("Preset-file could not be loaded!", file=f)
+        presets_from_file = list()
 
     return presets_from_file
 
