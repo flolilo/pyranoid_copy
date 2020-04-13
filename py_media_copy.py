@@ -368,7 +368,8 @@ def check_params():
 
     # --verbose:
     if (not 0 <= param['verbose'] <= 2):
-        print_error("No valid int for --verbose!")
+        print(Style.BRIGHT + Fore.MAGENTA + "    " + "Invalid value for --verbose - setting it to 1.", file=f)
+        param['verbose'] = 1
 
 
 def save_params(preset_file=str(Path("./pmc_presets.json").resolve())):
