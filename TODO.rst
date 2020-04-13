@@ -32,8 +32,8 @@ v0.0.1++
     - [ ] Create fallback to script-only for people without GUI-dependencies
     - [ ] ? Implement output via GUI ?
 - [ ] ? Prevent computer from going to sleep ? (needs investigation whether feasible or not)
-- [ ] Evaluate ``exception`` for as much functions as possible.
-- [ ] LOW: Option to ignore files with date before/after set date (i.e. only files before 2020-04-01).
+- [x] Evaluate ``exception`` for as much functions as possible.
+- [x] LOW: Option to ignore files with date before/after set date (i.e. only files before 2020-04-01).
 - [ ] LOW: create a paranoid-mode that re-reads hash values.
 
 

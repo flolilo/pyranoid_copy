@@ -24,7 +24,7 @@ import re  # regex
 import shutil  # High-level file copy
 import json  # saving/loading JSON files
 import itertools
-from time import sleep  # For timeouts and time output
+from time import sleep, mktime  # For timeouts and time output
 from datetime import datetime
 from argparse import ArgumentParser  # Set variables via parameters
 from pathlib import Path
@@ -98,6 +98,11 @@ parser.add_argument("--filter_list", "-filterlist",
                     default="-99",
                     help="Name(s) to include/exclude. Paths are converted to forward slashes (C:\\ becomes C:/) and \
                           case-insensitive regex is used: see regular-expressions.info/refquick.html and regex101.com")
+parser.add_argument("--recursive_search", "-r",
+                    dest="recursive",
+                    type=int,
+                    default=1,
+                    help="Search recursively (i.e. including subfolders) in source(s)")
 parser.add_argument("--limit_timespan", "-limittimespan",
                     dest="limit_timespan",
                     type=int,
@@ -110,11 +115,6 @@ parser.add_argument("--timespan", "-timespan",
                     help="Timespan specified as yyyy|MM|dd|HH|mm|ss. You do not need to enter less significant values, \
                           e.g. '2020|12|31|23|59' and '2020|12|31' are valid, but '2020|12|31||59' is not. \
                           This value has no effect if --limit_timespan is set to 0.")
-parser.add_argument("--recursive_search", "-r",
-                    dest="recursive",
-                    type=int,
-                    default=-99,
-                    help="Search recursively (i.e. including subfolders) in source(s)")
 parser.add_argument("--deduplicate_source", "-dedupin",
                     dest="dedup_source",
                     type=int,
@@ -318,6 +318,22 @@ def check_params():
     if (not 0 <= param['recursive'] <= 1):
         print_error("No valid int for --recursive_search!")
 
+    # TODO: --limit_timespan & --timespan:
+    if (not -1 <= param['limit_timespan'] <= 1):
+        print_error("No valid int for --limit_timespan!")
+    elif (len(param['timespan']) == 0):
+        print_error("Cannot limit the timespan because --timespan is not specified!")
+    elif (type(param['timespan']) == str):
+        try:
+            param['timespan'] = [int(i) for i in re.split('\|', param['timespan'])]
+        except Exception:
+            print_error("--timespan is not set correctly!")
+    if (param['limit_timespan'] in [-1, 1]):
+        try:
+            param['timespan'] = mktime(datetime(*param['timespan']).timetuple())
+        except Exception:
+            print_error("--timespan is not set correctly!")
+
     # --deduplicate_source & --deduplicate_source_tolerance:
     if (not 0 <= param['dedup_source'] <= 1):
         print_error("No valid int for --deduplicate_source!")
@@ -468,6 +484,26 @@ def search_files(where):
     except Exception:
         print(Style.BRIGHT + Fore.RED + "    " + "Error while searching files!", file=f)
     return found_files
+
+
+def discard_files_by_date(what):
+    """Discard found files that are older/younger than specified date."""
+    if param['limit_timespan'] == 1:
+        print_time("Discard of files older than UNIX-timestamp " + str(param['timespan']))
+    else:
+        print_time("Discard of files younger than UNIX-timestamp " + str(param['timespan']))
+
+    new_what = what
+    if param['limit_timespan'] == 1:
+        for i in range(len(new_what) - 1, -1, -1):
+            if new_what[i][5] < param['timespan']:
+                what.pop(i)
+    else:
+        for i in range(len(new_what) - 1, -1, -1):
+            if new_what[i][5] > param['timespan']:
+                what.pop(i)
+
+    return what
 
 
 def get_source_hashes(what):
@@ -712,6 +748,11 @@ while True:
     source_files = search_files(param['source'])
     if(check_remaining_files(source_files) == 0):
         break
+    # DEF: Limit timespan:
+    if param['limit_timespan'] in [-1, 1]:
+        source_files = discard_files_by_date(source_files)
+        if(check_remaining_files(source_files) == 0):
+            break
 
     # DEF: Dedups:
     # dedup source:
