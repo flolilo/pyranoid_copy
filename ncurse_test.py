@@ -32,7 +32,7 @@ class MyTestApp(npyscreen.NPSAppManaged):
         npyscreen.setTheme(npyscreen.Themes.ElegantTheme)
         # When Application starts, set up the Forms that will be used.
         # These two forms are persistent between each edit.
-        self.addForm("MAIN", MainForm, name="Screen 1", color="IMPORTANT",)
+        self.addForm("MAIN", MainForm, name="Screen 1", color="NORMAL",)
         self.addForm("SECOND", MainForm, name="Screen 2", color="IMPORTANT",)
         # This one will be re-created each time it is edited.
         self.addFormClass("ABOUT", MainForm, name="Screen 3", color="WARNING",)
@@ -75,6 +75,11 @@ class MainForm(npyscreen.ActionFormV2):
 
         # Tell the MyTestApp object to change forms.
         self.parentApp.change_form(change_to)
+
+
+def handle_mouse_event(self, mouse_event):
+    mouse_id, rel_x, rel_y, z, bstate = self.interpret_mouse_event(mouse_event)
+    # Do things here...
 
 
 def main():

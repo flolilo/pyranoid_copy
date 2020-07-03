@@ -1,3 +1,4 @@
+## Required modules for py_media_copy, taken from pip freeze.
 # [required]
 tqdm>=4.43.0
 
