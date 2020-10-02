@@ -16,7 +16,7 @@ from sys import hexversion
 from sys import stdout as sys_stdout
 from sys import exit as sys_exit
 try:
-    from crc32c import crc32  # crc32c for intel
+    from crc32c import crc32c as crc32  # crc32c for intel
 except ImportError:
     from zlib import crc32  # standard crc32
     pass
