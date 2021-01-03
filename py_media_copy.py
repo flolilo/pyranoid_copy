@@ -11,9 +11,10 @@ try:
     from pmc_ver import pmc_version
 except ImportError:
     pmc_version = "N/A"
-from os import devnull, system, sync
+from os import devnull, sync
 from sys import hexversion
 from sys import stdout as sys_stdout
+from sys import platform as sys_platform
 from sys import exit as sys_exit
 try:
     from crc32c import crc32c as crc32  # crc32c for intel
@@ -801,22 +802,27 @@ while True:
         copy_files(source_files)
 
         # DEF: Flush write cache
-        if system == "posix":
+        if sys_platform == "linux":  # freebsd? posix?
             print_time("Flushing disk write cache...")
             try:
                 sync()
+                sleep(2)
+                flush_error = False
             except Exception:
                 print(Style.BRIGHT + Fore.MAGENTA + "    " +
                     "Error occured during os.sync(). This should not be too troubling...", file=f)
-                sleep(5)
-        elif system == "Windows":
+                flush_error = True
+        elif sys_platform == "win32":
             # TODO: powershell Write-VolumeCache -DriveLetter
             # "$($(Split-Path -Path $UserParams.OutputPath -Qualifier).Replace(":",''))" -ErrorAction Stop
             print_time("Flushing disk write cache is not yet implemented for your system")
-            sleep(5)
+            flush_error = True
         else:
-            print_time("Flushing disk write cache is not implemented for your system")
-            sleep(5)
+            flush_error = True
+
+        if flush_error:
+            print("Error occured - waiting 20 seconds for buffer to clear.", file=f)
+            sleep(20)
 
         # DEF: Verify:
         if param['verify'] == 1:
