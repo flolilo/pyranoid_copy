@@ -11,7 +11,7 @@ Welcome to pyranoid_copy's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   TODO
+   todo
    license
 
 

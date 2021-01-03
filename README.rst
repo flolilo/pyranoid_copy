@@ -12,8 +12,6 @@ cards that I wanted (see `Proposed features`_). pyranoid_copy will be written in
 **Note that as of now, this tool is not even finished in a rough state - I am still in the progress of writing the main
 features and testing them.**
 
-.. contents:: Index:
-
 
 Proposed features
 -----------------
