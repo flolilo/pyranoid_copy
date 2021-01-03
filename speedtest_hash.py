@@ -118,23 +118,37 @@ def get_source_hashes_xxhash_4096(what):
 # ##############################################################################
 # ##################################################################################################
 
-source_files = search_files(["/tmp/py_media-copy/.testing/in/"])
+# NOTE: It is best to test this on your machine with your most used sources (e.g. SD-cards).
+#       Results vary greatly: With RAM, 128x256bit are faster than 1024x4096, but this tends to get
+#       reversed more the slower the cards are.
+source_files = search_files(["/tmp/usb1/DCIM", "/tmp/usb2/DCIM"])
 print("Files:\t" + str(len(source_files)))
-sleep(5)
+# Just to give the computer some rest between iterations:
+sleep(15)
 
 
-time_crc32c = timeit.timeit('get_source_hashes_CRC32C(source_files)', 'from __main__ import source_files, get_source_hashes_CRC32C', number=1)
+time_crc32c = timeit.timeit('get_source_hashes_CRC32C(source_files)',
+                            'from __main__ import source_files, get_source_hashes_CRC32C',
+                            number=1)
 print("CRC32C:\t" + str(time_crc32c))
-sleep(5)
+# Just to give the computer some rest between iterations:
+sleep(15)
 
-time_crc32 = timeit.timeit('get_source_hashes_CRC32(source_files)', 'from __main__ import source_files, get_source_hashes_CRC32', number=1)
+time_crc32 = timeit.timeit('get_source_hashes_CRC32(source_files)',
+                           'from __main__ import source_files, get_source_hashes_CRC32',
+                           number=1)
 print("CRC32:\t" + str(time_crc32))
-sleep(5)
+# Just to give the computer some rest between iterations:
+sleep(15)
 
-time_xxhash256 = timeit.timeit('get_source_hashes_xxhash_256(source_files)', 'from __main__ import source_files, get_source_hashes_xxhash_256', number=1)
+time_xxhash256 = timeit.timeit('get_source_hashes_xxhash_256(source_files)',
+                               'from __main__ import source_files, get_source_hashes_xxhash_256',
+                               number=1)
 print("xxHash (256):\t" + str(time_xxhash256))
-sleep(5)
+# Just to give the computer some rest between iterations:
+sleep(15)
 
-time_xxhash4096 = timeit.timeit('get_source_hashes_xxhash_4096(source_files)', 'from __main__ import source_files, get_source_hashes_xxhash_4096', number=1)
+time_xxhash4096 = timeit.timeit('get_source_hashes_xxhash_4096(source_files)',
+                                'from __main__ import source_files, get_source_hashes_xxhash_4096',
+                                number=1)
 print("xxHash (4096):\t" + str(time_xxhash4096))
-sleep(5)
