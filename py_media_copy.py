@@ -372,7 +372,7 @@ def check_params():
         print_error("No valid int for --dedup_target!")
 
     # --dedup_usehash
-    if (not 0 <= param['dedup_hash'] <= 1):
+    if (not 0 <= param['dedup_hash'] <= 2):
         print_error("No valid int for --dedup_usehash!")
 
     # --target_protect_existing
