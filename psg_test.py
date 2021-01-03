@@ -47,7 +47,10 @@ tab1_layout = [
                 ]
               ]
 tab2_layout = [
-                [sg.Checkbox(text='Filter', key='filter')]
+                [sg.Checkbox(text='Filter', key='filter'), sg.VerticalSeparator(pad=None), sg.Checkbox(text='Filter4', key='filter4')],
+                [sg.Checkbox(text='Filter2', key='filter2')],
+                [sg.Checkbox(text='Filter3', key='filter3')],
+                [sg.Combo(['choice 1', 'choice 2'])]
               ]
 
 layout = [
