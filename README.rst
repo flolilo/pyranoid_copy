@@ -14,7 +14,7 @@ features and testing them.**
 
 
 Proposed features
------------------
+=================
 
 - Will work on all (desktop) OSs that are supported by `Python ≥ 3.5 <https://www.python.org/downloads/>`_,
 - Optimised for copying large quantities of mission critical files, e.g. wedding photos,
@@ -36,7 +36,7 @@ Proposed features
 
 
 Details
--------
+=======
 
 - Lightweight `PySimpleGUI <https://github.com/PySimpleGUI/PySimpleGUI>`_ for the parameters with CLI as option,
 - Standalone planned / as little extra dependencies as feasible (and all on `pip <https://pypi.org/>`_) with decent
@@ -53,7 +53,7 @@ Details
 
 
 Installation
-------------
+============
 
 **This will probably change once this repo is in a working state. At the moment:**
 
@@ -76,7 +76,7 @@ Installation
 
 
 Contribution
-------------
+============
 
 You do not even need to be have an GitHub account to report issues - simply mail to
 `pyranoid_copy@fire.fundersclub.com <mailto:pyranoid_copy@fire.fundersclub.com>`_. (It will *not* publish your mail
@@ -92,13 +92,13 @@ milestone.
 
 
 Milestones
-----------
+==========
 
 See `TODO.rst`_.
 
 
 Licenses
---------
+========
 
 See `LICENSE.rst`_ - You can use all of my code under either the *GNU GPLv3* or the
 *BSD 3-Clause Clear* license. Please note that third party software is used in this project, but as of now, it
