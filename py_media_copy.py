@@ -83,14 +83,14 @@ parser.add_argument("--preset", "-pres",
                     dest="preset",
                     default="default",
                     help="Preset name")
-parser.add_argument("--source", "-in",
+parser.add_argument("--source", "-in", "-i",
+                    action="append",
                     dest="source",
-                    default="./.testing/in|./.testing/in|./.testing/in",
-                    help="Source path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
-parser.add_argument("--target", "-out",
+                    help="Source path(s). Can be absolute/relative. Multiple ones like '-i path1 -i path2'")
+parser.add_argument("--target", "-out", "-o",
+                    action="append",
                     dest="target",
-                    default="./.testing/out",
-                    help="Target path(s). Can be absolute/relative. Multiple ones like 'path1|path2'")
+                    help="Target path(s). Can be absolute/relative. Multiple ones like '-i path1 -i path'")
 parser.add_argument("--filter_preference", "-filterpref",
                     dest="filter_pref",
                     type=int,
@@ -290,7 +290,7 @@ def check_params():
     # --source:
     try:
         if type(param['source']) == str:
-            param['source'] = [str(Path(i).resolve()) for i in re.split('\|', param['source']) if len(i) > 0]
+            param['source'] = [str(Path(i).resolve()) for i in re.split('\r', param['source']) if len(i) > 0]
         elif type(param['source']) == list:
             for i in param['source']:
                 param['source'] = [str(Path(i).resolve()) for i in param['source'] if len(i) > 0]
@@ -304,7 +304,7 @@ def check_params():
     # --target:
     try:
         if type(param['target']) == str:
-            param['target'] = [str(Path(i).resolve()) for i in re.split('\|', param['target']) if len(i) > 0]
+            param['target'] = [str(Path(i).resolve()) for i in re.split('\r', param['target']) if len(i) > 0]
         elif type(param['target']) == list:
             for i in param['target']:
                 param['target'] = [str(Path(i).resolve()) for i in param['target'] if len(i) > 0]
