@@ -3,6 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+=========================================
 Welcome to py-media_copy's documentation!
 =========================================
 
@@ -11,10 +12,12 @@ Welcome to py-media_copy's documentation!
    :caption: Contents:
 
 
-
 Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+.. include:: ../README.rst

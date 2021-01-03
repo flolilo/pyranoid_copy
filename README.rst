@@ -1,6 +1,6 @@
-=============
-py_media-copy
-=============
+==========================
+py_media-copy - README.rst
+==========================
 
 A lightweight & granular file copy tool built for DITs and photographers.
 
@@ -87,7 +87,7 @@ address or name!)
 Please add as much information as possible - e.g. the used OS, Python version, pmc version, where the error occured,
 what the error is, ...
 
-For all versions < 0.99.x, please see the `TODO.rst file <./TODO.rst>`_ - it may be that your issue is already seen as a
+For all versions < 0.99.x, please see `TODO.rst`_ - it may be that your issue is already seen as a
 milestone.
 
 **Any help would be appreciated!**
@@ -96,16 +96,19 @@ milestone.
 Milestones
 ----------
 
-See the `TODO.rst file <./TODO.rst>`_.
+See `TODO.rst`_.
 
 
 Licenses
 --------
 
-See the `LICENSE.rst file <./LICENSE.rst>`_ - You can use all of my code under either the *GNU GPLv3* or the
+See `LICENSE.rst`_ - You can use all of my code under either the *GNU GPLv3* or the
 *BSD 3-Clause Clear* license. Please note that third party software is used in this project, but as of now, it
 requires the user to download the software (and agree to the respective license agreement). If this changes in the
 future, it will be reflected in this document.
 
 As coding should not be about reinventing the wheel, some code is copied verbatim (though most of the time, it does
 need modifications) from internet sources. See the ``# CREDIT:`` comments for links to my sources.
+
+.. _TODO.rst: ./TODO.rst
+.. _LICENSE.rst: ./LICENSE.rst
