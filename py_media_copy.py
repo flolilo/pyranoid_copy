@@ -17,6 +17,8 @@ from sys import stdout as sys_stdout
 from sys import platform as sys_platform
 from sys import exit as sys_exit
 try:
+    # TODO: xxhash? could be a good idea, since it should be quite good on all architectures.
+    #       Typically, media-throughput will be the bottleneck, so also consider power saving vs. raw perf. 
     from crc32c import crc32c as crc32  # crc32c for intel
 except ImportError:
     from zlib import crc32  # standard crc32
@@ -194,6 +196,7 @@ parser.add_argument("--preset_save_settings", "-savesettings",
                     default=0,
                     help="Save settings to preset")
 parser.add_argument("--verbose",  # TODO: make verbose also for small prints like "using hash xyz" with more values?
+                    # TODO: "-v", action="count", default=1
                     dest="verbose",
                     type=int,
                     default=1,
