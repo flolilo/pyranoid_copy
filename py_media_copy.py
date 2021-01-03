@@ -162,7 +162,7 @@ parser.add_argument("--target_protect_existing", "-owp",
                     help="Overwrite-protection for existing files in target.")
 parser.add_argument("--naming_subdir", "-namesub",
                     dest="naming_subdir",
-                    default="%y-%m-%d",
+                    default="%Y-%m-%d",
                     help="Name scheme for subdirs. For time and date, see strftime.org for reference. \
                           Empty string will create no subdir.%%fbn = file basename, %%ffn = file full name, \
                           %%fe = file extension")
