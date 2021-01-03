@@ -1,4 +1,4 @@
-## Required modules for py_media_copy, taken from pip freeze.
+## Required modules for py_media-copy, taken from pip freeze.
 # [required]
 tqdm>=4.55.1
 
@@ -6,13 +6,15 @@ tqdm>=4.55.1
 colorama>=0.4.4
 crc32c>=2.2
 # [maybe soon used]
-xxhash >= 2.0.0
+# xxhash >= 2.0.0
 
 # [helpers for coding]
 # flake8>=3.8.4
 
-# [helpers for doc]
+# [for doc]
 rstcheck>=3.3.1
+Sphinx>=3.4.1
+sphinx-rtd-theme>=0.5.0
 
 # [GUI]  # Not yet updated, most likely npyscreen
 # npyscreen>=4.10.5
