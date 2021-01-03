@@ -542,46 +542,51 @@ def get_hashes(what):
     return hashstring
 
 
-def dedup_files(source, compare, what_string):
+def dedup_files(source, compare, what_string="N/A"):
     global param, f
     print_time("Dedup " + what_string + " files...")
     deduped = []
-    if (len(compare) > 0):
-        for i in tqdm(source, desc="Files", unit="f",
-                      bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
-            j = 0
-            while True:
-                """
-                    if ((param['dedup_hash'] != 1 and (tuple([i[1], i[4], i[5]]) not in compare)) or
-                    (param['dedup_hash'] == 1 and (tuple([i[1], i[4], i[5], i[6]]) not in compare))):
-                        deduped.append(i)
-                """
-                # TODO: try https://stackoverflow.com/a/15544861
-                # TODO: try https://stackoverflow.com/q/17555218
-                # TODO: try https://www.peterbe.com/plog/uniqifiers-benchmark
-                if (i[1] == compare[j][0] and i[4] == compare[j][1] and i[5] == compare[j][2]):
-                    # print(i[1] + " is a duplicate.", file=f)
-                    break
+    append_compare = compare == [['', '', '', '']]
+
+    # TODO: try https://stackoverflow.com/a/15544861
+    # TODO: try https://stackoverflow.com/q/17555218
+    # TODO: try https://www.peterbe.com/plog/uniqifiers-benchmark
+    for i in tqdm(source, desc="Files", unit="f",
+                  bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
+        j = 0
+        while True:
+            # name + size + mod-date + hash or
+            # size + mod-date + hash or
+            # name + size + mod-date
+            if ((param['dedup_hash'] == 2 and
+                 i[1] == compare[j][0] and
+                 i[4] == compare[j][1] and
+                 abs(i[5] - compare[j][2]) <= param['dedup_time_tolerance'] and
+                 i[6] == compare[j][3])
+                or
+                 (param['dedup_hash'] == 1 and
+                 i[4] == compare[j][1] and
+                 abs(i[5] - compare[j][2]) <= param['dedup_time_tolerance'] and
+                 i[6] == compare[j][3])
+                or
+                 (param['dedup_hash'] == 0 and
+                 i[1] == compare[j][0] and
+                 i[4] == compare[j][1] and
+                 abs(i[5] - compare[j][2]) <= param['dedup_time_tolerance'])):
+                # print(i[1] + " is a duplicate.", file=f)
+                break
+            else:
+                if ((j + 1) < len(compare)):
+                    j += 1
                 else:
-                    if ((j + 1) < len(compare)):
-                        j += 1
-                    else:
-                        # print(str(i[1]) + ", " + str(i[4]) + ", " + str(i[5]), file=f)
-                        deduped.append(i)
-                        break
-    else:
-        for i in tqdm(source, desc="Files", unit="f",
-                      bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
-            if (tuple([i[1], i[4], i[5]]) not in compare):
-                # print(str(i[1]) + str(i[4]) + str(i[5]), file=f)
-                deduped.append(i)
-                """
-                    if param['dedup_hash'] == 1:
-                        compare.add(tuple([i[1], i[4], i[5], i[6]]))
-                    else:
-                """
-                compare.add(tuple([i[1], i[4], i[5]]))
-                # print(compare, file=f)
+                    # print(str(i[1]) + ", " + str(i[4]) + ", " + str(i[5]) + ", " + str(i[6]), file=f)
+                    deduped.append(i)
+                    if append_compare:
+                        if compare == [['', '', '', '']]:
+                            compare = [[i[1], i[4], i[5], i[6]]]
+                        else:
+                            compare += [[i[1], i[4], i[5], i[6]]]
+                    break
 
     print('    ' + str(len(source) - len(deduped)) + " duplicates found.", file=f)
     return deduped
@@ -777,22 +782,28 @@ while True:
             # get hashes:
             if param['dedup_hash'] == 1:
                 source_files = get_source_hashes(source_files)
-            source_files = dedup_files(source_files, history_files, "history")
+            source_files = dedup_files(source_files, history_files, "against history")
             history_files = None
             if(check_remaining_files(source_files) == 0):
                 break
     # dedup target:
     if param['dedup_target'] == 1:
-        target_files = search_files(param['target'])
-        target_files = [1], [4], [5]
-        # get hashes:
-        if param['dedup_hash'] == 1:
-            source_files = get_source_hashes(source_files)
-            target_files = get_source_hashes(target_files)
-        source_files = dedup_files(source_files, target_files)
-        target_files = None
-        if(check_remaining_files(source_files) == 0):
-            break
+        target_files = search_files(param['target'], "--target")
+
+        if (len(target_files) > 0):
+            # get hashes:
+            if param['dedup_hash'] == 1:
+                source_files = get_source_hashes(source_files)
+                target_files = get_source_hashes(target_files)
+                for i in target_files:
+                    del i[7]
+                    del i[3]
+                    del i[2]
+                    del i[0]
+            source_files = dedup_files(source_files, target_files, "against target")
+            target_files = None
+            if(check_remaining_files(source_files) == 0):
+                break
 
     # DEF: get rest of the hashes:
     if param['verify'] == 1:
