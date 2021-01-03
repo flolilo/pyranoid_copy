@@ -464,9 +464,9 @@ def search_files(where, what="N/A"):
         [7] full target path(s) (list)
     """
     if(param['recursive'] == 1):
-        recurse = '**/*.*'
+        recurse = '**/*'
     else:
-        recurse = '*/*.*'
+        recurse = '*/*'
 
     try:
         for i in tqdm(where, desc="Paths", unit="Paths",
