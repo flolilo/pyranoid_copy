@@ -34,7 +34,7 @@ v0.0.1++
 - [ ] ? Prevent computer from going to sleep ? (needs investigation whether feasible or not)
 - [x] Evaluate ``exception`` for as much functions as possible.
 - [x] LOW: Option to ignore files with date before/after set date (i.e. only files before 2020-04-01).
-- [ ] LOW: create a paranoid-mode that re-reads hash values.
+- [ ] LOW: create a paranoid-mode that re-reads hash values, maybe in second hash (e.g. CRC32/xxhash and blake2)
 
 
 v0.99.0
