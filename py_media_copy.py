@@ -22,6 +22,7 @@ try:
     from crc32c import crc32c as crc32  # crc32c for intel
 except ImportError:
     from zlib import crc32  # standard crc32
+    print("Using software-based CRC32, which is slow. Install CRC32C (pip install crc32c) for hardware support.")
     pass
 import re  # regex
 import shutil  # High-level file copy
@@ -123,11 +124,12 @@ parser.add_argument("--deduplicate_source", "-dedupin",
                     type=int,
                     default=1,
                     help="Search for duplicates in source(s)")
-parser.add_argument("--deduplicate_source_tolerance", "-dedupintol",
-                    dest="dedup_source_tolerance",
+parser.add_argument("--deduplicate_time_tolerance", "-deduptimetol",
+                    dest="dedup_time_tolerance",
                     type=int,
                     default=1,
-                    help="Allow 3sec difference for --deduplicate_source")
+                    help="Allow 3sec difference in the modification date of files for deduplication. This is helpful if \
+                          your source has two or more storage devices that are recordng simultaneously (e.g. DSLR).")
 parser.add_argument("--deduplicate_history", "-deduphist",
                     dest="dedup_history",
                     type=int,
@@ -151,7 +153,8 @@ parser.add_argument("--dedup_usehash", "-deduphash",
                     dest="dedup_hash",
                     type=int,
                     default=0,
-                    help="Use hashes for dedup-check(s).")
+                    help="Use hashes for dedup-check(s). 1 will use mod-date, size and hash, 2 will use file \
+                          name as well.")
 parser.add_argument("--target_protect_existing", "-owp",
                     dest="target_protect",
                     type=int,
@@ -444,10 +447,10 @@ def save_params(preset_file=str(Path("./pmc_presets.json").resolve())):
     save_json(to_save, Path(preset_file).resolve())
 
 
-def search_files(where):
+def search_files(where, what="N/A"):
     """Search for files, get basic attributes"""
     global param, f
-    print_time("Searching files...")
+    print_time("Searching files in " + what + " ...")
 
     found_files = []
     """ DEF:
@@ -702,9 +705,9 @@ def copy_files(what):
         for j in i[7]:
             try:
                 shutil.copy2(i[0], Path(j).resolve())
-            except Exception:
+            except Exception as e:
                 print('    ' + str(i[0]) + " -> " + str(Path(j).joinpath(str(i[2] + i[3])).resolve()) +
-                      " failed!", file=f)
+                      " failed! (" + str(e) + ")", file=f)
 
 
 def create_subdirs(source):
@@ -749,7 +752,7 @@ while True:
         save_params()
 
     # DEF: search files:
-    source_files = search_files(param['source'])
+    source_files = search_files(param['source'], "--source")
     if(check_remaining_files(source_files) == 0):
         break
     # DEF: Limit timespan:
@@ -764,7 +767,7 @@ while True:
         # get hashes:
         if param['dedup_hash'] == 1:
             source_files = get_source_hashes(source_files)
-        source_files = dedup_files(source_files, set(), "source")
+        source_files = dedup_files(source_files, [['', '', '', '']], "source")
         if(check_remaining_files(source_files) == 0):
             break
     # dedup history:
