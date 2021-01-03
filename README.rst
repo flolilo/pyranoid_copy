@@ -110,5 +110,5 @@ future, it will be reflected in this document.
 As coding should not be about reinventing the wheel, some code is copied verbatim (though most of the time, it does
 need modifications) from internet sources. See the ``# CREDIT:`` comments for links to my sources.
 
-.. _TODO.rst: ./TODO.rst
-.. _LICENSE.rst: ./LICENSE.rst
+.. _TODO.rst: https://pyranoid-copy.readthedocs.io/en/latest/todo.html
+.. _LICENSE.rst: https://pyranoid-copy.readthedocs.io/en/latest/license.html
