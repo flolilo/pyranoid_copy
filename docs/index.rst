@@ -20,4 +20,4 @@ Indices and tables
 * :ref:`search`
 
 
-.. include:: ./quickstart.rst
+.. include:: ../README.rst
