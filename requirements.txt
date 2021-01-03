@@ -1,19 +1,21 @@
 ## Required modules for py_media_copy, taken from pip freeze.
 # [required]
-tqdm>=4.43.0
+tqdm>=4.55.1
 
 # [recommended]
-colorama>=0.4.3
-crc32c>=2.0
+colorama>=0.4.4
+crc32c>=2.2
+# [maybe soon used]
+xxhash >= 2.0.0
 
 # [helpers for coding]
-flake8>=3.7.9
+# flake8>=3.8.4
 
 # [helpers for doc]
 rstcheck>=3.3.1
 
 # [GUI]  # Not yet updated, most likely npyscreen
-npyscreen>=4.10.5
-PySimpleGUI>=4.16.0
-PySimpleGUIQt>=0.31.0
-PySimpleGUIWeb>=0.36.0
+# npyscreen>=4.10.5
+PySimpleGUI>=4.33.0
+# PySimpleGUIQt>=0.31.0
+# PySimpleGUIWeb>=0.36.0
