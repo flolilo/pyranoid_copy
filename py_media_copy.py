@@ -341,11 +341,11 @@ def check_params():
         except Exception:
             print_error("--timespan is not set correctly!")
 
-    # --deduplicate_source & --deduplicate_source_tolerance:
+    # --deduplicate_source & --deduplicate_time_tolerance:
     if (not 0 <= param['dedup_source'] <= 1):
         print_error("No valid int for --deduplicate_source!")
-    elif(param['dedup_source'] == 1 and not 0 <= param['dedup_source_tolerance'] <= 1):
-        print_error("No valid int for --deduplicate_source_tolerance!")
+    elif(param['dedup_source'] == 1 and not 0 <= param['dedup_time_tolerance'] <= 1):
+        print_error("No valid int for --deduplicate_time_tolerance!")
 
     # TODO: --deduplicate_history & --history_path & --history_writemode:
     if(not 0 <= param['dedup_history'] <= 1):
