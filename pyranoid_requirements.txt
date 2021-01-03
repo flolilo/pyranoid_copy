@@ -1,4 +1,4 @@
-## Required modules for py_media-copy, taken from pip freeze.
+## Required modules for pyranoid_copy, taken from pip freeze.
 # [required]
 tqdm>=4.55.1
 

@@ -1,8 +1,8 @@
 =================================================================
-py_media-copy - A tool to copy, [rename, ] and verify your files.
+pyranoid_copy - A tool to copy, [rename, ] and verify your files.
 =================================================================
 
-Copyright (C) 2019,2020   `flolilo <github.com/flolilo>`_
+Copyright (C) 2019-2021   `flolilo <github.com/flolilo>`_
 
 All rights reserved.
 

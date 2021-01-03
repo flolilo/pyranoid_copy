@@ -1,5 +1,5 @@
 ==========================
-py_media-copy - README.rst
+pyranoid_copy - README.rst
 ==========================
 
 A lightweight & granular file copy tool built for DITs and photographers.
@@ -7,7 +7,7 @@ A lightweight & granular file copy tool built for DITs and photographers.
 This tool should become the sucessor to my `media-copytool <https://github.com/flolilo/media-copytool>`_ (which is
 scripted entirely in PowerShell and Windows only). The reason that I created media-copytool is because none of the
 existing Digital Asset Management (DAM) programs (to my knowledge) offered the options for importing files from media
-cards that I wanted (see `Proposed features`_). py_media-copy will be written in Python to maximise compatibility.
+cards that I wanted (see `Proposed features`_). pyranoid_copy will be written in Python to maximise compatibility.
 
 **Note that as of now, this tool is not even finished in a rough state - I am still in the progress of writing the main
 features and testing them.**
@@ -21,7 +21,7 @@ Proposed features
 - Will work on all (desktop) OSs that are supported by `Python ≥ 3.5 <https://www.python.org/downloads/>`_,
 - Optimised for copying large quantities of mission critical files, e.g. wedding photos,
 - Lightweight,
-- Standalone binaries (i.e. ``py_media_copy.exe``) available,
+- Standalone binaries (i.e. ``pyranoid_copy.exe``) available,
 - Highly granular controls:
     - Use one or multiple source and/or target path(s),
     - Rename files while copying them (magic strings available!),
@@ -62,8 +62,8 @@ Installation
 .. code-block:: Shell
 
     # get the repository:
-    git clone https://github.com/flolilo/py_media-copy.git
-    cd ./py_media-copy
+    git clone https://github.com/flolilo/pyranoid_copy.git
+    cd ./pyranoid_copy
 
     # create virtual environment, activate it:
     python -m venv ./.venv
@@ -73,19 +73,19 @@ Installation
     # install requirements:
     python -m pip install -r ./requirements.txt
 
-    # run py_media-copy:
-    python ./py_media_copy.py
+    # run pyranoid_copy:
+    python ./pyranoid_copy.py
 
 
 Contribution
 ------------
 
 You do not even need to be have an GitHub account to report issues - simply mail to
-`py_media-copy@fire.fundersclub.com <mailto:py_media-copy@fire.fundersclub.com>`_. (It will *not* publish your mail
+`pyranoid_copy@fire.fundersclub.com <mailto:pyranoid_copy@fire.fundersclub.com>`_. (It will *not* publish your mail
 address or name!)
 
-Please add as much information as possible - e.g. the used OS, Python version, pmc version, where the error occured,
-what the error is, ...
+Please add as much information as possible - e.g. the used OS, Python version, pyranoid version, where the error
+occured, what the error is, ...
 
 For all versions < 0.99.x, please see `TODO.rst`_ - it may be that your issue is already seen as a
 milestone.

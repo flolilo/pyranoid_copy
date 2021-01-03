@@ -1,5 +1,5 @@
 ========================
-py_media-copy - TODO.rst
+pyranoid_copy - TODO.rst
 ========================
 
 

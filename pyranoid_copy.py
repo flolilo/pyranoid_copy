@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: BSD-3-Clause-Clear OR GPL-3.0-only
-"""py_media-copy - A lightweight & granular file copy tool built for DITs and photographers."""
+"""pyranoid_copy - A lightweight & granular file copy tool built for DITs and photographers."""
 __author__ = "flolilo"
 __license__ = "See SPDX-License-Identifier"
-__contact__ = "See github.com/flolilo/py_media-copy"
-__version__ = "See pmc_ver.py"
+__contact__ = "See github.com/flolilo/pyranoid_copy"
+__version__ = "See pryanoid_ver.py"
 
 try:
-    from pmc_ver import pmc_version
+    from pyranoid_ver import pryanoid_version
 except ImportError:
-    pmc_version = "N/A"
+    pryanoid_version = "N/A"
 from os import devnull, sync
 from sys import hexversion
 from sys import stdout as sys_stdout
@@ -137,7 +137,7 @@ parser.add_argument("--deduplicate_history", "-deduphist",
                     help="Search for duplicates in history-file.")
 parser.add_argument("--history_path", "-histpath",
                     dest="history_path",
-                    default="./pmc_history.json",
+                    default="pyranoid_history.json",
                     help="Path of history-file. Can be relative/absolute. For --history_writemode=3: 'in|out'")
 parser.add_argument("--history_writemode", "-histw",
                     dest="history_writemode",
@@ -208,7 +208,7 @@ param = vars(parser.parse_args())  # convert namespace to dictionary
 
 # DEF: Set print location (none/terminal/file)
 if (param['verbose'] == 2):
-    f = Path("./pmc.log").resolve().open(mode='a+', encoding='utf-8')
+    f = Path("./pyranoid.log").resolve().open(mode='a+', encoding='utf-8')
 elif (param['verbose'] == 0):
     f = open(devnull, 'w')
     sys_stdout = f
@@ -219,7 +219,7 @@ else:
 if (hexversion < 0x030500F0):
     f.close()
     deinit()
-    sys_exit("Cannot run py_media-copy on python < v3.5! Please update.")
+    sys_exit("Cannot run pyranoid_copy on python < v3.5! Please update.")
 
 
 # ##################################################################################################
@@ -244,7 +244,7 @@ def check_remaining_files(to_check):
         return 1
 
 
-def read_presets(preset_file=str(Path("./pmc_presets.json").resolve())):
+def read_presets(preset_file=str(Path("./pyranoid_presets.json").resolve())):
     """Read parameters for all params that were not set by user."""
     global param, f  # TODO: mayble delete global
     # (https://docs.python.org/3/faq/programming.html#what-are-the-rules-for-local-and-global-variables-in-python)
@@ -413,7 +413,7 @@ def check_params():
         param['verbose'] = 1
 
 
-def save_params(preset_file=str(Path("./pmc_presets.json").resolve())):
+def save_params(preset_file=str(Path("./pyranoid_presets.json").resolve())):
     """Save parameters in file."""
     global param  # TODO: mayble delete global
     # (https://docs.python.org/3/faq/programming.html#what-are-the-rules-for-local-and-global-variables-in-python)
@@ -749,7 +749,7 @@ def save_history(what):
 # ##############################################################################
 # ##################################################################################################
 
-print(Style.BRIGHT + Fore.YELLOW + pmc_version, file=f)
+print(Style.BRIGHT + Fore.YELLOW + pyranoid_version, file=f)
 while True:
     merge_params()
     check_params()

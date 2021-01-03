@@ -17,4 +17,4 @@ def get_git_revision(base_path):
 
 git_ver = get_git_revision("./")
 
-pmc_version = "py_media-copy v0.0.8" + " (git: " + str(git_ver) + ")"
+pyranoid_version = "pyranoid_copy v0.0.8" + " (git: " + str(git_ver) + ")"
