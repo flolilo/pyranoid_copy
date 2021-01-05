@@ -2,6 +2,10 @@
 README
 ======
 
+.. image:: https://readthedocs.org/projects/pyranoid-copy/badge/?version=latest
+   :target: https://pyranoid-copy.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
 
 What is pyranoid copy
 =====================
