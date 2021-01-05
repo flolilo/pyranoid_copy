@@ -1,10 +1,10 @@
-========================
-pyranoid_copy - TODO.rst
-========================
+====
+TODO
+====
 
 
 Milestones
-----------
+==========
 
 All v0.0.x-versions are considered alpha-stage! **Any version jump could break anything (i.e. no semantic versioning below 0.99.x), first stable is expected to be v0.99.1.**
 
@@ -12,7 +12,7 @@ All v0.0.x-versions are considered alpha-stage! **Any version jump could break a
 
 
 v0.0.1++
-''''''''
+========
 
 - [x] Proof of concept GUI (rudimentary controls, interaction with script)
 - [x] Copy a single file from ``S`` to ``T``, check checksums
@@ -43,7 +43,7 @@ v0.0.1++
 
 
 v0.99.0
-'''''''
+=======
 
 - [ ] All of the above are tested and work reasonably (beta-stage)
 - [ ] Create ``devel``-branch
@@ -52,7 +52,7 @@ v0.99.0
 
 
 v1.0.0
-''''''
+======
 
 - [ ] Like **v0.99.x**, but long-term tested. *(Therefore, not likely to be released soon - this should become a production tool and as such, I don't want your files to vanish!)*
 - [ ] Create 1.0.0 release (binaries & source package)

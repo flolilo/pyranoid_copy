@@ -52,6 +52,31 @@ Details
   `my regex101.com example <https://regex101.com/r/0WHdUL/2>`_ for what this does).
 
 
+A high-level overview::
+
+                                +------------+        +-------------------+        +----------------+
+    +------START-------+        | Check for  |        | Search files,     |        | Deduplication- |
+    |./pyranoid_copy.py| -----> | parameters | -----> | then filter them* | -----> | routines*      |
+    +------------------+        | & presets  |        +-------------------+        +----------------+
+                                +------------+                                              |         
+                                                                                            |         
+                                                                                            v         
+    +--------------+                                +---------------------+         +--------------+  
+    | Get target's |        +--------------+        | Create subfolders*, |         | Get source's |  
+    | hash*        | <----- | Copy file(s) | <----- | check for file name | <------ | hash*        |  
+    +--------------+        +--------------+        | collisions*         |         +--------------+  
+            |                                       +---------------------+                          
+            |                                                                                           
+            v                                                                                           
+    +---------------+         +-----------+                                                            
+    | Compare file- |         |           |                                                            
+    | attributes*   | ------> |   DONE!   |                                                            
+    +---------------+         |           |                                                            
+                              +-----------+                                                            
+                                                                                                        
+    * can be enabled/disabled                                                                           
+
+
 Installation
 ============
 

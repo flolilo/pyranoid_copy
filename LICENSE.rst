@@ -1,25 +1,28 @@
-=================================================================
-pyranoid_copy - A tool to copy, [rename, ] and verify your files.
-=================================================================
+=======
+License
+=======
+
+**pyranoid_copy - A tool to copy, [rename, ] and verify your files.**
+
 
 Copyright (C) 2019-2021   `flolilo <github.com/flolilo>`_
 
 All rights reserved.
 
 This program is published with both the "BSD 3-Clause Clear License" and the
-"GNU General Public License v3.0" license - **you can use either one of them.**
+"GNU General Public License v3.0" license - you can use either one of them.
 
 .. contents:: Licenses:
 
 
 BSD 3-Clause Clear License
---------------------------
+==========================
 
 ::
 
     The Clear BSD License
 
-    Copyright (c) 2019-2020 flolilo (github.com/flolilo)
+    Copyright (c) 2019-2021 flolilo (github.com/flolilo)
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -52,7 +55,7 @@ BSD 3-Clause Clear License
 
 
 GNU GPLv3
----------
+=========
 
 ::
 
