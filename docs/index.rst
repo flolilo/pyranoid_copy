@@ -7,16 +7,14 @@
 Welcome to pyranoid_copy's documentation!
 =========================================
 
+Indices and tables
+==================
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    todo
    license
-
-
-Indices and tables
-==================
 
 * :ref:`genindex`
 * :ref:`modindex`

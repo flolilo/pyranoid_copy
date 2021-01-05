@@ -1,6 +1,10 @@
-==========================
-pyranoid_copy - README.rst
-==========================
+======
+README
+======
+
+
+What is pyranoid copy
+=====================
 
 A lightweight & granular file copy tool built for DITs and photographers.
 
