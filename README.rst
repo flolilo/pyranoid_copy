@@ -56,7 +56,9 @@ Details
   `my regex101.com example <https://regex101.com/r/0WHdUL/2>`_ for what this does).
 
 
-A high-level overview::
+A high-level overview:
+
+.. code-block:: text
 
                                 +------------+        +-------------------+
     +------START-------+        | Check for  |        | Search files,     |
