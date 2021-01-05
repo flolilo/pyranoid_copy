@@ -58,27 +58,26 @@ Details
 
 A high-level overview::
 
-                                +------------+        +-------------------+        +----------------+
-    +------START-------+        | Check for  |        | Search files,     |        | Deduplication- |
-    |./pyranoid_copy.py| -----> | parameters | -----> | then filter them* | -----> | routines*      |
-    +------------------+        | & presets  |        +-------------------+        +----------------+
-                                +------------+                                              |         
-                                                                                            |         
-                                                                                            v         
-    +--------------+                                +---------------------+         +--------------+  
-    | Get target's |        +--------------+        | Create subfolders*, |         | Get source's |  
-    | hash*        | <----- | Copy file(s) | <----- | check for file name | <------ | hash*        |  
-    +--------------+        +--------------+        | collisions*         |         +--------------+  
-            |                                       +---------------------+                          
-            |                                                                                           
-            v                                                                                           
-    +---------------+         +-----------+                                                            
-    | Compare file- |         |           |                                                            
-    | attributes*   | ------> |   DONE!   |                                                            
-    +---------------+         |           |                                                            
-                              +-----------+                                                            
-                                                                                                        
-    * can be enabled/disabled                                                                           
+                                +------------+        +-------------------+
+    +------START-------+        | Check for  |        | Search files,     |
+    |./pyranoid_copy.py| -----> | parameters | -----> | then filter them* |
+    +------------------+        | & presets  |        +-------------------+
+                                +------------+                   |         
+                                                                 |         
+                                                                 v         
+    +---------------------+       +--------------+       +----------------+
+    | Create subfolders*, |       | Get source's |       | Deduplication- |
+    | check for file name | <---- | hash*        | <---- | routines*      |
+    | collisions*         |       +--------------+       +----------------+
+    +---------------------+                                                
+              |                                                            
+              |                                                            
+              v            +--------------+       +---------------+        
+    +--------------+       | Get target's |       | Compare file- |        
+    | Copy file(s) | ----> | hash*        | ----> | attributes*   |        
+    +--------------+       +--------------+       +---------------+        
+                                                                           
+    * can be enabled/disabled                                              
 
 
 Installation
@@ -107,7 +106,7 @@ Installation
 Contribution
 ============
 
-You do not even need to be have an GitHub account to report issues - simply mail to
+You do not even need to be have a GitHub account to report issues - simply mail to
 `pyranoid_copy@fire.fundersclub.com <mailto:pyranoid_copy@fire.fundersclub.com>`_. (It will *not* publish your mail
 address or name!)
 
