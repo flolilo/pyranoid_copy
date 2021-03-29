@@ -5,12 +5,12 @@
 __author__ = "flolilo"
 __license__ = "See SPDX-License-Identifier"
 __contact__ = "See github.com/flolilo/pyranoid_copy"
-__version__ = "See pryanoid_ver.py"
+__version__ = "See pyranoid_ver.py"
 
 try:
-    from pyranoid_ver import pryanoid_version
+    from pyranoid_ver import pyranoid_version
 except ImportError:
-    pryanoid_version = "N/A"
+    pyranoid_version = "N/A"
 from os import devnull, sync
 from sys import hexversion
 from sys import stdout as sys_stdout
