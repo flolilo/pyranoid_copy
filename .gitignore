@@ -92,3 +92,4 @@ lib64
 pyranoid_history.json
 pyranoid_diagram.dia
 .testing/
+.idea/
