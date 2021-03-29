@@ -127,8 +127,8 @@ parser.add_argument("--deduplicate_source", "-dedupin",
 parser.add_argument("--deduplicate_time_tolerance", "-deduptimetol",
                     dest="dedup_time_tolerance",
                     type=int,
-                    default=1,
-                    help="Allow 3sec difference in the modification date of files for deduplication. This is helpful if \
+                    default=3,
+                    help="Allow n sec difference in the modification date of files for deduplication. This is helpful if \
                           your source has two or more storage devices that are recordng simultaneously (e.g. DSLR).")
 parser.add_argument("--deduplicate_history", "-deduphist",
                     dest="dedup_history",
@@ -344,7 +344,7 @@ def check_params():
     # --deduplicate_source & --deduplicate_time_tolerance:
     if (not 0 <= param['dedup_source'] <= 1):
         print_error("No valid int for --deduplicate_source!")
-    elif(param['dedup_source'] == 1 and not 0 <= param['dedup_time_tolerance'] <= 1):
+    elif(param['dedup_source'] == 1 and not 0 <= param['dedup_time_tolerance'] <= 90):
         print_error("No valid int for --deduplicate_time_tolerance!")
 
     # TODO: --deduplicate_history & --history_path & --history_writemode:
