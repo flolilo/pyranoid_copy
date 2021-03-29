@@ -110,7 +110,7 @@ parser.add_argument("--recursive_search", "-r",
 parser.add_argument("--limit_timespan", "-limittimespan",
                     dest="limit_timespan",
                     type=int,
-                    default=1,
+                    default=0,
                     help="Only copy files older (-1) or younger (1) than --timespan. 0 disables this, thus copying all \
                           files.")
 parser.add_argument("--timespan", "-timespan",
