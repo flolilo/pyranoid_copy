@@ -33,6 +33,10 @@ from datetime import datetime
 from argparse import ArgumentParser  # Set variables via parameters
 from pathlib import Path
 try:
+    from pyranoid import *
+except Exception as e:
+    print(e)
+try:
     from colorama import Fore, Style, init, deinit
     init(autoreset=True)
 except ImportError:
@@ -221,18 +225,12 @@ if (hexversion < 0x030500F0):
     deinit()
     sys_exit("Cannot run pyranoid_copy on python < v3.5! Please update.")
 
-
+print_time("test")
 # ##################################################################################################
 # ##############################################################################
 #    Setting functions:
 # ##############################################################################
 # ##################################################################################################
-
-def print_time(what):
-    """Print current time plus a message."""
-    global f
-    print(Style.BRIGHT + Fore.BLUE + datetime.now().strftime('%H:%M:%S') + ' -- ' + what, file=f)
-
 
 def check_remaining_files(to_check):
     """Check if there are any files left in given set."""
@@ -513,35 +511,6 @@ def discard_files_by_date(what):
     return what
 
 
-def get_source_hashes(what):
-    """Get hashes for files"""
-    # TODO: Unify hash-getting with verify_files()
-    print_time("Getting hashes...")
-    for i in tqdm(what, desc="Files", unit="f",
-                  bar_format="    {desc}: {n_fmt}/{total_fmt} |{bar}| {elapsed}<{remaining}"):
-        if i[6] == "XYZ":
-            i[6] = get_hashes(i[0])
-    return what
-
-
-def get_hashes(what):
-    blocksize = 128*256
-    try:
-        with Path(what).open("rb") as file:
-            crcvalue = 0
-            while True:
-                buf = file.read(blocksize)
-                if not buf:
-                    break
-                crcvalue = (crc32(buf, crcvalue) & 0xffffffff)
-            hashstring = f'{crcvalue:x}'
-    except Exception:
-        print(Style.BRIGHT + Fore.MAGENTA + "    Cannot calculate CRC32 of " + str(what), file=f)
-        hashstring = "XYZ"
-
-    return hashstring
-
-
 def dedup_files(source, compare, what_string="N/A"):
     global param, f
     print_time("Dedup " + what_string + " files...")
@@ -679,7 +648,7 @@ def verify_files(what):
 
 
 def save_json(what, where):
-    print_time(str('Saving JSON ' + str(where)))
+    print_time("Saving JSON " + str(where))
     try:
         Path(where).write_text(json.dumps(what, ensure_ascii=False, indent="\t",
                                           separators=(',', ':')), encoding='utf-8')
